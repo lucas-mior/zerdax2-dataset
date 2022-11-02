@@ -26,3 +26,5 @@
 ## Links úteis
 1. [Documentação do blender](https://docs.blender.org://docs.blender.org/)
 2. [Tutorial de python no blender](https://www.youtube.com/watch?v=XqX5wh4YeRw)
+3. [Chesscog - Projeto Similar](https://github.com/georg-wolflein/chesscog)
+3. [Chesscog - Dataset](https://osf.io/xf3ka/)
