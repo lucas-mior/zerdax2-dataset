@@ -32,12 +32,12 @@ def point_to(obj, focus: mathutils.Vector, roll: float = 0):
     obj.location = loc
 
 
-def setup_camera(color: chess.Color) -> dict:
+def setup_camera() -> dict:
     camera = bpy.context.scene.camera
     angle = np.random.randint(45, 60)
     z = SQUARE_LENGTH * CAMERA_DISTANCE * np.sin(np.deg2rad(angle))
     y = SQUARE_LENGTH * CAMERA_DISTANCE * np.cos(np.deg2rad(angle))
-    y = -y if color == chess.WHITE else y
+    # y = -y if color == chess.WHITE else y
     x = np.random.normal(0., 0.8 * SQUARE_LENGTH)
     loc = mathutils.Vector((x, y, z))
     camera.location = loc
@@ -147,7 +147,7 @@ def add_piece(piece: chess.Piece, square: chess.Square, collection):
     return obj
 
 
-def render_board(board: chess.Board, turn: chess.Color, output_file: Path):
+def render_board(board: chess.Board, output_file: Path):
     scene = bpy.context.scene
 
     # Setup rendering
@@ -159,7 +159,7 @@ def render_board(board: chess.Board, turn: chess.Color, output_file: Path):
 
     corner_coords = None
     while not corner_coords:
-        camera_params = setup_camera(turn)
+        camera_params = setup_camera()
         lighting_params = setup_lighting()
         corner_coords = get_corner_coordinates(scene)
 
@@ -184,7 +184,6 @@ def render_board(board: chess.Board, turn: chess.Color, output_file: Path):
     # Write data output
     data = {
         "fen": board.board_fen(),
-        "white_turn": turn,
         "camera": camera_params,
         "lighting": lighting_params,
         "corners": corner_coords,
@@ -296,10 +295,11 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i <= 2588:
-                continue
+            #if i <= 2588:
+            #    continue
+            print(f"FEN = {fen}")
             print(f"FEN #{i}", file=sys.stderr)
-            turn, *fen = fen
+            *fen = fen
             filename = Path("render") / f"{i:04d}.png"
             board = chess.Board("".join(fen))
-            render_board(board, turn == "W", filename)
+            render_board(board, filename)
