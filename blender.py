@@ -295,11 +295,8 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            #if i <= 2588:
-            #    continue
             print(f"FEN = {fen}")
             print(f"FEN #{i}", file=sys.stderr)
-            *fen = fen
             filename = Path("render") / f"{i:04d}.png"
             board = chess.Board("".join(fen))
             render_board(board, filename)
