@@ -193,7 +193,8 @@ def render_board(board: chess.Board, output_file: Path):
         json.dump(data, f)
 
     # Perform the rendering
-    bpy.ops.render.render(write_still=1)
+    # bpy.ops.render.render(write_still=1)
+    return
 
 
 def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
@@ -297,7 +298,6 @@ def main():
         for i, fen in enumerate(map(str.strip, f)):
             print(f"FEN = {fen}")
             print(f"FEN #{i}", file=sys.stderr)
-            return
             filename = Path("render") / f"{i:04d}.png"
             board = chess.Board("".join(fen))
             render_board(board, filename)
