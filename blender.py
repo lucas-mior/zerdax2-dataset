@@ -37,15 +37,13 @@ def setup_camera() -> dict:
     print("setup_camera() -> dict:")
     camera = bpy.context.scene.camera
     angle = np.random.randint(0, 15)
-    z = (10*SQUARE_LENGTH) + SQUARE_LENGTH * CAMERA_DISTANCE * np.sin(np.deg2rad(angle))
-    y = SQUARE_LENGTH * CAMERA_DISTANCE * np.cos(np.deg2rad(angle))
-    # y = -y if color == chess.WHITE else y
-    x = np.random.normal(0., 0.8 * SQUARE_LENGTH)
+    z = np.random.normal(13*SQUARE_LENGTH, 2*SQUARE_LENGTH)
+    x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+    y = abs(x) + np.random.normal(10*SQUARE_LENGTH, 2*SQUARE_LENGTH)
     loc = (x, y, z)
     camera.location = loc
+    point_to(camera, bpy.data.objects["tabuleiro1"].location)
 
-    # Update matrix_world as per
-    # https://wiki.blender.org/wiki/Reference/Release_Notes/2.80/Python_API/Scene_and_Object_API#Scene_update
     bpy.context.view_layer.update()
 
     return {
