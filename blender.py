@@ -291,12 +291,18 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
     )
 
 
-if __name__ == "__main__":
+def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
             print(f"FEN = {fen}")
             print(f"FEN #{i}", file=sys.stderr)
+            return
             filename = Path("render") / f"{i:04d}.png"
             board = chess.Board("".join(fen))
             render_board(board, filename)
+            return
+
+
+if __name__ == "__main__":
+    main()
