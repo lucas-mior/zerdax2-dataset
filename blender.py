@@ -289,8 +289,8 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
     dim_x = r.resolution_x * fac
     dim_y = r.resolution_y * fac
 
-    assert round((max_x - min_x) *
-                 dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
+    # assert round((max_x - min_x) *
+    #              dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
 
     return (
         int(round(min_x * dim_x)),
