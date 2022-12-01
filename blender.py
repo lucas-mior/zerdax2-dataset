@@ -70,9 +70,9 @@ def setup_spotlight(light) -> dict:
 
 
 def setup_lighting() -> dict:
-    flash = bpy.data.objects["Camera flash light"]
-    spot1 = bpy.data.objects["Spot 1"]
-    spot2 = bpy.data.objects["Spot 2"]
+    flash = bpy.data.objects["CameraFlashLight"]
+    spot1 = bpy.data.objects["Spot1"]
+    spot2 = bpy.data.objects["Spot2"]
 
     modes = {
         "flash": {
