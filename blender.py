@@ -118,7 +118,7 @@ def add_piece(piece: chess.Piece, square: chess.Square, collection):
         chess.QUEEN: "Queen",
         chess.KING: "King"
     }[piece.piece_type]
-    name = color + " " + piece
+    name = color + piece
 
     # Position the piece in the middle of the square
     offsets = np.random.normal((.5,)*2, (.1,)*2)
