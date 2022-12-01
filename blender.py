@@ -22,6 +22,7 @@ WHICH_STYLE = 1  # 1, 2, 3 for now
 
 
 def point_to(obj, focus: mathutils.Vector, roll: float = 0):
+    print("point_to(obj, focus: mathutils.Vector, roll: float = 0):")
     # Based on https://blender.stackexchange.com/a/127440
     loc = obj.location
     direction = focus - loc
@@ -33,6 +34,7 @@ def point_to(obj, focus: mathutils.Vector, roll: float = 0):
 
 
 def setup_camera() -> dict:
+    print("setup_camera() -> dict:")
     camera = bpy.context.scene.camera
     angle = np.random.randint(45, 60)
     z = SQUARE_LENGTH * CAMERA_DISTANCE * np.sin(np.deg2rad(angle))
@@ -53,6 +55,7 @@ def setup_camera() -> dict:
 
 
 def setup_spotlight(light) -> dict:
+    print("setup_spotlight(light) -> dict:")
     angle_xy_plane = np.random.randint(0, 360)
     focus_x, focus_y = np.random.multivariate_normal(
         (0., 0.), np.eye(2) * 2.5 * SQUARE_LENGTH)
@@ -72,6 +75,7 @@ def setup_spotlight(light) -> dict:
 
 
 def setup_lighting() -> dict:
+    print("setup_lighting() -> dict:")
     flash = bpy.data.objects["CameraFlashLight"]
     spot1 = bpy.data.objects["Spot1"]
     spot2 = bpy.data.objects["Spot2"]
@@ -108,6 +112,7 @@ def setup_lighting() -> dict:
 
 
 def add_piece(piece: chess.Piece, square: chess.Square, collection):
+    print("add_piece(piece: chess.Piece, square: chess.Square, collection):")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -148,6 +153,7 @@ def add_piece(piece: chess.Piece, square: chess.Square, collection):
 
 
 def render_board(board: chess.Board, output_file: Path):
+    print("render_board(board: chess.Board, output_file: Path):")
     scene = bpy.context.scene
 
     # Setup rendering
@@ -198,6 +204,7 @@ def render_board(board: chess.Board, output_file: Path):
 
 
 def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
+    print("get_corner_coordinates(scene) -> typing.List[typing.List[int]]:")
     corner_points = np.array([[-1., -1],
                               [-1, 1],
                               [1, 1],
@@ -214,9 +221,9 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
             y *= sr.resolution_y * sr.resolution_percentage * .01
             x, y = round(x), round(y)
 
-            if not (MIN_BOARD_CORNER_PADDING <= x <= sr.resolution_x - MIN_BOARD_CORNER_PADDING) or \
-                    not (MIN_BOARD_CORNER_PADDING <= y <= sr.resolution_y - MIN_BOARD_CORNER_PADDING):
-                raise ValueError
+            # if not (MIN_BOARD_CORNER_PADDING <= x <= sr.resolution_x - MIN_BOARD_CORNER_PADDING) or \
+            #         not (MIN_BOARD_CORNER_PADDING <= y <= sr.resolution_y - MIN_BOARD_CORNER_PADDING):
+            #     raise ValueError
 
             yield x, y
     try:
@@ -226,6 +233,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
 
 
 def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
+    print("get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:")
     """Obtain the bounding box of an object.
 
     Args:
@@ -293,6 +301,7 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
 
 
 def main():
+    print("main():")
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
