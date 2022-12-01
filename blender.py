@@ -16,7 +16,7 @@ MIN_BOARD_CORNER_PADDING = 25  # pixels
 SQUARE_LENGTH = 0.036
 # units (1 unit is the side length of a chessboard square)
 CAMERA_DISTANCE = 11
-COLLECTION_NAME = "Chess position"
+COLLECTION_NAME = "ChessPosition"
 
 
 def point_to(obj, focus: mathutils.Vector, roll: float = 0):
@@ -163,9 +163,9 @@ def render_board(board: chess.Board, turn: chess.Color, output_file: Path):
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
-        collection = bpy.data.collections.new("Chess position")
+        collection = bpy.data.collections.new(COLLECTION_NAME)
         scene.collection.children.link(collection)
-    collection = bpy.data.collections["Chess position"]
+    collection = bpy.data.collections[COLLECTION_NAME]
 
     # Remove all objects from the collection
     bpy.ops.object.delete({"selected_objects": collection.objects})
