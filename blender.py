@@ -36,12 +36,12 @@ def point_to(obj, focus: mathutils.Vector, roll: float = 0):
 def setup_camera() -> dict:
     print("setup_camera() -> dict:")
     camera = bpy.context.scene.camera
-    angle = np.random.randint(45, 60)
-    z = SQUARE_LENGTH * CAMERA_DISTANCE * np.sin(np.deg2rad(angle))
+    angle = np.random.randint(0, 15)
+    z = (10*SQUARE_LENGTH) + SQUARE_LENGTH * CAMERA_DISTANCE * np.sin(np.deg2rad(angle))
     y = SQUARE_LENGTH * CAMERA_DISTANCE * np.cos(np.deg2rad(angle))
     # y = -y if color == chess.WHITE else y
     x = np.random.normal(0., 0.8 * SQUARE_LENGTH)
-    loc = mathutils.Vector((x, y, z))
+    loc = (x, y, z)
     camera.location = loc
 
     # Update matrix_world as per
@@ -50,7 +50,7 @@ def setup_camera() -> dict:
 
     return {
         "angle": angle,
-        "location": loc.to_tuple()
+        "location": loc
     }
 
 
@@ -157,7 +157,7 @@ def render_board(board: chess.Board, output_file: Path):
     scene = bpy.context.scene
 
     # Setup rendering
-    scene.render.engine = "CYCLES"
+    scene.render.engine = "BLENDER_EEVEE"
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(output_file)
     scene.render.resolution_x = 1200
@@ -184,7 +184,7 @@ def render_board(board: chess.Board, output_file: Path):
         piece_data.append({
             "piece": piece.symbol(),
             "square": chess.square_name(square),
-            "box": get_bounding_box(scene, obj)
+            #"box": get_bounding_box(scene, obj)
         })
 
     # Write data output
@@ -193,7 +193,7 @@ def render_board(board: chess.Board, output_file: Path):
         "camera": camera_params,
         "lighting": lighting_params,
         "corners": corner_coords,
-        "pieces": piece_data
+        #"pieces": piece_data
     }
     with (output_file.parent / (output_file.stem + ".json")).open("w") as f:
         json.dump(data, f)
