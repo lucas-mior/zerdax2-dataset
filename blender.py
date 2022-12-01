@@ -13,7 +13,8 @@ import json
 import sys
 
 MIN_BOARD_CORNER_PADDING = 25  # pixels
-SQUARE_LENGTH = 0.036
+# SQUARE_LENGTH = 0.036
+SQUARE_LENGTH = 0.25783
 # units (1 unit is the side length of a chessboard square)
 CAMERA_DISTANCE = 11
 COLLECTION_NAME = "ChessPosition"
