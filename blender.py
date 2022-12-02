@@ -37,9 +37,12 @@ def setup_camera() -> dict:
     print("setup_camera() -> dict:")
     camera = bpy.context.scene.camera
     angle = np.random.randint(0, 15)
-    z = np.random.normal(13*SQUARE_LENGTH, 2*SQUARE_LENGTH)
+    z = np.random.normal(14*SQUARE_LENGTH, 2*SQUARE_LENGTH)
     x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
-    y = abs(x) + np.random.normal(10*SQUARE_LENGTH, 2*SQUARE_LENGTH)
+    y = 0.8*abs(x) + np.random.normal(9*SQUARE_LENGTH, 1*SQUARE_LENGTH)
+    if z < (14*SQUARE_LENGTH):
+        y += 0.5
+
     loc = (x, y, z)
     camera.location = loc
     point_to(camera, bpy.data.objects["tabuleiro1"].location)
@@ -176,14 +179,14 @@ def render_board(board: chess.Board, output_file: Path):
     # Remove all objects from the collection
     bpy.ops.object.delete({"selected_objects": collection.objects})
 
-    piece_data = []
-    for square, piece in board.piece_map().items():
-        obj = add_piece(piece, square, collection)
-        piece_data.append({
-            "piece": piece.symbol(),
-            "square": chess.square_name(square),
-            #"box": get_bounding_box(scene, obj)
-        })
+    # piece_data = []
+    # for square, piece in board.piece_map().items():
+    #     obj = add_piece(piece, square, collection)
+    #     piece_data.append({
+    #         "piece": piece.symbol(),
+    #         "square": chess.square_name(square),
+    #         #"box": get_bounding_box(scene, obj)
+    #     })
 
     # Write data output
     data = {
