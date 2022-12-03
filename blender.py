@@ -54,14 +54,14 @@ def setup_camera() -> dict:
 
 def setup_spotlight(light) -> dict:
     print("setup_spotlight(light) -> dict:")
-    z = np.random.normal(18*SQUARE_LENGTH, 4*SQUARE_LENGTH)
+    z = np.random.normal(20*SQUARE_LENGTH, 4*SQUARE_LENGTH)
     x = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     y = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     location = mathutils.Vector((x, y, z))
     light.location = location
     z = 0.0
-    x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
-    y = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+    x = np.random.normal(0, 5*SQUARE_LENGTH)
+    y = np.random.normal(0, 5*SQUARE_LENGTH)
     focus = mathutils.Vector((x, y, z))
     point_to(light, focus)
     return {
@@ -78,9 +78,9 @@ def setup_lighting() -> dict:
 
     modes = {
         "flash": {
-            flash: True,
-            spot1: False,
-            spot2: False
+            flash: False,
+            spot1: True,
+            spot2: True
         },
         "spotlights": {
             flash: False,
