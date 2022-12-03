@@ -148,8 +148,8 @@ def setup_lighting() -> dict:
     }
 
 
-def add_piece(piece: chess.Piece, square: chess.Square, collection, piece_style):
-    print("add_piece(piece: chess.Piece, square: chess.Square, collection):")
+def add_piece(piece, square, collection, piece_style):
+    print("add_piece(piece, square, collection, piece_style):")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -226,7 +226,7 @@ def render_board(board: chess.Board, output_file: Path):
         piece_data.append({
             "piece": piece.symbol(),
             "square": chess.square_name(square),
-            #"box": get_bounding_box(scene, obj)
+            "box": get_bounding_box(scene, obj)
         })
 
     # Write data output
@@ -241,7 +241,7 @@ def render_board(board: chess.Board, output_file: Path):
         json.dump(data, f)
 
     # Perform the rendering
-    # bpy.ops.render.render(write_still=1)
+    bpy.ops.render.render(write_still=1)
     return
 
 
@@ -263,9 +263,9 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
             y *= sr.resolution_y * sr.resolution_percentage * .01
             x, y = round(x), round(y)
 
-            # if not (MIN_BOARD_CORNER_PADDING <= x <= sr.resolution_x - MIN_BOARD_CORNER_PADDING) or \
-            #         not (MIN_BOARD_CORNER_PADDING <= y <= sr.resolution_y - MIN_BOARD_CORNER_PADDING):
-            #     raise ValueError
+            if not (MIN_BOARD_CORNER_PADDING <= x <= sr.resolution_x - MIN_BOARD_CORNER_PADDING) or \
+                    not (MIN_BOARD_CORNER_PADDING <= y <= sr.resolution_y - MIN_BOARD_CORNER_PADDING):
+                raise ValueError
 
             yield x, y
     try:
@@ -331,8 +331,8 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
     dim_x = r.resolution_x * fac
     dim_y = r.resolution_y * fac
 
-    # assert round((max_x - min_x) *
-    #              dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
+    assert round((max_x - min_x) *
+                 dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
 
     return (
         int(round(min_x * dim_x)),
@@ -346,12 +346,15 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            print(f"FEN = {fen}")
-            print(f"FEN #{i}", file=sys.stderr)
-            filename = Path("render") / f"{i:04d}.png"
-            board = chess.Board("".join(fen))
-            render_board(board, filename)
-            return
+            if i < 10:
+                print(f"FEN = {fen}")
+                print(f"FEN #{i}", file=sys.stderr)
+                filename = Path("render") / f"{i:04d}.png"
+                board = chess.Board("".join(fen))
+                render_board(board, filename)
+            else:
+                break
+    return
 
 
 if __name__ == "__main__":
