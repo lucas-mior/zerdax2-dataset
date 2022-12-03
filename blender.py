@@ -70,6 +70,22 @@ def setup_spotlight(light) -> dict:
     }
 
 
+def setup_table():
+    print("setup_table():")
+    which_table = np.random.randint(0, 3)
+    scene = bpy.data.scenes['Scene']
+    for i in range(3):
+        obj = bpy.data.objects[f"Table{i+1}"]
+        if i == which_table:
+            obj.hide_render = False
+            scene.objects[f"Table{i+1}"].hide_viewport = False
+        else:
+            obj.hide_render = True
+            scene.objects[f"Table{i+1}"].hide_viewport = True
+
+    bpy.context.view_layer.update()
+
+
 def setup_lighting() -> dict:
     print("setup_lighting() -> dict:")
     flash = bpy.data.objects["CameraFlashLight"]
@@ -78,9 +94,9 @@ def setup_lighting() -> dict:
 
     modes = {
         "flash": {
-            flash: False,
-            spot1: True,
-            spot2: True
+            flash: True,
+            spot1: False,
+            spot2: False
         },
         "spotlights": {
             flash: False,
@@ -90,9 +106,10 @@ def setup_lighting() -> dict:
     }
     mode, visibilities = list(modes.items())[np.random.randint(len(modes))]
 
+    scene = bpy.data.scenes['Scene']
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
-        obj.hide_viewport = not visibility
+        scene.objects[obj.name].hide_viewport = not visibility
 
     return {
         "mode": mode,
@@ -165,6 +182,7 @@ def render_board(board: chess.Board, output_file: Path):
         camera_params = setup_camera()
         lighting_params = setup_lighting()
         corner_coords = get_corner_coordinates(scene)
+        setup_table()
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
