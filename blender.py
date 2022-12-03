@@ -179,14 +179,14 @@ def render_board(board: chess.Board, output_file: Path):
     # Remove all objects from the collection
     bpy.ops.object.delete({"selected_objects": collection.objects})
 
-    # piece_data = []
-    # for square, piece in board.piece_map().items():
-    #     obj = add_piece(piece, square, collection)
-    #     piece_data.append({
-    #         "piece": piece.symbol(),
-    #         "square": chess.square_name(square),
-    #         #"box": get_bounding_box(scene, obj)
-    #     })
+    piece_data = []
+    for square, piece in board.piece_map().items():
+        obj = add_piece(piece, square, collection)
+        piece_data.append({
+            "piece": piece.symbol(),
+            "square": chess.square_name(square),
+            #"box": get_bounding_box(scene, obj)
+        })
 
     # Write data output
     data = {
@@ -194,7 +194,7 @@ def render_board(board: chess.Board, output_file: Path):
         "camera": camera_params,
         "lighting": lighting_params,
         "corners": corner_coords,
-        #"pieces": piece_data
+        "pieces": piece_data
     }
     with (output_file.parent / (output_file.stem + ".json")).open("w") as f:
         json.dump(data, f)
