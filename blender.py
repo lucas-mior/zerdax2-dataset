@@ -15,7 +15,9 @@ import sys
 MIN_BOARD_CORNER_PADDING = 25  # pixels
 SQUARE_LENGTH = 0.25783
 COLLECTION_NAME = "ChessPosition"
-WHICH_STYLE = 1  # 1, 2, 3 for now
+BOARD_STYLES = 4
+TABLE_STYLES = 4
+PIECE_STYLES = 4
 
 
 def point_to(obj, focus: mathutils.Vector, roll: float = 0):
@@ -30,7 +32,7 @@ def point_to(obj, focus: mathutils.Vector, roll: float = 0):
     obj.location = loc
 
 
-def setup_camera() -> dict:
+def setup_camera(board_style) -> dict:
     print("setup_camera() -> dict:")
     camera = bpy.context.scene.camera
     angle = np.random.randint(0, 15)
@@ -42,7 +44,8 @@ def setup_camera() -> dict:
 
     loc = (x, y, z)
     camera.location = loc
-    point_to(camera, bpy.data.objects["tabuleiro1"].location)
+    board = bpy.data.objects[f"Board{board_style}"]
+    point_to(camera, board.location)
 
     bpy.context.view_layer.update()
 
@@ -70,18 +73,37 @@ def setup_spotlight(light) -> dict:
     }
 
 
-def setup_table():
+def setup_table(table_style):
     print("setup_table():")
-    which_table = np.random.randint(0, 3)
     scene = bpy.data.scenes['Scene']
-    for i in range(3):
-        obj = bpy.data.objects[f"Table{i+1}"]
-        if i == which_table:
+    for i in range(1, TABLE_STYLES):
+        obj = bpy.data.objects[f"Table{i}"]
+        if i == table_style:
             obj.hide_render = False
-            scene.objects[f"Table{i+1}"].hide_viewport = False
+            scene.objects[f"Table{i}"].hide_viewport = False
+            obj.hide_set(False)
         else:
             obj.hide_render = True
-            scene.objects[f"Table{i+1}"].hide_viewport = True
+            scene.objects[f"Table{i}"].hide_viewport = True
+            obj.hide_set(True)
+
+    bpy.context.view_layer.update()
+    return
+
+
+def setup_board(board_style):
+    print("setup_board():")
+    scene = bpy.data.scenes['Scene']
+    for i in range(1, BOARD_STYLES):
+        obj = bpy.data.objects[f"Board{i}"]
+        if i == board_style:
+            obj.hide_render = False
+            scene.objects[f"Board{i}"].hide_viewport = False
+            obj.hide_set(False)
+        else:
+            obj.hide_render = True
+            scene.objects[f"Board{i}"].hide_viewport = True
+            obj.hide_set(True)
 
     bpy.context.view_layer.update()
 
@@ -109,6 +131,7 @@ def setup_lighting() -> dict:
     scene = bpy.data.scenes['Scene']
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
+        obj.hide_set(not visibility)
         scene.objects[obj.name].hide_viewport = not visibility
 
     return {
@@ -125,7 +148,7 @@ def setup_lighting() -> dict:
     }
 
 
-def add_piece(piece: chess.Piece, square: chess.Square, collection):
+def add_piece(piece: chess.Piece, square: chess.Square, collection, piece_style):
     print("add_piece(piece: chess.Piece, square: chess.Square, collection):")
     color = {
         chess.WHITE: "White",
@@ -139,7 +162,7 @@ def add_piece(piece: chess.Piece, square: chess.Square, collection):
         chess.QUEEN: "Queen",
         chess.KING: "King"
     }[piece.piece_type]
-    name = color + piece + str(WHICH_STYLE)
+    name = color + piece + str(piece_style)
 
     # Position the piece in the middle of the square
     offsets = np.random.normal((.5,)*2, (.1,)*2)
@@ -178,11 +201,14 @@ def render_board(board: chess.Board, output_file: Path):
     scene.render.resolution_y = 800
 
     corner_coords = None
+    board_style = np.random.randint(1, BOARD_STYLES)
+    table_style = np.random.randint(1, TABLE_STYLES)
     while not corner_coords:
-        camera_params = setup_camera()
+        camera_params = setup_camera(board_style)
         lighting_params = setup_lighting()
         corner_coords = get_corner_coordinates(scene)
-        setup_table()
+        setup_table(table_style)
+        setup_board(board_style)
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
@@ -194,8 +220,9 @@ def render_board(board: chess.Board, output_file: Path):
     bpy.ops.object.delete({"selected_objects": collection.objects})
 
     piece_data = []
+    piece_style = np.random.randint(1, PIECE_STYLES)
     for square, piece in board.piece_map().items():
-        obj = add_piece(piece, square, collection)
+        obj = add_piece(piece, square, collection, piece_style)
         piece_data.append({
             "piece": piece.symbol(),
             "square": chess.square_name(square),
