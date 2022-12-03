@@ -54,19 +54,17 @@ def setup_camera() -> dict:
 
 def setup_spotlight(light) -> dict:
     print("setup_spotlight(light) -> dict:")
-    angle_xy_plane = np.random.randint(0, 360)
-    focus_x, focus_y = np.random.multivariate_normal(
-        (0., 0.), np.eye(2) * 2.5 * SQUARE_LENGTH)
-    focus = mathutils.Vector((focus_x, focus_y, 0.))
-    radius = 10 * SQUARE_LENGTH
-    x = radius * np.cos(np.deg2rad(angle_xy_plane))
-    y = radius * np.sin(np.deg2rad(angle_xy_plane))
-    z = np.random.uniform(5, 10) * SQUARE_LENGTH
+    z = np.random.normal(18*SQUARE_LENGTH, 4*SQUARE_LENGTH)
+    x = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
+    y = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     location = mathutils.Vector((x, y, z))
     light.location = location
+    z = 0.0
+    x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+    y = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+    focus = mathutils.Vector((x, y, z))
     point_to(light, focus)
     return {
-        "xy_angle": angle_xy_plane,
         "focus": focus.to_tuple(),
         "location": location.to_tuple()
     }
@@ -94,6 +92,7 @@ def setup_lighting() -> dict:
 
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
+        obj.hide_viewport = not visibility
 
     return {
         "mode": mode,
