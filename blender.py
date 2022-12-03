@@ -75,16 +75,13 @@ def setup_spotlight(light) -> dict:
 
 def setup_table(table_style):
     print("setup_table():")
-    scene = bpy.data.scenes['Scene']
     for i in range(1, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
         if i == table_style:
             obj.hide_render = False
-            scene.objects[f"Table{i}"].hide_viewport = False
             obj.hide_set(False)
         else:
             obj.hide_render = True
-            scene.objects[f"Table{i}"].hide_viewport = True
             obj.hide_set(True)
 
     bpy.context.view_layer.update()
@@ -93,16 +90,13 @@ def setup_table(table_style):
 
 def setup_board(board_style):
     print("setup_board():")
-    scene = bpy.data.scenes['Scene']
     for i in range(1, BOARD_STYLES):
         obj = bpy.data.objects[f"Board{i}"]
         if i == board_style:
             obj.hide_render = False
-            scene.objects[f"Board{i}"].hide_viewport = False
             obj.hide_set(False)
         else:
             obj.hide_render = True
-            scene.objects[f"Board{i}"].hide_viewport = True
             obj.hide_set(True)
 
     bpy.context.view_layer.update()
@@ -237,11 +231,11 @@ def render_board(board: chess.Board, output_file: Path):
         "corners": corner_coords,
         "pieces": piece_data
     }
-    with (output_file.parent / (output_file.stem + ".json")).open("w") as f:
-        json.dump(data, f)
+    # with (output_file.parent / (output_file.stem + ".json")).open("w") as f:
+    #     json.dump(data, f, indent=4)
 
     # Perform the rendering
-    bpy.ops.render.render(write_still=1)
+    # bpy.ops.render.render(write_still=1)
     return
 
 
@@ -346,7 +340,7 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i < 10:
+            if i < 1:
                 print(f"FEN = {fen}")
                 print(f"FEN #{i}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
