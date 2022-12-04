@@ -64,8 +64,8 @@ def setup_spotlight(light) -> dict:
     location = mathutils.Vector((x, y, z))
     light.location = location
     z = 0.0
-    x = np.random.normal(0, 5*SQUARE_LENGTH)
-    y = np.random.normal(0, 5*SQUARE_LENGTH)
+    x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
+    y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     focus = mathutils.Vector((x, y, z))
     point_to(light, focus)
     return {
@@ -111,22 +111,31 @@ def setup_board(board_style):
     bpy.context.view_layer.update()
 
 
+def setup_sun():
+    bpy.data.lights['Sun'].energy = np.random.uniform(0.2, 0.6)
+    return
+
+
 def setup_lighting() -> dict:
     print("setup_lighting() -> dict:")
     flash = bpy.data.objects["CameraFlashLight"]
     spot1 = bpy.data.objects["Spot1"]
     spot2 = bpy.data.objects["Spot2"]
+    sun = bpy.data.objects["Sun"]
+    # sun = bpy.data.lights["Sun"]
 
     modes = {
         "flash": {
             flash: True,
             spot1: False,
-            spot2: False
+            spot2: False,
+            sun: False,
         },
         "spotlights": {
             flash: False,
             spot1: True,
-            spot2: True
+            spot2: True,
+            sun: True,
         }
     }
     mode, visibilities = list(modes.items())[np.random.randint(len(modes))]
@@ -141,6 +150,10 @@ def setup_lighting() -> dict:
         "mode": mode,
         "flash": {
             "active": not flash.hide_render
+        },
+        "sun": {
+            "active": not sun.hide_render,
+            "strenth": setup_sun(),
         },
         **{
             key: {
@@ -200,12 +213,16 @@ def place_group(group, xmin, xmax, ymin, ymax):
         xcenter = np.random.uniform(xmin, xmax)
         ycenter = np.random.uniform(ymin, ymax)
     for piece in group:
+        x = np.random.uniform(xcenter-1*SQUARE_LENGTH, xcenter+1*SQUARE_LENGTH)
+        y = np.random.uniform(ycenter-6*SQUARE_LENGTH, ycenter+6*SQUARE_LENGTH)
         if xcenter > ycenter:
-            x = np.random.uniform(xcenter-1*SQUARE_LENGTH, xcenter+1*SQUARE_LENGTH)
-            y = np.random.uniform(ycenter-6*SQUARE_LENGTH, ycenter+6*SQUARE_LENGTH)
+            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
+                x = np.random.uniform(xcenter-1*SQUARE_LENGTH, xcenter+1*SQUARE_LENGTH)
+                y = np.random.uniform(ycenter-6*SQUARE_LENGTH, ycenter+6*SQUARE_LENGTH)
         else:
-            y = np.random.uniform(ycenter-1*SQUARE_LENGTH, ycenter+1*SQUARE_LENGTH)
-            x = np.random.uniform(xcenter-6*SQUARE_LENGTH, xcenter+6*SQUARE_LENGTH)
+            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
+                y = np.random.uniform(ycenter-1*SQUARE_LENGTH, ycenter+1*SQUARE_LENGTH)
+                x = np.random.uniform(xcenter-6*SQUARE_LENGTH, xcenter+6*SQUARE_LENGTH)
         pieces_loc.append((piece, (x, y)))
     return (xcenter, ycenter, 0), pieces_loc
 
@@ -296,8 +313,8 @@ def dist_point(P1, P2):
     return np.sqrt(a)
 
 
-def render_board(board: chess.Board, output_file: Path, captured_pieces):
-    print("render_board(board: chess.Board, output_file: Path):")
+def render_board(board, output_file, captured_pieces, do_render):
+    print(f"render_board({board}, {output_file}, {captured_pieces}, {do_render})")
     scene = bpy.context.scene
 
     # Setup rendering
@@ -346,11 +363,11 @@ def render_board(board: chess.Board, output_file: Path, captured_pieces):
         "corners": corner_coords,
         "pieces": piece_data
     }
-    # with (output_file.parent / (output_file.stem + ".json")).open("w") as f:
-    #     json.dump(data, f, indent=4)
-
-    # # Perform the rendering
-    # bpy.ops.render.render(write_still=1)
+    if do_render:
+        jsonpath = output_file.parent / (output_file.stem + ".json")
+        with jsonpath.open("w") as f:
+            json.dump(data, f, indent=4)
+        bpy.ops.render.render(write_still=1)
     return
 
 
@@ -455,13 +472,13 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 6000 < i < 6010:
+            if 1000 <= i < 1010:
                 print(f"FEN = {fen}")
                 print(f"FEN #{i}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
                 board = chess.Board("".join(fen))
                 captured_pieces = get_missing_pieces(fen)
-                render_board(board, filename, captured_pieces)
+                render_board(board, filename, captured_pieces, do_render=True)
             else:
                 pass
     return
