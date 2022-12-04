@@ -21,8 +21,7 @@ PIECE_STYLES = 4
 table_stuff = []
 
 
-def point_to(obj, focus: mathutils.Vector, roll: float = 0):
-    print(f"point_to({obj}, {focus}: mathutils.Vector, {roll}: float = 0):")
+def point_to(obj, focus, roll=0):
     # Based on https://blender.stackexchange.com/a/127440
     loc = obj.location
     direction = focus - loc
@@ -33,8 +32,7 @@ def point_to(obj, focus: mathutils.Vector, roll: float = 0):
     obj.location = loc
 
 
-def setup_camera(board_style) -> dict:
-    print(f"setup_camera({board_style}) -> dict:")
+def setup_camera(board_style):
     camera = bpy.context.scene.camera
     angle = np.random.randint(0, 15)
     z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
@@ -43,7 +41,8 @@ def setup_camera(board_style) -> dict:
     y = 0.8*abs(x) + dy
     if z < (14*SQ_LEN):
         y += 2*SQ_LEN
-    y = -y if np.random.randint(0, 2) == 1 else y
+    if np.random.randint(0, 2) == 1:
+        y = -y
 
     loc = (x, y, z)
     camera.location = loc
@@ -59,7 +58,6 @@ def setup_camera(board_style) -> dict:
 
 
 def setup_spotlight(light) -> dict:
-    print(f"setup_spotlight({light}) -> dict:")
     z = np.random.normal(18*SQ_LEN, 2*SQ_LEN)
     x = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     y = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
@@ -77,7 +75,6 @@ def setup_spotlight(light) -> dict:
 
 
 def setup_table(table_style, board_style):
-    print(f"setup_table({table_style}, {board_style}):")
     for i in range(1, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
         if i == table_style:
@@ -98,7 +95,6 @@ def setup_table(table_style, board_style):
 
 
 def setup_board(board_style):
-    print(f"setup_board({board_style}):")
     for i in range(1, BOARD_STYLES):
         obj = bpy.data.objects[f"Board{i}"]
         if i == board_style:
@@ -107,7 +103,7 @@ def setup_board(board_style):
             obj.hide_set(False)
         else:
             obj.hide_render = True
-            obj.hide_viewport = False
+            obj.hide_viewport = True
             obj.hide_set(True)
 
     bpy.context.view_layer.update()
@@ -120,12 +116,10 @@ def setup_sun():
 
 
 def setup_lighting() -> dict:
-    print("setup_lighting() -> dict:")
     flash = bpy.data.objects["CameraFlashLight"]
     spot1 = bpy.data.objects["Spot1"]
     spot2 = bpy.data.objects["Spot2"]
     sun = bpy.data.objects["Sun"]
-    # sun = bpy.data.lights["Sun"]
 
     modes = {
         "flash": {
@@ -168,7 +162,6 @@ def setup_lighting() -> dict:
 
 
 def add_piece(piece, square, collection, piece_style):
-    print(f"add_piece({piece}, {square}, {collection}, {piece_style}):")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -230,7 +223,7 @@ def place_group(group, xmin, xmax, ymin, ymax):
     return (xcenter, ycenter, 0), pieces_loc
 
 
-def place_captured(captured_pieces, piece_style, collection, table_style):
+def place_captured(cap_pieces, piece_style, collection, table_style):
     piece_names = {
         "K": "WhiteKing",
         "Q": "WhiteQueen",
@@ -245,30 +238,29 @@ def place_captured(captured_pieces, piece_style, collection, table_style):
         "r": "BlackRook",
         "p": "BlackPawn",
     }
-    captured_black = [c for c in captured_pieces if c.islower()]
-    captured_white = [c for c in captured_pieces if c.isupper()]
+    cap_black = [c for c in cap_pieces if c.islower()]
+    cap_white = [c for c in cap_pieces if c.isupper()]
 
-    blackcenter, captured_black_loc = place_group(captured_black,
-                                                  xmin=-9*SQ_LEN, xmax=9*SQ_LEN,
-                                                  ymin=-9*SQ_LEN, ymax=-4*SQ_LEN)
-    while True:
-        whitecenter, captured_white_loc = place_group(captured_white,
+    bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=-9*SQ_LEN, xmax=9*SQ_LEN,
-                                         ymin=4*SQ_LEN, ymax=+9*SQ_LEN)
-        if dist_point(whitecenter, blackcenter) > 8*SQ_LEN:
+                                         ymin=-9*SQ_LEN, ymax=-4*SQ_LEN)
+    while True:
+        wcenter, cap_white_loc = place_group(cap_white,
+                                             xmin=-9*SQ_LEN, xmax=9*SQ_LEN,
+                                             ymin=4*SQ_LEN, ymax=+9*SQ_LEN)
+        if dist_point(wcenter, bcenter) > 8*SQ_LEN:
             break
 
-    for piece in captured_black_loc:
+    for piece in cap_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style, piece[1][0], piece[1][1])
-    for piece in captured_white_loc:
+    for piece in cap_white_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style, piece[1][0], piece[1][1])
     return
 
 
 def add_to_table(name, collection, table_style, x=0, y=0):
-    print(f"add_to_table({name}, {collection})")
     src_obj = bpy.data.objects[name]
     obj = src_obj.copy()
     obj.data = src_obj.data.copy()
@@ -303,7 +295,6 @@ def add_to_table(name, collection, table_style, x=0, y=0):
 
 
 def dist_obj(obj1, obj2):
-    print(f"dist_obj({obj1}, {obj2})")
     a = obj1.location
     b = obj2.location
 
@@ -311,13 +302,11 @@ def dist_obj(obj1, obj2):
 
 
 def dist_point(P1, P2):
-    print(f"dist_point({P1}, {P2})")
     a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
     return np.sqrt(a)
 
 
-def render_board(board, output_file, captured_pieces, do_render):
-    print(f"render_board({board}, {output_file}, {captured_pieces}, {do_render})")
+def render_board(board, output_file, cap_pieces, do_render):
     scene = bpy.context.scene
 
     # Setup rendering
@@ -356,7 +345,7 @@ def render_board(board, output_file, captured_pieces, do_render):
             "box": get_bounding_box(scene, obj)
         })
 
-    place_captured(captured_pieces, piece_style, collection, table_style)
+    place_captured(cap_pieces, piece_style, collection, table_style)
 
     # Write data output
     data = {
@@ -376,7 +365,6 @@ def render_board(board, output_file, captured_pieces, do_render):
 
 
 def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
-    print("get_corner_coordinates(scene) -> typing.List[typing.List[int]]:")
     corner_points = np.array([[-1., -1],
                               [-1, 1],
                               [1, 1],
@@ -405,7 +393,6 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
 
 
 def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
-    print("get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:")
     """Obtain the bounding box of an object.
 
     Args:
@@ -472,22 +459,6 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
     )
 
 
-def main():
-    fens_path = Path("fens.txt")
-    with fens_path.open("r") as f:
-        for i, fen in enumerate(map(str.strip, f)):
-            if 1000 <= i <= 1000:
-                print(f"FEN = {fen}")
-                print(f"FEN #{i}", file=sys.stderr)
-                filename = Path("render") / f"{i:04d}.png"
-                board = chess.Board("".join(fen))
-                captured_pieces = get_missing_pieces(fen)
-                render_board(board, filename, captured_pieces, do_render=False)
-            else:
-                pass
-    return
-
-
 def get_missing_pieces(fen):
     pieces = list("KkQqBbBbNnNnRrRrPPPPPPPPpppppppp")
     board = list(''.join(filter(str.isalpha, fen)))
@@ -497,6 +468,22 @@ def get_missing_pieces(fen):
         except ValueError:
             pass
     return pieces
+
+
+def main():
+    fens_path = Path("fens.txt")
+    with fens_path.open("r") as f:
+        for i, fen in enumerate(map(str.strip, f)):
+            if 1000 <= i <= 1000:
+                print(f"FEN #{i} = {fen}")
+                print(f"FEN #{i} = {fen}", file=sys.stderr)
+                filename = Path("render") / f"{i:04d}.png"
+                board = chess.Board("".join(fen))
+                cap_pieces = get_missing_pieces(fen)
+                render_board(board, filename, cap_pieces, do_render=False)
+            else:
+                pass
+    return
 
 
 if __name__ == "__main__":
