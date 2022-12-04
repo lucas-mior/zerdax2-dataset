@@ -58,7 +58,7 @@ def setup_camera(board_style) -> dict:
 
 def setup_spotlight(light) -> dict:
     print(f"setup_spotlight({light}) -> dict:")
-    z = np.random.normal(20*SQUARE_LENGTH, 4*SQUARE_LENGTH)
+    z = np.random.normal(20*SQUARE_LENGTH, 2*SQUARE_LENGTH)
     x = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     y = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     location = mathutils.Vector((x, y, z))
@@ -112,8 +112,9 @@ def setup_board(board_style):
 
 
 def setup_sun():
-    bpy.data.lights['Sun'].energy = np.random.uniform(0.2, 0.6)
-    return
+    strength = np.random.uniform(0.2, 0.6)
+    bpy.data.lights['Sun'].energy = strength
+    return strength
 
 
 def setup_lighting() -> dict:
@@ -361,7 +362,8 @@ def render_board(board, output_file, captured_pieces, do_render):
         "camera": camera_params,
         "lighting": lighting_params,
         "corners": corner_coords,
-        "pieces": piece_data
+        "pieces": piece_data,
+        "table_stuff": table_stuff,
     }
     if do_render:
         jsonpath = output_file.parent / (output_file.stem + ".json")
@@ -472,13 +474,13 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 1000 <= i < 1010:
+            if 1000 <= i <= 1000:
                 print(f"FEN = {fen}")
                 print(f"FEN #{i}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
                 board = chess.Board("".join(fen))
                 captured_pieces = get_missing_pieces(fen)
-                render_board(board, filename, captured_pieces, do_render=True)
+                render_board(board, filename, captured_pieces, do_render=False)
             else:
                 pass
     return
