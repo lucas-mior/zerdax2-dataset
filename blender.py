@@ -13,7 +13,7 @@ import json
 import sys
 
 MIN_BOARD_CORNER_PADDING = 25  # pixels
-SQUARE_LENGTH = 0.25783
+SQ_LEN = 0.25783
 COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 4
 TABLE_STYLES = 4
@@ -37,11 +37,13 @@ def setup_camera(board_style) -> dict:
     print(f"setup_camera({board_style}) -> dict:")
     camera = bpy.context.scene.camera
     angle = np.random.randint(0, 15)
-    z = np.random.normal(14*SQUARE_LENGTH, 2*SQUARE_LENGTH)
-    x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
-    y = 0.8*abs(x) + np.random.normal(9*SQUARE_LENGTH, 1*SQUARE_LENGTH)
-    if z < (14*SQUARE_LENGTH):
-        y += 0.5
+    z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
+    x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
+    dy = max(np.random.normal(9*SQ_LEN, 1*SQ_LEN), 7*SQ_LEN)
+    y = 0.8*abs(x) + dy
+    if z < (14*SQ_LEN):
+        y += 2*SQ_LEN
+    y = -y if np.random.randint(0, 2) == 1 else y
 
     loc = (x, y, z)
     camera.location = loc
@@ -58,14 +60,14 @@ def setup_camera(board_style) -> dict:
 
 def setup_spotlight(light) -> dict:
     print(f"setup_spotlight({light}) -> dict:")
-    z = np.random.normal(20*SQUARE_LENGTH, 2*SQUARE_LENGTH)
-    x = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
-    y = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
+    z = np.random.normal(18*SQ_LEN, 2*SQ_LEN)
+    x = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
+    y = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     location = mathutils.Vector((x, y, z))
     light.location = location
     z = 0.0
-    x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
-    y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
+    x = np.random.uniform(-5*SQ_LEN, 5*SQ_LEN)
+    y = np.random.uniform(-5*SQ_LEN, 5*SQ_LEN)
     focus = mathutils.Vector((x, y, z))
     point_to(light, focus)
     return {
@@ -112,7 +114,7 @@ def setup_board(board_style):
 
 
 def setup_sun():
-    strength = np.random.uniform(0.2, 0.6)
+    strength = np.random.uniform(0.3, 0.4)
     bpy.data.lights['Sun'].energy = strength
     return strength
 
@@ -193,7 +195,7 @@ def add_piece(piece, square, collection, piece_style):
     rank -= 4
     file -= 4
 
-    location = mathutils.Vector((file, rank, 0)) * SQUARE_LENGTH
+    location = mathutils.Vector((file, rank, 0)) * SQ_LEN
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
 
     src_obj = bpy.data.objects[name]
@@ -210,20 +212,20 @@ def place_group(group, xmin, xmax, ymin, ymax):
     pieces_loc = []
     xcenter = np.random.uniform(xmin, xmax)
     ycenter = np.random.uniform(ymin, ymax)
-    while abs(xcenter) < 6*SQUARE_LENGTH and abs(ycenter) < 6*SQUARE_LENGTH:
+    while abs(xcenter) < 6*SQ_LEN and abs(ycenter) < 6*SQ_LEN:
         xcenter = np.random.uniform(xmin, xmax)
         ycenter = np.random.uniform(ymin, ymax)
     for piece in group:
-        x = np.random.uniform(xcenter-1*SQUARE_LENGTH, xcenter+1*SQUARE_LENGTH)
-        y = np.random.uniform(ycenter-6*SQUARE_LENGTH, ycenter+6*SQUARE_LENGTH)
+        x = np.random.uniform(xcenter-1*SQ_LEN, xcenter+1*SQ_LEN)
+        y = np.random.uniform(ycenter-6*SQ_LEN, ycenter+6*SQ_LEN)
         if xcenter > ycenter:
-            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
-                x = np.random.uniform(xcenter-1*SQUARE_LENGTH, xcenter+1*SQUARE_LENGTH)
-                y = np.random.uniform(ycenter-6*SQUARE_LENGTH, ycenter+6*SQUARE_LENGTH)
+            while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
+                x = np.random.uniform(xcenter-1*SQ_LEN, xcenter+1*SQ_LEN)
+                y = np.random.uniform(ycenter-6*SQ_LEN, ycenter+6*SQ_LEN)
         else:
-            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
-                y = np.random.uniform(ycenter-1*SQUARE_LENGTH, ycenter+1*SQUARE_LENGTH)
-                x = np.random.uniform(xcenter-6*SQUARE_LENGTH, xcenter+6*SQUARE_LENGTH)
+            while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
+                y = np.random.uniform(ycenter-1*SQ_LEN, ycenter+1*SQ_LEN)
+                x = np.random.uniform(xcenter-6*SQ_LEN, xcenter+6*SQ_LEN)
         pieces_loc.append((piece, (x, y)))
     return (xcenter, ycenter, 0), pieces_loc
 
@@ -247,13 +249,13 @@ def place_captured(captured_pieces, piece_style, collection, table_style):
     captured_white = [c for c in captured_pieces if c.isupper()]
 
     blackcenter, captured_black_loc = place_group(captured_black,
-                                                  xmin=-9*SQUARE_LENGTH, xmax=9*SQUARE_LENGTH,
-                                                  ymin=-9*SQUARE_LENGTH, ymax=-4*SQUARE_LENGTH)
+                                                  xmin=-9*SQ_LEN, xmax=9*SQ_LEN,
+                                                  ymin=-9*SQ_LEN, ymax=-4*SQ_LEN)
     while True:
         whitecenter, captured_white_loc = place_group(captured_white,
-                                         xmin=-9*SQUARE_LENGTH, xmax=9*SQUARE_LENGTH,
-                                         ymin=4*SQUARE_LENGTH, ymax=+9*SQUARE_LENGTH)
-        if dist_point(whitecenter, blackcenter) > 8*SQUARE_LENGTH:
+                                         xmin=-9*SQ_LEN, xmax=9*SQ_LEN,
+                                         ymin=4*SQ_LEN, ymax=+9*SQ_LEN)
+        if dist_point(whitecenter, blackcenter) > 8*SQ_LEN:
             break
 
     for piece in captured_black_loc:
@@ -275,19 +277,19 @@ def add_to_table(name, collection, table_style, x=0, y=0):
     table = bpy.data.objects[f'Table{table_style}']
     z = max([(table.matrix_world @ v.co).z for v in table.data.vertices])
 
-    dist = 1000*SQUARE_LENGTH
+    dist = 1000*SQ_LEN
     if x == 0 and y == 0:
         while True:
-            x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-            y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
-                x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-                y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+            x = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
+            y = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
+            while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
+                x = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
+                y = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
             for obj_name in table_stuff:
                 d = dist_obj(bpy.data.objects[obj_name], obj)
                 if d < dist:
                     dist = d
-            if dist > SQUARE_LENGTH/2:
+            if dist > SQ_LEN/2:
                 break
     else:
         pass
@@ -322,7 +324,7 @@ def render_board(board, output_file, captured_pieces, do_render):
     scene.render.engine = "BLENDER_EEVEE"
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(output_file)
-    scene.render.resolution_x = 1200
+    scene.render.resolution_x = 1280
     scene.render.resolution_y = 800
 
     corner_coords = None
@@ -378,7 +380,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
     corner_points = np.array([[-1., -1],
                               [-1, 1],
                               [1, 1],
-                              [1, -1]]) * 4 * SQUARE_LENGTH
+                              [1, -1]]) * 4 * SQ_LEN
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
     sr = bpy.context.scene.render
 
