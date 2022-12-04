@@ -230,12 +230,12 @@ def place_captured(captured_pieces, piece_style, collection, table_style):
 
     blackcenter, captured_black_loc = place_group(captured_black,
                                                   xmin=-9*SQUARE_LENGTH, xmax=9*SQUARE_LENGTH,
-                                                  ymin=-9*SQUARE_LENGTH, ymax=0)
+                                                  ymin=-9*SQUARE_LENGTH, ymax=-4*SQUARE_LENGTH)
     while True:
         whitecenter, captured_white_loc = place_group(captured_white,
                                          xmin=-9*SQUARE_LENGTH, xmax=9*SQUARE_LENGTH,
-                                         ymin=0, ymax=+9*SQUARE_LENGTH)
-        if dist_point(whitecenter, blackcenter) > 6*SQUARE_LENGTH:
+                                         ymin=4*SQUARE_LENGTH, ymax=+9*SQUARE_LENGTH)
+        if dist_point(whitecenter, blackcenter) > 8*SQUARE_LENGTH:
             break
 
     for piece in captured_black_loc:
@@ -455,7 +455,7 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i == 5050:
+            if 6000 < i < 6010:
                 print(f"FEN = {fen}")
                 print(f"FEN #{i}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
