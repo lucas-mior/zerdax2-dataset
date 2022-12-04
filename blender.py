@@ -18,10 +18,11 @@ COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 4
 TABLE_STYLES = 4
 PIECE_STYLES = 4
+table_stuff = []
 
 
 def point_to(obj, focus: mathutils.Vector, roll: float = 0):
-    print("point_to(obj, focus: mathutils.Vector, roll: float = 0):")
+    print(f"point_to({obj}, {focus}: mathutils.Vector, {roll}: float = 0):")
     # Based on https://blender.stackexchange.com/a/127440
     loc = obj.location
     direction = focus - loc
@@ -33,7 +34,7 @@ def point_to(obj, focus: mathutils.Vector, roll: float = 0):
 
 
 def setup_camera(board_style) -> dict:
-    print("setup_camera() -> dict:")
+    print(f"setup_camera({board_style}) -> dict:")
     camera = bpy.context.scene.camera
     angle = np.random.randint(0, 15)
     z = np.random.normal(14*SQUARE_LENGTH, 2*SQUARE_LENGTH)
@@ -56,7 +57,7 @@ def setup_camera(board_style) -> dict:
 
 
 def setup_spotlight(light) -> dict:
-    print("setup_spotlight(light) -> dict:")
+    print(f"setup_spotlight({light}) -> dict:")
     z = np.random.normal(20*SQUARE_LENGTH, 4*SQUARE_LENGTH)
     x = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     y = np.random.uniform(-20*SQUARE_LENGTH, 20*SQUARE_LENGTH)
@@ -74,7 +75,7 @@ def setup_spotlight(light) -> dict:
 
 
 def setup_table(table_style):
-    print("setup_table():")
+    print(f"setup_table({table_style}):")
     for i in range(1, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
         if i == table_style:
@@ -91,7 +92,7 @@ def setup_table(table_style):
 
 
 def setup_board(board_style):
-    print("setup_board():")
+    print(f"setup_board({board_style}):")
     for i in range(1, BOARD_STYLES):
         obj = bpy.data.objects[f"Board{i}"]
         if i == board_style:
@@ -147,7 +148,7 @@ def setup_lighting() -> dict:
 
 
 def add_piece(piece, square, collection, piece_style):
-    print("add_piece(piece, square, collection, piece_style):")
+    print(f"add_piece({piece}, {square}, {collection}, {piece_style}):")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -187,7 +188,46 @@ def add_piece(piece, square, collection, piece_style):
     return obj
 
 
-def render_board(board: chess.Board, output_file: Path):
+def add_to_table(name, collection, x=0, y=0):
+    print(f"add_to_table({name}, {collection})")
+    src_obj = bpy.data.objects[name]
+    obj = src_obj.copy()
+    obj.data = src_obj.data.copy()
+    obj.animation_data_clear()
+    z = -0.168
+    dist = 1000*SQUARE_LENGTH
+    while True:
+        if x == 0:
+            x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+            y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
+                x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+                y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+        print("TABLESTUFF:", table_stuff)
+        for obj_name in table_stuff:
+            d = distance(bpy.data.objects[obj_name], obj)
+            if d < dist:
+                dist = d
+        if dist > SQUARE_LENGTH/2:
+            break
+
+    rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
+    obj.location = (x, y, z)
+    obj.rotation_euler = rotation
+    collection.objects.link(obj)
+    table_stuff.append(obj.name)
+    return
+
+
+def distance(obj1, obj2):
+    print(f"distance({obj1}, {obj2})")
+    a = obj1.location
+    b = obj2.location
+
+    return (a - b).length
+
+
+def render_board(board: chess.Board, output_file: Path, captured_pieces):
     print("render_board(board: chess.Board, output_file: Path):")
     scene = bpy.context.scene
 
@@ -226,6 +266,24 @@ def render_board(board: chess.Board, output_file: Path):
             "square": chess.square_name(square),
             "box": get_bounding_box(scene, obj)
         })
+
+    piece_names = {
+        "K": "WhiteKing",
+        "Q": "WhiteQueen",
+        "B": "WhiteBishop",
+        "N": "WhiteKnight",
+        "R": "WhiteRook",
+        "P": "WhitePawn",
+        "k": "BlackKing",
+        "q": "BlackQueen",
+        "b": "BlackBishop",
+        "n": "BlackKnight",
+        "r": "BlackRook",
+        "p": "BlackPawn",
+    }
+    for piece in captured_pieces:
+        piece = piece_names[piece] + str(piece_style)
+        add_to_table(piece, collection)
 
     # Write data output
     data = {
@@ -344,15 +402,24 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i < 1:
+            if i == 5050:
                 print(f"FEN = {fen}")
                 print(f"FEN #{i}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
                 board = chess.Board("".join(fen))
-                render_board(board, filename)
+                captured_pieces = get_missing_pieces(fen)
+                render_board(board, filename, captured_pieces)
             else:
-                break
+                pass
     return
+
+
+def get_missing_pieces(fen):
+    pieces = list("KkQqBbBbNnNnRrRrPPPPPPPPpppppppp")
+    board = list(''.join(filter(str.isalpha, fen)))
+    for piece in board:
+        pieces.remove(piece)
+    return pieces
 
 
 if __name__ == "__main__":
