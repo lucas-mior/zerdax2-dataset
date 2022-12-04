@@ -191,6 +191,25 @@ def add_piece(piece, square, collection, piece_style):
     collection.objects.link(obj)
     return obj
 
+
+def place_group(group):
+    pieces_loc = []
+    x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+    y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+    while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
+        x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+        y = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+    for piece in group:
+        if x > y:
+            xcenter = np.random.uniform(x-1*SQUARE_LENGTH, x+1*SQUARE_LENGTH)
+            ycenter = np.random.uniform(y-6*SQUARE_LENGTH, y+6*SQUARE_LENGTH)
+        else:
+            ycenter = np.random.uniform(y-1*SQUARE_LENGTH, y+1*SQUARE_LENGTH)
+            xcenter = np.random.uniform(x-6*SQUARE_LENGTH, x+6*SQUARE_LENGTH)
+        pieces_loc.append((piece, (xcenter, ycenter)))
+    return pieces_loc
+
+
 def place_captured(captured_pieces, piece_style, collection, table_style):
     piece_names = {
         "K": "WhiteKing",
@@ -209,20 +228,15 @@ def place_captured(captured_pieces, piece_style, collection, table_style):
     captured_black = [c for c in captured_pieces if c.islower()]
     captured_white = [c for c in captured_pieces if c.isupper()]
 
-    x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-    y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-    while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
-        x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
-        y = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
-    for piece in captured_black:
-        if x > y:
-            xblack = np.random.uniform(x-1*SQUARE_LENGTH, x+1*SQUARE_LENGTH)
-            yblack = np.random.uniform(y-6*SQUARE_LENGTH, y+6*SQUARE_LENGTH)
-        else:
-            yblack = np.random.uniform(y-1*SQUARE_LENGTH, y+1*SQUARE_LENGTH)
-            xblack = np.random.uniform(x-6*SQUARE_LENGTH, x+6*SQUARE_LENGTH)
-        piece = piece_names[piece] + str(piece_style)
-        add_to_table(piece, collection, table_style, xblack, yblack)
+    captured_black_loc = place_group(captured_black)
+    captured_white_loc = place_group(captured_white)
+    for piece in captured_black_loc:
+        name = piece_names[piece[0]] + str(piece_style)
+        add_to_table(name, collection, table_style, piece[1][0], piece[1][1])
+    for piece in captured_white_loc:
+        name = piece_names[piece[0]] + str(piece_style)
+        add_to_table(name, collection, table_style, piece[1][0], piece[1][1])
+    return
 
 
 def add_to_table(name, collection, table_style, x=0, y=0):
