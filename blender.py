@@ -192,22 +192,22 @@ def add_piece(piece, square, collection, piece_style):
     return obj
 
 
-def place_group(group):
+def place_group(group, xmin, xmax, ymin, ymax):
     pieces_loc = []
-    x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-    y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-    while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
-        x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
-        y = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+    xcenter = np.random.uniform(xmin, xmax)
+    ycenter = np.random.uniform(ymin, ymax)
+    while abs(xcenter) < 6*SQUARE_LENGTH and abs(ycenter) < 6*SQUARE_LENGTH:
+        xcenter = np.random.uniform(xmin, xmax)
+        ycenter = np.random.uniform(ymin, ymax)
     for piece in group:
-        if x > y:
-            xcenter = np.random.uniform(x-1*SQUARE_LENGTH, x+1*SQUARE_LENGTH)
-            ycenter = np.random.uniform(y-6*SQUARE_LENGTH, y+6*SQUARE_LENGTH)
+        if xcenter > ycenter:
+            x = np.random.uniform(xcenter-1*SQUARE_LENGTH, xcenter+1*SQUARE_LENGTH)
+            y = np.random.uniform(ycenter-6*SQUARE_LENGTH, ycenter+6*SQUARE_LENGTH)
         else:
-            ycenter = np.random.uniform(y-1*SQUARE_LENGTH, y+1*SQUARE_LENGTH)
-            xcenter = np.random.uniform(x-6*SQUARE_LENGTH, x+6*SQUARE_LENGTH)
-        pieces_loc.append((piece, (xcenter, ycenter)))
-    return pieces_loc
+            y = np.random.uniform(ycenter-1*SQUARE_LENGTH, ycenter+1*SQUARE_LENGTH)
+            x = np.random.uniform(xcenter-6*SQUARE_LENGTH, xcenter+6*SQUARE_LENGTH)
+        pieces_loc.append((piece, (x, y)))
+    return (xcenter, ycenter, 0), pieces_loc
 
 
 def place_captured(captured_pieces, piece_style, collection, table_style):
@@ -228,8 +228,16 @@ def place_captured(captured_pieces, piece_style, collection, table_style):
     captured_black = [c for c in captured_pieces if c.islower()]
     captured_white = [c for c in captured_pieces if c.isupper()]
 
-    captured_black_loc = place_group(captured_black)
-    captured_white_loc = place_group(captured_white)
+    blackcenter, captured_black_loc = place_group(captured_black,
+                                                  xmin=-9*SQUARE_LENGTH, xmax=9*SQUARE_LENGTH,
+                                                  ymin=-9*SQUARE_LENGTH, ymax=0)
+    while True:
+        whitecenter, captured_white_loc = place_group(captured_white,
+                                         xmin=-9*SQUARE_LENGTH, xmax=9*SQUARE_LENGTH,
+                                         ymin=0, ymax=+9*SQUARE_LENGTH)
+        if dist_point(whitecenter, blackcenter) > 6*SQUARE_LENGTH:
+            break
+
     for piece in captured_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style, piece[1][0], piece[1][1])
@@ -258,7 +266,7 @@ def add_to_table(name, collection, table_style, x=0, y=0):
                 x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
                 y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
             for obj_name in table_stuff:
-                d = distance(bpy.data.objects[obj_name], obj)
+                d = dist_obj(bpy.data.objects[obj_name], obj)
                 if d < dist:
                     dist = d
             if dist > SQUARE_LENGTH/2:
@@ -274,12 +282,18 @@ def add_to_table(name, collection, table_style, x=0, y=0):
     return
 
 
-def distance(obj1, obj2):
-    print(f"distance({obj1}, {obj2})")
+def dist_obj(obj1, obj2):
+    print(f"dist_obj({obj1}, {obj2})")
     a = obj1.location
     b = obj2.location
 
     return (a - b).length
+
+
+def dist_point(P1, P2):
+    print(f"dist_point({P1}, {P2})")
+    a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
+    return np.sqrt(a)
 
 
 def render_board(board: chess.Board, output_file: Path, captured_pieces):
