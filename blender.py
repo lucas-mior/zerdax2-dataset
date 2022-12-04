@@ -79,9 +79,11 @@ def setup_table(table_style):
         obj = bpy.data.objects[f"Table{i}"]
         if i == table_style:
             obj.hide_render = False
+            obj.hide_viewport = False
             obj.hide_set(False)
         else:
             obj.hide_render = True
+            obj.hide_viewport = True
             obj.hide_set(True)
 
     bpy.context.view_layer.update()
@@ -94,9 +96,11 @@ def setup_board(board_style):
         obj = bpy.data.objects[f"Board{i}"]
         if i == board_style:
             obj.hide_render = False
+            obj.hide_viewport = False
             obj.hide_set(False)
         else:
             obj.hide_render = True
+            obj.hide_viewport = False
             obj.hide_set(True)
 
     bpy.context.view_layer.update()
