@@ -74,8 +74,8 @@ def setup_spotlight(light) -> dict:
     }
 
 
-def setup_table(table_style):
-    print(f"setup_table({table_style}):")
+def setup_table(table_style, board_style):
+    print(f"setup_table({table_style}, {board_style}):")
     for i in range(1, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
         if i == table_style:
@@ -86,6 +86,10 @@ def setup_table(table_style):
             obj.hide_render = True
             obj.hide_viewport = True
             obj.hide_set(True)
+    table = bpy.data.objects[f'Table{table_style}']
+    board = bpy.data.objects[f'Board{board_style}']
+    bmin = min([(board.matrix_world @ v.co).z for v in board.data.vertices])
+    table.location[2] = bmin
 
     bpy.context.view_layer.update()
     return
@@ -188,13 +192,16 @@ def add_piece(piece, square, collection, piece_style):
     return obj
 
 
-def add_to_table(name, collection, x=0, y=0):
+def add_to_table(name, collection, table_style, x=0, y=0):
     print(f"add_to_table({name}, {collection})")
     src_obj = bpy.data.objects[name]
     obj = src_obj.copy()
     obj.data = src_obj.data.copy()
     obj.animation_data_clear()
-    z = -0.168
+
+    table = bpy.data.objects[f'Table{table_style}']
+    z = max([(table.matrix_world @ v.co).z for v in table.data.vertices])
+
     dist = 1000*SQUARE_LENGTH
     while True:
         x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
@@ -244,8 +251,8 @@ def render_board(board: chess.Board, output_file: Path, captured_pieces):
         camera_params = setup_camera(board_style)
         lighting_params = setup_lighting()
         corner_coords = get_corner_coordinates(scene)
-        setup_table(table_style)
         setup_board(board_style)
+        setup_table(table_style, board_style)
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
@@ -282,7 +289,7 @@ def render_board(board: chess.Board, output_file: Path, captured_pieces):
     }
     for piece in captured_pieces:
         piece = piece_names[piece] + str(piece_style)
-        add_to_table(piece, collection)
+        add_to_table(piece, collection, table_style)
 
     # Write data output
     data = {
@@ -295,7 +302,7 @@ def render_board(board: chess.Board, output_file: Path, captured_pieces):
     # with (output_file.parent / (output_file.stem + ".json")).open("w") as f:
     #     json.dump(data, f, indent=4)
 
-    # Perform the rendering
+    # # Perform the rendering
     # bpy.ops.render.render(write_still=1)
     return
 
