@@ -37,7 +37,7 @@ def setup_camera(board_style):
     angle = np.random.randint(0, 15)
     z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
     x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
-    dy = max(np.random.normal(9*SQ_LEN, 1*SQ_LEN), 7*SQ_LEN)
+    dy = min(max(np.random.normal(9*SQ_LEN, 1*SQ_LEN), 7*SQ_LEN), 12*SQ_LEN)
     y = 0.8*abs(x) + dy
     if z < (14*SQ_LEN):
         y += 2*SQ_LEN
@@ -253,14 +253,16 @@ def place_captured(cap_pieces, piece_style, collection, table_style):
 
     for piece in cap_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table_style, piece[1][0], piece[1][1])
+        add_to_table(name, collection, table_style,
+                     dfact=6, x=piece[1][0], y=piece[1][1])
     for piece in cap_white_loc:
         name = piece_names[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table_style, piece[1][0], piece[1][1])
+        add_to_table(name, collection, table_style,
+                     dfact=6, x=piece[1][0], y=piece[1][1])
     return
 
 
-def add_to_table(name, collection, table_style, x=0, y=0):
+def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
     src_obj = bpy.data.objects[name]
     obj = src_obj.copy()
     obj.data = src_obj.data.copy()
@@ -274,7 +276,7 @@ def add_to_table(name, collection, table_style, x=0, y=0):
         while True:
             x = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
             y = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
-            while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
+            while abs(x) < dfact*SQ_LEN and abs(y) < dfact*SQ_LEN:
                 x = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
                 y = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
             for obj_name in table_stuff:
@@ -346,6 +348,7 @@ def render_board(board, output_file, cap_pieces, do_render):
         })
 
     place_captured(cap_pieces, piece_style, collection, table_style)
+    add_to_table("RedCup", collection, table_style, dfact=7)
 
     # Write data output
     data = {
