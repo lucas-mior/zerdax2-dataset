@@ -191,6 +191,39 @@ def add_piece(piece, square, collection, piece_style):
     collection.objects.link(obj)
     return obj
 
+def place_captured(captured_pieces, piece_style, collection, table_style):
+    piece_names = {
+        "K": "WhiteKing",
+        "Q": "WhiteQueen",
+        "B": "WhiteBishop",
+        "N": "WhiteKnight",
+        "R": "WhiteRook",
+        "P": "WhitePawn",
+        "k": "BlackKing",
+        "q": "BlackQueen",
+        "b": "BlackBishop",
+        "n": "BlackKnight",
+        "r": "BlackRook",
+        "p": "BlackPawn",
+    }
+    captured_black = [c for c in captured_pieces if c.islower()]
+    captured_white = [c for c in captured_pieces if c.isupper()]
+
+    x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+    y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+    while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
+        x = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+        y = np.random.uniform(-10*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+    for piece in captured_black:
+        if x > y:
+            xblack = np.random.uniform(x-1*SQUARE_LENGTH, x+1*SQUARE_LENGTH)
+            yblack = np.random.uniform(y-6*SQUARE_LENGTH, y+6*SQUARE_LENGTH)
+        else:
+            yblack = np.random.uniform(y-1*SQUARE_LENGTH, y+1*SQUARE_LENGTH)
+            xblack = np.random.uniform(x-6*SQUARE_LENGTH, x+6*SQUARE_LENGTH)
+        piece = piece_names[piece] + str(piece_style)
+        add_to_table(piece, collection, table_style, xblack, yblack)
+
 
 def add_to_table(name, collection, table_style, x=0, y=0):
     print(f"add_to_table({name}, {collection})")
@@ -203,19 +236,21 @@ def add_to_table(name, collection, table_style, x=0, y=0):
     z = max([(table.matrix_world @ v.co).z for v in table.data.vertices])
 
     dist = 1000*SQUARE_LENGTH
-    while True:
-        x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-        y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-        while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
+    if x == 0 and y == 0:
+        while True:
             x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
             y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-        print("TABLESTUFF:", table_stuff)
-        for obj_name in table_stuff:
-            d = distance(bpy.data.objects[obj_name], obj)
-            if d < dist:
-                dist = d
-        if dist > SQUARE_LENGTH/2:
-            break
+            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
+                x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+                y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+            for obj_name in table_stuff:
+                d = distance(bpy.data.objects[obj_name], obj)
+                if d < dist:
+                    dist = d
+            if dist > SQUARE_LENGTH/2:
+                break
+    else:
+        pass
 
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
     obj.location = (x, y, z)
@@ -273,23 +308,7 @@ def render_board(board: chess.Board, output_file: Path, captured_pieces):
             "box": get_bounding_box(scene, obj)
         })
 
-    piece_names = {
-        "K": "WhiteKing",
-        "Q": "WhiteQueen",
-        "B": "WhiteBishop",
-        "N": "WhiteKnight",
-        "R": "WhiteRook",
-        "P": "WhitePawn",
-        "k": "BlackKing",
-        "q": "BlackQueen",
-        "b": "BlackBishop",
-        "n": "BlackKnight",
-        "r": "BlackRook",
-        "p": "BlackPawn",
-    }
-    for piece in captured_pieces:
-        piece = piece_names[piece] + str(piece_style)
-        add_to_table(piece, collection, table_style)
+    place_captured(captured_pieces, piece_style, collection, table_style)
 
     # Write data output
     data = {
@@ -424,7 +443,10 @@ def get_missing_pieces(fen):
     pieces = list("KkQqBbBbNnNnRrRrPPPPPPPPpppppppp")
     board = list(''.join(filter(str.isalpha, fen)))
     for piece in board:
-        pieces.remove(piece)
+        try:
+            pieces.remove(piece)
+        except ValueError:
+            pass
     return pieces
 
 
