@@ -197,12 +197,11 @@ def add_to_table(name, collection, x=0, y=0):
     z = -0.168
     dist = 1000*SQUARE_LENGTH
     while True:
-        if x == 0:
+        x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+        y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
+        while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
             x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
             y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-            while abs(x) < 6*SQUARE_LENGTH and abs(y) < 6*SQUARE_LENGTH:
-                x = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
-                y = np.random.uniform(-12*SQUARE_LENGTH, 12*SQUARE_LENGTH)
         print("TABLESTUFF:", table_stuff)
         for obj_name in table_stuff:
             d = distance(bpy.data.objects[obj_name], obj)
