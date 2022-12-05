@@ -48,11 +48,13 @@ def setup_camera(board_style):
     camera.location = loc
     board = bpy.data.objects[f"Board{board_style}"]
     point_to(camera, board.location)
-    # camera.rotation_mode = 'XYZ'
-    # rx = np.radians(1)
-    # ry = np.radians(1)
-    # rz = np.radians(1)
-    # camera.rotation_euler = (rx, ry, rz)
+    camera.rotation_mode = 'XYZ'
+    rx = np.random.normal(-0.03, 0.001)
+    ry = np.random.normal(0, 0.01)
+    rz = np.random.normal(0, 0.01)
+    camera.rotation_euler[0] += rx
+    camera.rotation_euler[1] += ry
+    camera.rotation_euler[2] += rz
 
     bpy.context.view_layer.update()
 
