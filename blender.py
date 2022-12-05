@@ -48,11 +48,11 @@ def setup_camera(board_style):
     camera.location = loc
     board = bpy.data.objects[f"Board{board_style}"]
     point_to(camera, board.location)
-    camera.rotation_mode = 'XYZ'
-    rx = np.radians(1)
-    ry = np.radians(1)
-    rz = np.radians(1)
-    camera.rotation_euler = (rx, ry, rz)
+    # camera.rotation_mode = 'XYZ'
+    # rx = np.radians(1)
+    # ry = np.radians(1)
+    # rz = np.radians(1)
+    # camera.rotation_euler = (rx, ry, rz)
 
     bpy.context.view_layer.update()
 
@@ -335,9 +335,9 @@ def render_board(board, output_file, cap_pieces, do_render):
     scene.render.resolution_x = 1280
     scene.render.resolution_y = 800
 
-    corner_coords = None
     board_style = np.random.randint(1, BOARD_STYLES)
     table_style = np.random.randint(1, TABLE_STYLES)
+    corner_coords = None
     while not corner_coords:
         camera_params = setup_camera(board_style)
         lighting_params = setup_lighting()
@@ -395,6 +395,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
                               [1, 1],
                               [1, -1]]) * 4 * SQ_LEN
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
+    print(f"corner points: {corner_points}")
     sr = bpy.context.scene.render
 
     def _get_coords():
