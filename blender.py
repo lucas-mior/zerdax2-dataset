@@ -338,6 +338,7 @@ def render_board(board, output_file, cap_pieces, do_render):
     bpy.ops.object.delete({"selected_objects": collection.objects})
 
     piece_data = []
+    piece_amount = 0
     piece_style = np.random.randint(1, PIECE_STYLES)
     for square, piece in board.piece_map().items():
         obj = add_piece(piece, square, collection, piece_style)
@@ -346,12 +347,14 @@ def render_board(board, output_file, cap_pieces, do_render):
             "square": chess.square_name(square),
             "box": get_bounding_box(scene, obj)
         })
+        piece_amount += 1
 
     place_captured(cap_pieces, piece_style, collection, table_style)
     add_to_table("RedCup", collection, table_style, dfact=7)
 
     # Write data output
     data = {
+        "piece_amount": piece_amount,
         "fen": board.board_fen(),
         "camera": camera_params,
         "lighting": lighting_params,
@@ -477,13 +480,13 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 1000 <= i <= 1000:
+            if i % 50 == 0:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
                 board = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
-                render_board(board, filename, cap_pieces, do_render=False)
+                render_board(board, filename, cap_pieces, do_render=True)
             else:
                 pass
     return
