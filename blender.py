@@ -22,7 +22,7 @@ table_stuff = []
 
 
 def point_to(obj, focus, roll=0):
-    print(f"point_to({obj.name}, {focus}, roll={roll})")
+    print(f"point_to(obj={obj.name}, focus={focus}, roll={roll})")
     # Based on https://blender.stackexchange.com/a/127440
     loc = obj.location
     direction = focus - loc
@@ -149,11 +149,10 @@ def setup_lighting():
     }
     mode, visibilities = list(modes.items())[np.random.randint(len(modes))]
 
-    scene = bpy.data.scenes['Scene']
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
         obj.hide_set(not visibility)
-        scene.objects[obj.name].hide_viewport = not visibility
+        obj.hide_viewport = not visibility
 
     return {
         "mode": mode,
