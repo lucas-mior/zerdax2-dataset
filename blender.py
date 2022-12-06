@@ -64,8 +64,8 @@ def setup_camera(board_style):
     }
 
 
-def setup_spotlight(light) -> dict:
-    print(f"setup_spotlight(light={light}) -> dict:")
+def setup_spotlight(light):
+    print(f"setup_spotlight(light={light})")
     z = np.random.normal(18*SQ_LEN, 2*SQ_LEN)
     x = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     y = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
