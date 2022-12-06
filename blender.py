@@ -510,14 +510,14 @@ def get_missing_pieces(fen):
 
 
 def main():
-    print(f"running script {sys.argv[0]} ...()")
+    print(f"running script {sys.argv[0]} ...")
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
             if 2002 <= i <= 2002:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
-                filename = Path("render") / f"{i:04d}.png"
+                filename = Path("render") / f"{i:05d}.png"
                 board = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
                 render_board(board, filename, cap_pieces, True)
