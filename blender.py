@@ -509,7 +509,7 @@ def get_missing_pieces(fen):
     return pieces
 
 
-def main():
+if __name__ == "__main__":
     print(f"running script {sys.argv[0]} ...")
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
@@ -523,8 +523,3 @@ def main():
                 render_board(board, filename, cap_pieces, True)
             else:
                 pass
-    return
-
-
-if __name__ == "__main__":
-    main()
