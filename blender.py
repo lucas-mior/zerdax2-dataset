@@ -263,13 +263,22 @@ def place_captured(cap_pieces, piece_style, collection, table_style):
     cap_black = [c for c in cap_pieces if c.islower()]
     cap_white = [c for c in cap_pieces if c.isupper()]
 
+    xmin = round(-9*SQ_LEN, 4)
+    xmax = round(+9*SQ_LEN, 4)
+    ymin = round(-9*SQ_LEN, 4)
+    ymax = round(-4*SQ_LEN, 4)
     bcenter, cap_black_loc = place_group(cap_black,
-                                         xmin=-9*SQ_LEN, xmax=9*SQ_LEN,
-                                         ymin=-9*SQ_LEN, ymax=-4*SQ_LEN)
+                                         xmin=xmin, xmax=xmax,
+                                         ymin=ymin, ymax=ymax)
+
+    xmin = round(-9*SQ_LEN, 4)
+    xmax = round(+9*SQ_LEN, 4)
+    ymin = round(+4*SQ_LEN, 4)
+    ymax = round(+9*SQ_LEN, 4)
     while True:
         wcenter, cap_white_loc = place_group(cap_white,
-                                             xmin=-9*SQ_LEN, xmax=9*SQ_LEN,
-                                             ymin=4*SQ_LEN, ymax=+9*SQ_LEN)
+                                             xmin=xmin, xmax=xmax,
+                                             ymin=ymin, ymax=ymax)
         if dist_point(wcenter, bcenter) > 8*SQ_LEN:
             break
 
