@@ -36,7 +36,6 @@ def point_to(obj, focus, roll=0):
 def setup_camera(board_style):
     print(f"setup_camera(board_style={board_style})")
     camera = bpy.context.scene.camera
-    angle = np.random.randint(0, 15)
     z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
     x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
     dy = min(max(np.random.normal(9*SQ_LEN, 1*SQ_LEN), 7*SQ_LEN), 12*SQ_LEN)
@@ -44,8 +43,7 @@ def setup_camera(board_style):
     if np.random.randint(0, 2) == 1:
         y = -y
 
-    loc = (x, y, z)
-    camera.location = loc
+    camera.location = (x, y, z)
     board = bpy.data.objects[f"Board{board_style}"]
     point_to(camera, board.location)
 
@@ -61,8 +59,8 @@ def setup_camera(board_style):
     bpy.context.view_layer.update()
 
     return {
-        "angle": angle,
-        "location": loc
+        "angle_variation": [rx, ry, rz],
+        "location": (x, y, z),
     }
 
 
