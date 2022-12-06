@@ -48,10 +48,12 @@ def setup_camera(board_style):
     camera.location = loc
     board = bpy.data.objects[f"Board{board_style}"]
     point_to(camera, board.location)
-    camera.rotation_mode = 'XYZ'
+
     rx = np.random.normal(-0.03, 0.001)
     ry = np.random.normal(0, 0.01)
     rz = np.random.normal(0, 0.01)
+
+    bpy.context.view_layer.update()
     camera.rotation_euler[0] += rx
     camera.rotation_euler[1] += ry
     camera.rotation_euler[2] += rz
@@ -347,6 +349,8 @@ def render_board(board, output_file, cap_pieces, do_render):
         setup_board(board_style)
         setup_table(table_style, board_style)
 
+    corner_coords.sort()
+
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
         collection = bpy.data.collections.new(COLLECTION_NAME)
@@ -374,13 +378,13 @@ def render_board(board, output_file, cap_pieces, do_render):
 
     # Write data output
     data = {
-        "piece_amount": piece_amount,
-        "fen": board.board_fen(),
-        "camera": camera_params,
-        "lighting": lighting_params,
+        # "piece_amount": piece_amount,
+        # "fen": board.board_fen(),
+        # "camera": camera_params,
+        # "lighting": lighting_params,
         "corners": corner_coords,
-        "pieces": piece_data,
-        "table_stuff": table_stuff,
+        # "pieces": piece_data,
+        # "table_stuff": table_stuff,
     }
     if do_render:
         jsonpath = output_file.parent / (output_file.stem + ".json")
@@ -507,13 +511,13 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if (i % 3000) == 0:
+            if 1001 <= i <= 2000:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
                 board = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
-                render_board(board, filename, cap_pieces, do_render=False)
+                render_board(board, filename, cap_pieces, do_render=True)
             else:
                 pass
     return
