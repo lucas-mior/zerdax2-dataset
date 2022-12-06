@@ -22,7 +22,7 @@ table_stuff = []
 
 
 def point_to(obj, focus, roll=0):
-    print(f"point_to({obj}, {focus}, roll=0)")
+    print(f"point_to({obj.name}, {focus}, roll={roll})")
     # Based on https://blender.stackexchange.com/a/127440
     loc = obj.location
     direction = focus - loc
@@ -34,7 +34,7 @@ def point_to(obj, focus, roll=0):
 
 
 def setup_camera(board_style):
-    print(f"setup_camera({board_style})")
+    print(f"setup_camera(board_style={board_style})")
     camera = bpy.context.scene.camera
     angle = np.random.randint(0, 15)
     z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
@@ -49,9 +49,9 @@ def setup_camera(board_style):
     board = bpy.data.objects[f"Board{board_style}"]
     point_to(camera, board.location)
 
-    rx = np.random.normal(-0.03, 0.001)
-    ry = np.random.normal(0, 0.01)
-    rz = np.random.normal(0, 0.01)
+    rx = np.random.uniform(-0.00, -0.03)
+    ry = np.random.uniform(-0.01, +0.01)
+    rz = np.random.uniform(-0.01, +0.01)
 
     bpy.context.view_layer.update()
     camera.rotation_euler[0] += rx
@@ -67,7 +67,7 @@ def setup_camera(board_style):
 
 
 def setup_spotlight(light) -> dict:
-    print(f"setup_spotlight({light}) -> dict:")
+    print(f"setup_spotlight(light={light}) -> dict:")
     z = np.random.normal(18*SQ_LEN, 2*SQ_LEN)
     x = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     y = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
@@ -85,7 +85,7 @@ def setup_spotlight(light) -> dict:
 
 
 def setup_table(table_style, board_style):
-    print(f"setup_table({table_style}, {board_style})")
+    print(f"setup_table(style={table_style}, board_style={board_style})")
     for i in range(1, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
         if i == table_style:
@@ -106,7 +106,7 @@ def setup_table(table_style, board_style):
 
 
 def setup_board(board_style):
-    print(f"setup_board({board_style})")
+    print(f"setup_board(board_style={board_style})")
     for i in range(1, BOARD_STYLES):
         obj = bpy.data.objects[f"Board{i}"]
         if i == board_style:
@@ -128,8 +128,8 @@ def setup_sun():
     return strength
 
 
-def setup_lighting() -> dict:
-    print("setup_lighting() -> dict:")
+def setup_lighting():
+    print("setup_lighting()")
     flash = bpy.data.objects["CameraFlashLight"]
     spot1 = bpy.data.objects["Spot1"]
     spot2 = bpy.data.objects["Spot2"]
@@ -176,7 +176,8 @@ def setup_lighting() -> dict:
 
 
 def add_piece(piece, square, collection, piece_style):
-    print(f"add_piece({piece}, {square}, {collection}, {piece_style})")
+    print(f"add_piece(piece={piece}, square={square},",
+          f"collection={collection.name}, piece_style={piece_style})")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -217,7 +218,8 @@ def add_piece(piece, square, collection, piece_style):
 
 
 def place_group(group, xmin, xmax, ymin, ymax):
-    print(f"place_group({group}, {xmin}, {xmax}, {ymin}, {ymax})")
+    print(f"place_group(group={group},",
+          f"xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax})")
     pieces_loc = []
     xcenter = np.random.uniform(xmin, xmax)
     ycenter = np.random.uniform(ymin, ymax)
@@ -240,7 +242,9 @@ def place_group(group, xmin, xmax, ymin, ymax):
 
 
 def place_captured(cap_pieces, piece_style, collection, table_style):
-    print(f"place_captured({cap_pieces}, {piece_style}, {collection}, {table_style})")
+    print(f"place_captured(cap_piece={cap_pieces},",
+          f"piece_style={piece_style}, collection={collection.name},",
+          f"table_style={table_style})")
     piece_names = {
         "K": "WhiteKing",
         "Q": "WhiteQueen",
@@ -280,7 +284,8 @@ def place_captured(cap_pieces, piece_style, collection, table_style):
 
 
 def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
-    print(f"add_to_table({name}, {collection}, {table_style}, {dfact}=6, {x}=0, {y}=0)")
+    print(f"add_to_table(name={name}, collection={collection.name},",
+          f"table_style={table_style}, dfact={dfact}, x={x}, y={y})")
     src_obj = bpy.data.objects[name]
     obj = src_obj.copy()
     obj.data = src_obj.data.copy()
@@ -315,7 +320,7 @@ def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
 
 
 def dist_obj(obj1, obj2):
-    print(f"dist_obj({obj1}, {obj2})")
+    print(f"dist_obj({obj1.name}, {obj2.name})")
     a = obj1.location
     b = obj2.location
 
@@ -329,7 +334,8 @@ def dist_point(P1, P2):
 
 
 def render_board(board, output_file, cap_pieces, do_render):
-    print(f"render_board({board}, {output_file}, {cap_pieces}, {do_render})")
+    print(f"render_board(board={board}, output_file={output_file},",
+          f"cap_pieces={cap_pieces}, do_render={do_render})")
     scene = bpy.context.scene
 
     # Setup rendering
@@ -380,11 +386,11 @@ def render_board(board, output_file, cap_pieces, do_render):
     data = {
         "piece_amount": piece_amount,
         "fen": board.board_fen(),
-        # "camera": camera_params,
-        # "lighting": lighting_params,
+        "camera": camera_params,
+        "lighting": lighting_params,
         "corners": corner_coords,
         "pieces": piece_data,
-        # "table_stuff": table_stuff,
+        "table_stuff": table_stuff,
     }
     if do_render:
         print(f"rendering {output_file}...")
@@ -402,7 +408,6 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
                               [1, 1],
                               [1, -1]]) * 4 * SQ_LEN
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
-    print(f"corner points: {corner_points}")
     sr = bpy.context.scene.render
 
     def _get_coords():
@@ -496,7 +501,7 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
 
 
 def get_missing_pieces(fen):
-    print(f"get_missing_pieces({fen})")
+    print(f"get_missing_pieces(fen={fen})")
     pieces = list("KkQqBbBbNnNnRrRrPPPPPPPPpppppppp")
     board = list(''.join(filter(str.isalpha, fen)))
     for piece in board:
@@ -508,17 +513,17 @@ def get_missing_pieces(fen):
 
 
 def main():
-    print("main()")
+    print(f"running script {sys.argv[0]} ...()")
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 1002 <= i < 1050:
+            if 2002 <= i <= 2002:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
                 board = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
-                render_board(board, filename, cap_pieces, do_render=True)
+                render_board(board, filename, cap_pieces, True)
             else:
                 pass
     return
