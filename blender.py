@@ -345,9 +345,11 @@ def render_board(board, output_file, cap_pieces, do_render):
     while not corner_coords:
         camera_params = setup_camera(board_style)
         lighting_params = setup_lighting()
-        corner_coords = sorted(get_corner_coordinates(scene), key=lambda x: x[0])
+        corner_coords = get_corner_coordinates(scene)
         setup_board(board_style)
         setup_table(table_style, board_style)
+
+    corner_coords = sorted(corner_coords, key=lambda x: x[0])
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
@@ -376,15 +378,16 @@ def render_board(board, output_file, cap_pieces, do_render):
 
     # Write data output
     data = {
-        # "piece_amount": piece_amount,
-        # "fen": board.board_fen(),
+        "piece_amount": piece_amount,
+        "fen": board.board_fen(),
         # "camera": camera_params,
         # "lighting": lighting_params,
         "corners": corner_coords,
-        # "pieces": piece_data,
+        "pieces": piece_data,
         # "table_stuff": table_stuff,
     }
     if do_render:
+        print(f"rendering {output_file}...")
         jsonpath = output_file.parent / (output_file.stem + ".json")
         with jsonpath.open("w") as f:
             json.dump(data, f, indent=4)
@@ -509,7 +512,7 @@ def main():
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 1001 <= i <= 2000:
+            if 1002 <= i < 1050:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:04d}.png"
