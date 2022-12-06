@@ -31,6 +31,7 @@ def point_to(obj, focus, roll=0):
     loc = loc.to_tuple()
     obj.matrix_world = quat @ roll_matrix
     obj.location = loc
+    return
 
 
 def setup_camera(board_style):
@@ -57,11 +58,11 @@ def setup_camera(board_style):
     camera.rotation_euler[2] += rz
 
     bpy.context.view_layer.update()
-
-    return {
+    data = {
         "angle_variation": (rx, ry, rz),
         "location": (x, y, z),
     }
+    return data
 
 
 def setup_spotlight(light):
@@ -76,10 +77,11 @@ def setup_spotlight(light):
     y = np.random.uniform(-5*SQ_LEN, 5*SQ_LEN)
     focus = mathutils.Vector((x, y, z))
     point_to(light, focus)
-    return {
+    data = {
         "focus": focus.to_tuple(),
         "location": location.to_tuple()
     }
+    return data
 
 
 def setup_table(table_style, board_style):
@@ -117,6 +119,7 @@ def setup_board(board_style):
             obj.hide_set(True)
 
     bpy.context.view_layer.update()
+    return
 
 
 def setup_sun():
@@ -154,7 +157,7 @@ def setup_lighting():
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
 
-    return {
+    data = {
         "mode": mode,
         "flash": {
             "active": not flash.hide_render
@@ -170,6 +173,7 @@ def setup_lighting():
             } for (key, obj) in {"spot1": spot1, "spot2": spot2}.items()
         }
     }
+    return data
 
 
 def add_piece(piece, square, collection, piece_style):
@@ -489,12 +493,13 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
     assert round((max_x - min_x) *
                  dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
 
-    return (
+    corners = (
         int(round(min_x * dim_x)),
         int(round(dim_y - max_y * dim_y)),
         int(round((max_x - min_x) * dim_x)),
         int(round((max_y - min_y) * dim_y))
     )
+    return corners
 
 
 def get_missing_pieces(fen):
