@@ -59,7 +59,7 @@ def setup_camera(board_style):
     bpy.context.view_layer.update()
 
     return {
-        "angle_variation": [rx, ry, rz],
+        "angle_variation": (rx, ry, rz),
         "location": (x, y, z),
     }
 
