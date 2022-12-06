@@ -345,11 +345,9 @@ def render_board(board, output_file, cap_pieces, do_render):
     while not corner_coords:
         camera_params = setup_camera(board_style)
         lighting_params = setup_lighting()
-        corner_coords = get_corner_coordinates(scene)
+        corner_coords = sorted(get_corner_coordinates(scene), key=lambda x: x[0])
         setup_board(board_style)
         setup_table(table_style, board_style)
-
-    corner_coords.sort()
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
