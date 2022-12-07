@@ -15,9 +15,9 @@ import sys
 MIN_BOARD_CORNER_PADDING = 25  # pixels
 SQ_LEN = 0.25783
 COLLECTION_NAME = "ChessPosition"
-BOARD_STYLES = 4
+BOARD_STYLES = 6
 TABLE_STYLES = 4
-PIECE_STYLES = 4
+PIECE_STYLES = 6
 table_stuff = []
 
 
@@ -37,16 +37,25 @@ def point_to(obj, focus, roll=0):
 def setup_camera(board_style):
     print(f"setup_camera(board_style={board_style})")
     camera = bpy.context.scene.camera
-    z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
-    x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
-    dy = min(max(np.random.normal(9*SQ_LEN, 1*SQ_LEN), 7*SQ_LEN), 12*SQ_LEN)
-    y = 0.8*abs(x) + dy - 0.3*abs(z)
-    if np.random.randint(0, 2) == 1:
-        y = -y
+    angle = 90
+    while angle >= 65 or angle <= 15:
+        z = min(np.random.normal(14*SQ_LEN, 2*SQ_LEN), 17*SQ_LEN)
+        x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
+        dy = min(max(np.random.normal(9*SQ_LEN, 1*SQ_LEN), 8*SQ_LEN), 12*SQ_LEN)
+        y = 0.8*abs(x) + dy - 0.3*abs(z)
+        if np.random.randint(0, 2) == 1:
+            y = -y
 
-    camera.location = (x, y, z)
-    board = bpy.data.objects[f"Board{board_style}"]
-    point_to(camera, board.location)
+        camera.location = (x, y, z)
+        board = bpy.data.objects[f"Board{board_style}"]
+        point_to(camera, board.location)
+
+        v = np.array([x, y, z])
+        w = np.array([0, 0, 1])
+        dot = np.dot(v, w)
+        modulo = np.sqrt(x**2 + y**2 + z**2)
+        angle = np.degrees(np.arcsin(dot/modulo))
+        print(f"Angle: {angle}")
 
     rx = np.random.uniform(-0.00, -0.03)
     ry = np.random.uniform(-0.01, +0.01)
@@ -262,23 +271,33 @@ def place_captured(cap_pieces, piece_style, collection, table_style):
     }
     cap_black = [c for c in cap_pieces if c.islower()]
     cap_white = [c for c in cap_pieces if c.isupper()]
+    table = bpy.data.objects[f'Table{table_style}']
 
-    xmin = round(-9*SQ_LEN, 4)
-    xmax = round(+9*SQ_LEN, 4)
-    ymin = round(-9*SQ_LEN, 4)
-    ymax = round(-4*SQ_LEN, 4)
+    if table_style != 2 and table_style != 3:
+        xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
+        yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
+        xmin = min(xvertices)
+        xmax = max(xvertices)
+        yminblack = min(yvertices)
+        ymaxblack = -4*SQ_LEN
+        yminwhite = +4*SQ_LEN
+        ymaxwhite = max(yvertices)
+    else:
+        xmin = round(-9*SQ_LEN, 4)
+        xmax = round(+9*SQ_LEN, 4)
+        yminblack = round(-9*SQ_LEN, 4)
+        ymaxblack = round(-4*SQ_LEN, 4)
+        yminwhite = +4*SQ_LEN
+        ymaxwhite = +9*SQ_LEN
+
     bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=xmin, xmax=xmax,
-                                         ymin=ymin, ymax=ymax)
+                                         ymin=yminblack, ymax=ymaxblack)
 
-    xmin = round(-9*SQ_LEN, 4)
-    xmax = round(+9*SQ_LEN, 4)
-    ymin = round(+4*SQ_LEN, 4)
-    ymax = round(+9*SQ_LEN, 4)
     while True:
         wcenter, cap_white_loc = place_group(cap_white,
                                              xmin=xmin, xmax=xmax,
-                                             ymin=ymin, ymax=ymax)
+                                             ymin=yminwhite, ymax=ymaxwhite)
         if dist_point(wcenter, bcenter) > 8*SQ_LEN:
             break
 
@@ -534,6 +553,6 @@ if __name__ == "__main__":
                 filename = Path("render") / f"{i:05d}.png"
                 board = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
-                render_board(board, filename, cap_pieces, True)
+                render_board(board, filename, cap_pieces, False)
             else:
                 pass
