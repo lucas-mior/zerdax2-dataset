@@ -68,10 +68,12 @@ def setup_camera(board_style):
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 65 or angle <= 15:
-        z = min(np.random.normal(14*SQ_LEN, 2*SQ_LEN), 17*SQ_LEN)
+        z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
+        z = np.clip(z, 10*SQ_LEN, 17*SQ_LEN)
         x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
-        dy = min(max(np.random.normal(9*SQ_LEN, SQ_LEN), 8*SQ_LEN), 12*SQ_LEN)
-        y = 0.8*abs(x) + dy - 0.3*abs(z)
+        dy = np.random.normal(9*SQ_LEN, SQ_LEN)
+        dy = np.clip(dy, 8*SQ_LEN, 12*SQ_LEN)
+        y = 0.8*abs(x) + dy
         if np.random.randint(0, 2) == 1:
             y = -y
 
@@ -106,6 +108,7 @@ def setup_camera(board_style):
 def setup_spotlight(light):
     print(f"setup_spotlight(light={light.name})")
     z = np.random.normal(18*SQ_LEN, 2*SQ_LEN)
+    z = np.clip(z, 12*SQ_LEN, 24*SQ_LEN)
     x = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     y = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     location = mathutils.Vector((x, y, z))
