@@ -16,6 +16,17 @@ import gc
 import builtins as __builtin__
 
 
+MIN_BOARD_CORNER_PADDING = 25  # pixels
+# SQ_LEN = 0.25783   # Medida Antiga (Board1)
+# SQ_LEN = 0.260314  # Medida Board4
+SQ_LEN = 0.259
+COLLECTION_NAME = "ChessPosition"
+BOARD_STYLES = 6
+TABLE_STYLES = 4
+PIECE_STYLES = 6
+table_stuff = []
+
+
 def console_print(*args, **kwargs):
     for a in context.screen.areas:
         if a.type == 'CONSOLE':
@@ -32,22 +43,9 @@ def console_print(*args, **kwargs):
 
 
 def print(*args, **kwargs):
-    """Console print() function."""
-
-    console_print(*args, **kwargs)  # to py consoles
-    __builtin__.print(*args, **kwargs)  # to system console
+    console_print(*args, **kwargs)
+    __builtin__.print(*args, **kwargs)
     return
-
-
-MIN_BOARD_CORNER_PADDING = 25  # pixels
-# SQ_LEN = 0.25783   # Medida Antiga (Board1)
-# SQ_LEN = 0.260314  # Medida Board4
-SQ_LEN = 0.259
-COLLECTION_NAME = "ChessPosition"
-BOARD_STYLES = 6
-TABLE_STYLES = 4
-PIECE_STYLES = 6
-table_stuff = []
 
 
 def point_to(obj, focus, roll=0):
