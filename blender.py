@@ -4,6 +4,7 @@
 
 import bpy
 import bpy_extras.object_utils
+from bpy import context
 import mathutils
 import chess
 import numpy as np
@@ -11,9 +12,37 @@ from pathlib import Path
 import typing
 import json
 import sys
+import gc
+import builtins as __builtin__
+
+
+def console_print(*args, **kwargs):
+    for a in context.screen.areas:
+        if a.type == 'CONSOLE':
+            c = {}
+            c['area'] = a
+            c['space_data'] = a.spaces.active
+            c['region'] = a.regions[-1]
+            c['window'] = context.window
+            c['screen'] = context.screen
+            s = " ".join([str(arg) for arg in args])
+            for line in s.split("\n"):
+                bpy.ops.console.scrollback_append(c, text=line)
+    return
+
+
+def print(*args, **kwargs):
+    """Console print() function."""
+
+    console_print(*args, **kwargs)  # to py consoles
+    __builtin__.print(*args, **kwargs)  # to system console
+    return
+
 
 MIN_BOARD_CORNER_PADDING = 25  # pixels
-SQ_LEN = 0.25783
+# SQ_LEN = 0.25783   # Medida Antiga (Board1)
+# SQ_LEN = 0.260314  # Medida Board4
+SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 6
 TABLE_STYLES = 4
@@ -41,7 +70,7 @@ def setup_camera(board_style):
     while angle >= 65 or angle <= 15:
         z = min(np.random.normal(14*SQ_LEN, 2*SQ_LEN), 17*SQ_LEN)
         x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
-        dy = min(max(np.random.normal(9*SQ_LEN, 1*SQ_LEN), 8*SQ_LEN), 12*SQ_LEN)
+        dy = min(max(np.random.normal(9*SQ_LEN, SQ_LEN), 8*SQ_LEN), 12*SQ_LEN)
         y = 0.8*abs(x) + dy - 0.3*abs(z)
         if np.random.randint(0, 2) == 1:
             y = -y
@@ -55,7 +84,7 @@ def setup_camera(board_style):
         dot = np.dot(v, w)
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
-        print(f"Angle: {angle}")
+        print(f"Camera to table angle:{angle:.2f}")
 
     rx = np.random.uniform(-0.00, -0.03)
     ry = np.random.uniform(-0.01, +0.01)
@@ -185,9 +214,9 @@ def setup_lighting():
     return data
 
 
-def add_piece(piece, square, collection, piece_style):
+def add_piece(piece, square, coll, piece_style):
     print(f"add_piece(piece={piece}, square={square},",
-          f"collection={collection.name}, piece_style={piece_style})")
+          f"coll={coll.name}, piece_style={piece_style})")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -223,13 +252,14 @@ def add_piece(piece, square, collection, piece_style):
     obj.animation_data_clear()
     obj.location = location
     obj.rotation_euler = rotation
-    collection.objects.link(obj)
+    coll.objects.link(obj)
     return obj
 
 
 def place_group(group, xmin, xmax, ymin, ymax):
     print(f"place_group(group={group},",
-          f"xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax})")
+          f"xmin={xmin:.2f}, xmax={xmax:.2f},",
+          f"ymin={ymin:.2f}, ymax={ymax:.2f})")
     pieces_loc = []
     xcenter = np.random.uniform(xmin, xmax)
     ycenter = np.random.uniform(ymin, ymax)
@@ -251,9 +281,9 @@ def place_group(group, xmin, xmax, ymin, ymax):
     return (xcenter, ycenter, 0), pieces_loc
 
 
-def place_captured(cap_pieces, piece_style, collection, table_style):
+def place_captured(cap_pieces, piece_style, coll, table_style):
     print(f"place_captured(cap_piece={cap_pieces},",
-          f"piece_style={piece_style}, collection={collection.name},",
+          f"piece_style={piece_style}, coll={coll.name},",
           f"table_style={table_style})")
     piece_names = {
         "K": "WhiteKing",
@@ -296,18 +326,18 @@ def place_captured(cap_pieces, piece_style, collection, table_style):
 
     for piece in cap_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table_style,
+        add_to_table(name, coll, table_style,
                      dfact=6, x=piece[1][0], y=piece[1][1])
     for piece in cap_white_loc:
         name = piece_names[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table_style,
+        add_to_table(name, coll, table_style,
                      dfact=6, x=piece[1][0], y=piece[1][1])
     return
 
 
-def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
-    print(f"add_to_table(name={name}, collection={collection.name},",
-          f"table_style={table_style}, dfact={dfact}, x={x}, y={y})")
+def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
+    print(f"add_to_table(name={name}, coll={coll.name},",
+          f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
     src_obj = bpy.data.objects[name]
     obj = src_obj.copy()
     obj.data = src_obj.data.copy()
@@ -336,7 +366,7 @@ def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
     obj.location = (x, y, z)
     obj.rotation_euler = rotation
-    collection.objects.link(obj)
+    coll.objects.link(obj)
     table_stuff.append(obj.name)
     return
 
@@ -350,13 +380,16 @@ def dist_obj(obj1, obj2):
 
 
 def dist_point(P1, P2):
-    print(f"dist_point({P1}, {P2})")
+    print("dist_point(", end=' ')
+    print(f"({P1[0]:.2f}, {P1[1]:.2f}, {P1[2]:.2f}), ",
+          f"({P2[0]:.2f}, {P2[1]:.2f}, {P1[2]:.2f}))", sep='')
     a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
     return np.sqrt(a)
 
 
-def render_board(board, output_file, cap_pieces, do_render):
-    print(f"render_board(board={board}, output_file={output_file},",
+def render_board(position, output_file, cap_pieces, do_render):
+    print(f"render_board(position={position.board_fen()},",
+          f"output_file={output_file},",
           f"cap_pieces={cap_pieces}, do_render={do_render})")
     scene = bpy.context.scene
 
@@ -372,28 +405,33 @@ def render_board(board, output_file, cap_pieces, do_render):
     corner_coords = None
     while not corner_coords:
         camera_params = setup_camera(board_style)
-        lighting_params = setup_lighting()
         corner_coords = get_corner_coordinates(scene)
-        setup_board(board_style)
-        setup_table(table_style, board_style)
+
+    lighting_params = setup_lighting()
+    setup_board(board_style)
+    setup_table(table_style, board_style)
 
     corner_coords = sorted(corner_coords, key=lambda x: x[0])
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
-        collection = bpy.data.collections.new(COLLECTION_NAME)
-        scene.collection.children.link(collection)
-    collection = bpy.data.collections[COLLECTION_NAME]
+        coll = bpy.data.collections.new(COLLECTION_NAME)
+        scene.collection.children.link(coll)
+    coll = bpy.data.collections[COLLECTION_NAME]
 
     # Remove all objects from the collection
-    bpy.ops.object.delete({"selected_objects": collection.objects})
+    # bpy.ops.object.delete({"selected_objects": collection.objects})
+
+    for obj in coll.objects:
+        obj.select_set(True)
+        bpy.ops.object.delete()
 
     piece_data = []
     table_stuff.clear()
     piece_amount = 0
     piece_style = np.random.randint(1, PIECE_STYLES)
-    for square, piece in board.piece_map().items():
-        obj = add_piece(piece, square, collection, piece_style)
+    for square, piece in position.piece_map().items():
+        obj = add_piece(piece, square, coll, piece_style)
         piece_data.append({
             "piece": piece.symbol(),
             "square": chess.square_name(square),
@@ -401,18 +439,25 @@ def render_board(board, output_file, cap_pieces, do_render):
         })
         piece_amount += 1
 
-    place_captured(cap_pieces, piece_style, collection, table_style)
-    add_to_table("RedCup", collection, table_style, dfact=7)
+    place_captured(cap_pieces, piece_style, coll, table_style)
+    add_to_table("RedCup", coll, table_style, dfact=7)
+
+    styles = {
+        "table": table_style,
+        "board": board_style,
+        "piece": piece_style,
+    }
 
     # Write data output
     data = {
-        "piece_amount": piece_amount,
-        "fen": board.board_fen(),
-        "camera": camera_params,
-        "lighting": lighting_params,
         "corners": corner_coords,
         "pieces": piece_data,
+        "piece_amount": piece_amount,
+        "fen": position.board_fen(),
+        "styles": styles,
         "table_stuff": table_stuff,
+        "camera": camera_params,
+        "lighting": lighting_params,
     }
     if do_render:
         print(f"rendering {output_file}...")
@@ -454,7 +499,8 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
 
 
 def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
-    print("get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:")
+    print(f"get_bounding_box({scene.name}, {obj.name})",
+          "-> typing.Tuple[int, int, int, int]:")
     """Obtain the bounding box of an object.
 
     Args:
@@ -536,16 +582,19 @@ def get_missing_pieces(fen):
 
 
 if __name__ == "__main__":
-    print(f"running script {sys.argv[0]} ...")
+    print(f"running script {sys.argv[0]}.py ...")
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 1001 <= i <= 1100:
+            if 1000 <= i <= 1000:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:05d}.png"
-                board = chess.Board("".join(fen))
+                position = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
-                render_board(board, filename, cap_pieces, True)
+                render_board(position, filename, cap_pieces, False)
+                if i % 10 == 0:
+                    gc.collect()
+                    bpy.ops.outliner.orphans_purge()
             else:
                 pass
