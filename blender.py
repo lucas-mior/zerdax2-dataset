@@ -241,12 +241,12 @@ def place_group(group, xmin, xmax, ymin, ymax):
         y = np.random.uniform(ycenter-6*SQ_LEN, ycenter+6*SQ_LEN)
         if xcenter > ycenter:
             while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
-                x = np.random.uniform(xcenter-1*SQ_LEN, xcenter+1*SQ_LEN)
-                y = np.random.uniform(ycenter-6*SQ_LEN, ycenter+6*SQ_LEN)
+                x = np.random.uniform(xcenter-2*SQ_LEN, xcenter+2*SQ_LEN)
+                y = np.random.uniform(ycenter-5*SQ_LEN, ycenter+5*SQ_LEN)
         else:
             while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
-                y = np.random.uniform(ycenter-1*SQ_LEN, ycenter+1*SQ_LEN)
-                x = np.random.uniform(xcenter-6*SQ_LEN, xcenter+6*SQ_LEN)
+                y = np.random.uniform(ycenter-2*SQ_LEN, ycenter+2*SQ_LEN)
+                x = np.random.uniform(xcenter-5*SQ_LEN, xcenter+5*SQ_LEN)
         pieces_loc.append((piece, (x, y)))
     return (xcenter, ycenter, 0), pieces_loc
 
@@ -273,22 +273,15 @@ def place_captured(cap_pieces, piece_style, collection, table_style):
     cap_white = [c for c in cap_pieces if c.isupper()]
     table = bpy.data.objects[f'Table{table_style}']
 
-    if table_style != 2 and table_style != 3:
-        xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
-        yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
+    xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
+    yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
+    if True or (table_style != 2 and table_style != 3):
         xmin = min(xvertices)
         xmax = max(xvertices)
         yminblack = min(yvertices)
         ymaxblack = -4*SQ_LEN
         yminwhite = +4*SQ_LEN
         ymaxwhite = max(yvertices)
-    else:
-        xmin = round(-9*SQ_LEN, 4)
-        xmax = round(+9*SQ_LEN, 4)
-        yminblack = round(-9*SQ_LEN, 4)
-        ymaxblack = round(-4*SQ_LEN, 4)
-        yminwhite = +4*SQ_LEN
-        ymaxwhite = +9*SQ_LEN
 
     bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=xmin, xmax=xmax,
@@ -547,12 +540,12 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 2002 <= i <= 2002:
+            if 1001 <= i <= 1100:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:05d}.png"
                 board = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
-                render_board(board, filename, cap_pieces, False)
+                render_board(board, filename, cap_pieces, True)
             else:
                 pass
