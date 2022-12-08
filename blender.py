@@ -393,8 +393,8 @@ def dist_point(P1, P2):
 
 
 def render_board(position, output_file, cap_pieces, do_render):
-    print(f"render_board(position={position.board_fen()},",
-          f"output_file={output_file},",
+    print(f"render_board(position={position.board_fen()},\n",
+          f"output_file={output_file},\n",
           f"cap_pieces={cap_pieces}, do_render={do_render})")
     scene = bpy.context.scene
 
@@ -589,10 +589,21 @@ def get_missing_pieces(fen):
 if __name__ == "__main__":
     print("="*60)
     print(f"running script {sys.argv[0]}.py ...")
+
+    argv = sys.argv
+
+    if "--" in argv:
+        argv = argv[argv.index("--") + 1:]
+        begin = int(argv[0])
+        increment = int(argv[1])
+    else:
+        begin = 0
+        increment = 1
+
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if 1000 <= i <= 1000:
+            if begin <= i < begin+increment:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:05d}.png"
