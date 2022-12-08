@@ -17,8 +17,6 @@ import builtins as __builtin__
 
 DEBUG = False
 MIN_BOARD_CORNER_PADDING = 25  # pixels
-# SQ_LEN = 0.25783   # Medida Antiga (Board1)
-# SQ_LEN = 0.260314  # Medida Board4
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 6
@@ -287,7 +285,7 @@ def place_group(group, xmin, xmax, ymin, ymax):
 
 
 def place_captured(cap_pieces, piece_style, coll, table_style):
-    print(f"place_captured(cap_piece={cap_pieces},",
+    print(f"place_captured(cap_pieces={cap_pieces},",
           f"piece_style={piece_style}, coll={coll.name},",
           f"table_style={table_style})")
     piece_names = {
@@ -363,7 +361,7 @@ def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
                 d = dist_obj(bpy.data.objects[obj_name], obj)
                 if d < dist:
                     dist = d
-            if dist > SQ_LEN/2:
+            if dist > SQ_LEN:
                 break
     else:
         pass
@@ -445,7 +443,11 @@ def render_board(position, output_file, cap_pieces, do_render):
         piece_amount += 1
 
     place_captured(cap_pieces, piece_style, coll, table_style)
-    add_to_table("RedCup", coll, table_style, dfact=7)
+
+    if np.random.randint(0, 2) == 1:
+        add_to_table("RedCup", coll, table_style, dfact=7)
+    if np.random.randint(0, 2) == 1:
+        add_to_table("CoffeCup", coll, table_style, dfact=8)
 
     styles = {
         "table": table_style,
@@ -482,6 +484,10 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
     sr = bpy.context.scene.render
 
+    def _surpass_padding(resolution, p):
+        dp = resolution - MIN_BOARD_CORNER_PADDING
+        return not(MIN_BOARD_CORNER_PADDING <= p <= dp)
+
     def _get_coords_corners():
         dprint("_get_coords_corners()")
         for corner in corner_points:
@@ -492,8 +498,8 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
             y *= sr.resolution_y * sr.resolution_percentage * .01
             x, y = round(x), round(y)
 
-            if not (MIN_BOARD_CORNER_PADDING <= x <= sr.resolution_x - MIN_BOARD_CORNER_PADDING) or \
-                    not (MIN_BOARD_CORNER_PADDING <= y <= sr.resolution_y - MIN_BOARD_CORNER_PADDING):
+            if _surpass_padding(sr.resolution_x, x) or \
+               _surpass_padding(sr.resolution_y, y):
                 raise ValueError
 
             yield x, y
