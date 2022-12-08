@@ -589,6 +589,7 @@ def get_missing_pieces(fen):
 
 
 if __name__ == "__main__":
+    print("="*60)
     print(f"running script {sys.argv[0]}.py ...")
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
@@ -605,3 +606,4 @@ if __name__ == "__main__":
                     bpy.ops.outliner.orphans_purge()
             else:
                 pass
+    print("="*60)
