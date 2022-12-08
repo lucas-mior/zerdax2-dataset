@@ -222,8 +222,8 @@ def setup_lighting():
 
 
 def add_piece(piece, square, coll, piece_style):
-    print(f"add_piece(piece={piece}, square={square},",
-          f"coll={coll.name}, piece_style={piece_style})")
+    dprint(f"add_piece(piece={piece}, square={square},",
+           f"coll={coll.name}, piece_style={piece_style})")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -485,7 +485,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
     sr = bpy.context.scene.render
 
     def _get_coords():
-        print("_get_coords()")
+        dprint("_get_coords()")
         for corner in corner_points:
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
                 scene, scene.camera, mathutils.Vector(corner)).to_tuple()
