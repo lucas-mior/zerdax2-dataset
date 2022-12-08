@@ -353,11 +353,11 @@ def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
     dist = 1000*SQ_LEN
     if x == 0 and y == 0:
         while True:
-            x = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
-            y = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
+            x = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
+            y = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
             while abs(x) < dfact*SQ_LEN and abs(y) < dfact*SQ_LEN:
-                x = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
-                y = np.random.uniform(-12*SQ_LEN, 12*SQ_LEN)
+                x = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
+                y = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
             for obj_name in table_stuff:
                 d = dist_obj(bpy.data.objects[obj_name], obj)
                 if d < dist:
