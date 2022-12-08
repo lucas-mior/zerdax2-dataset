@@ -16,6 +16,7 @@ import gc
 import builtins as __builtin__
 
 
+DEBUG = False
 MIN_BOARD_CORNER_PADDING = 25  # pixels
 # SQ_LEN = 0.25783   # Medida Antiga (Board1)
 # SQ_LEN = 0.260314  # Medida Board4
@@ -42,6 +43,11 @@ def console_print(*args, **kwargs):
     return
 
 
+def dprint(*args, **kwargs):
+    if DEBUG:
+        print(*args, **kwargs)
+
+
 def print(*args, **kwargs):
     console_print(*args, **kwargs)
     __builtin__.print(*args, **kwargs)
@@ -49,7 +55,7 @@ def print(*args, **kwargs):
 
 
 def point_to(obj, focus, roll=0):
-    print(f"point_to(obj={obj.name}, focus={focus}, roll={roll})")
+    dprint(f"point_to(obj={obj.name}, focus={focus}, roll={roll})")
     # Based on https://blender.stackexchange.com/a/127440
     loc = obj.location
     direction = focus - loc
@@ -337,7 +343,7 @@ def place_captured(cap_pieces, piece_style, coll, table_style):
 
 
 def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
-    print(f"add_to_table(name={name}, coll={coll.name},",
+    dprint(f"add_to_table(name={name}, coll={coll.name},",
           f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
     src_obj = bpy.data.objects[name]
     obj = src_obj.copy()
@@ -373,7 +379,7 @@ def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
 
 
 def dist_obj(obj1, obj2):
-    print(f"dist_obj({obj1.name}, {obj2.name})")
+    dprint(f"dist_obj({obj1.name}, {obj2.name})")
     a = obj1.location
     b = obj2.location
 
@@ -381,9 +387,9 @@ def dist_obj(obj1, obj2):
 
 
 def dist_point(P1, P2):
-    print("dist_point(", end=' ')
-    print(f"({P1[0]:.2f}, {P1[1]:.2f}, {P1[2]:.2f}), ",
-          f"({P2[0]:.2f}, {P2[1]:.2f}, {P1[2]:.2f}))", sep='')
+    dprint("dist_point(", end=' ')
+    dprint(f"({P1[0]:.2f}, {P1[1]:.2f}, {P1[2]:.2f}), ",
+           f"({P2[0]:.2f}, {P2[1]:.2f}, {P1[2]:.2f}))", sep='')
     a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
     return np.sqrt(a)
 
@@ -470,7 +476,7 @@ def render_board(position, output_file, cap_pieces, do_render):
 
 
 def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
-    print("get_corner_coordinates(scene) -> typing.List[typing.List[int]]:")
+    dprint("get_corner_coordinates(scene) -> typing.List[typing.List[int]]:")
     corner_points = np.array([[-1., -1],
                               [-1, 1],
                               [1, 1],
@@ -500,7 +506,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
 
 
 def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
-    print(f"get_bounding_box({scene.name}, {obj.name})",
+    dprint(f"get_bounding_box({scene.name}, {obj.name})",
           "-> typing.Tuple[int, int, int, int]:")
     """Obtain the bounding box of an object.
 
