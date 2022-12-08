@@ -30,19 +30,14 @@ table_stuff = []
 def console_print(*args, **kwargs):
     for a in bpy.context.screen.areas:
         if a.type == 'CONSOLE':
-            # bpy.context.temp_override(window=bpy.context.window,
-            #                       area=a,
-            #                       region=a.regions[-1],
-            #                       space_data=a.spaces.active,
-            #                       screen=bpy.context.screen)
-            # # c['area'] = a
-            # # c['space_data'] = a.spaces.active
-            # # c['region'] = a.regions[-1]
-            # # c['window'] = bpy.context.window
-            # # c['screen'] = bpy.context.screen
-            s = " ".join([str(arg) for arg in args])
-            for line in s.split("\n"):
-                bpy.ops.console.scrollback_append(text=line)
+            with bpy.context.temp_override(window=bpy.context.window,
+                                           area=a,
+                                           region=a.regions[-1],
+                                           space_data=a.spaces.active,
+                                           screen=bpy.context.screen):
+                s = " ".join([str(arg) for arg in args])
+                for line in s.split("\n"):
+                    bpy.ops.console.scrollback_append(text=line)
     return
 
 
