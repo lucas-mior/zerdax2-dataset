@@ -484,8 +484,8 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
     sr = bpy.context.scene.render
 
-    def _get_coords():
-        dprint("_get_coords()")
+    def _get_coords_corners():
+        dprint("_get_coords_corners()")
         for corner in corner_points:
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
                 scene, scene.camera, mathutils.Vector(corner)).to_tuple()
@@ -500,7 +500,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
 
             yield x, y
     try:
-        return list(_get_coords())
+        return list(_get_coords_corners())
     except ValueError:
         return None
 
@@ -529,8 +529,8 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
 
     camera = cam_ob.data
 
-    def _get_coords():
-        print("_get_coords()")
+    def _get_coords_bounding_box():
+        dprint("_get_coords_bounding_box()")
         frame = [-v for v in camera.view_frame(scene=scene)[:3]]
         for v in me.vertices:
             co_local = v.co
@@ -550,7 +550,7 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
 
             yield x, y
 
-    xs, ys = np.array(list(_get_coords())).T
+    xs, ys = np.array(list(_get_coords_bounding_box())).T
 
     min_x = np.clip(min(xs), 0.0, 1.0)
     max_x = np.clip(max(xs), 0.0, 1.0)
