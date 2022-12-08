@@ -342,7 +342,7 @@ def place_captured(cap_pieces, piece_style, coll, table_style):
 
 def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
     dprint(f"add_to_table(name={name}, coll={coll.name},",
-          f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
+           f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
     src_obj = bpy.data.objects[name]
     obj = src_obj.copy()
     obj.data = src_obj.data.copy()
@@ -505,7 +505,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
 
 def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
     dprint(f"get_bounding_box({scene.name}, {obj.name})",
-          "-> typing.Tuple[int, int, int, int]:")
+           "-> typing.Tuple[int, int, int, int]:")
     """Obtain the bounding box of an object.
 
     Args:
