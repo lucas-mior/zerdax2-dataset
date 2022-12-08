@@ -423,6 +423,9 @@ def setup_shot(position, output_file, cap_pieces):
         scene.collection.children.link(coll)
     coll = bpy.data.collections[COLLECTION_NAME]
 
+    for obj in bpy.data.objects:
+        obj.select_set(False)
+
     for obj in coll.objects:
         obj.select_set(True)
         bpy.ops.object.delete()
