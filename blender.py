@@ -16,7 +16,7 @@ import builtins as __builtin__
 
 
 DEBUG = False
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 25  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
@@ -108,8 +108,8 @@ def setup_camera(board_style):
 
 def setup_spotlight(light):
     print(f"setup_spotlight(light={light.name})")
-    z = np.random.normal(18*SQ_LEN, 2*SQ_LEN)
-    z = np.clip(z, 12*SQ_LEN, 24*SQ_LEN)
+    z = np.random.normal(16*SQ_LEN, 2*SQ_LEN)
+    z = np.clip(z, 13*SQ_LEN, 22*SQ_LEN)
     x = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     y = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     location = mathutils.Vector((x, y, z))
@@ -166,7 +166,7 @@ def setup_board(board_style):
 
 def setup_sun():
     print("setup_sun()")
-    strength = np.random.uniform(0.3, 0.4)
+    strength = np.random.uniform(0.4, 0.5)
     bpy.data.lights['Sun'].energy = strength
     return strength
 
@@ -265,22 +265,36 @@ def place_group(group, xmin, xmax, ymin, ymax):
           f"xmin={xmin:.2f}, xmax={xmax:.2f},",
           f"ymin={ymin:.2f}, ymax={ymax:.2f})")
     pieces_loc = []
+    f1 = 2
+    f2 = 5
     xcenter = np.random.uniform(xmin, xmax)
     ycenter = np.random.uniform(ymin, ymax)
     while abs(xcenter) < 6*SQ_LEN and abs(ycenter) < 6*SQ_LEN:
         xcenter = np.random.uniform(xmin, xmax)
         ycenter = np.random.uniform(ymin, ymax)
     for piece in group:
-        x = np.random.uniform(xcenter-5*SQ_LEN, xcenter+5*SQ_LEN)
-        y = np.random.uniform(ycenter-5*SQ_LEN, ycenter+5*SQ_LEN)
+        x = np.random.uniform(xcenter-f2*SQ_LEN, xcenter+f2*SQ_LEN)
+        y = np.random.uniform(ycenter-f2*SQ_LEN, ycenter+f2*SQ_LEN)
+        dist = 1000
         if xcenter > ycenter:
-            while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
-                x = np.random.uniform(xcenter-2*SQ_LEN, xcenter+2*SQ_LEN)
-                y = np.random.uniform(ycenter-5*SQ_LEN, ycenter+5*SQ_LEN)
+            while (abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN) or dist <= SQ_LEN/2:
+                dist = 1000
+                x = np.random.uniform(xcenter-f1*SQ_LEN, xcenter+f1*SQ_LEN)
+                y = np.random.uniform(ycenter-f2*SQ_LEN, ycenter+f2*SQ_LEN)
+                for p in pieces_loc:
+                    d = dist_point((x, y, 0), (p[1][0], p[1][1], 0))
+                    if d < dist:
+                        dist = d
+                print(f"dist={dist}")
         else:
-            while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
-                y = np.random.uniform(ycenter-2*SQ_LEN, ycenter+2*SQ_LEN)
-                x = np.random.uniform(xcenter-5*SQ_LEN, xcenter+5*SQ_LEN)
+            while (abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN) or dist <= SQ_LEN/2:
+                dist = 1000
+                y = np.random.uniform(ycenter-f1*SQ_LEN, ycenter+f1*SQ_LEN)
+                x = np.random.uniform(xcenter-f2*SQ_LEN, xcenter+f2*SQ_LEN)
+                for p in pieces_loc:
+                    d = dist_point((x, y, 0), (p[1][0], p[1][1], 0))
+                    if d < dist:
+                        dist = d
         pieces_loc.append((piece, (x, y)))
     return (xcenter, ycenter, 0), pieces_loc
 
@@ -310,12 +324,12 @@ def place_captured(cap_pieces, piece_style, coll, table_style):
     xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
     yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
     if True or (table_style != 2 and table_style != 3):
-        xmin = max(min(xvertices), -12*SQ_LEN)
-        xmax = min(max(xvertices), +12*SQ_LEN)
-        yminblack = max(min(yvertices), -12*SQ_LEN)
+        xmin = max(min(xvertices)+1*SQ_LEN, -12*SQ_LEN)
+        xmax = min(max(xvertices)-1*SQ_LEN, +12*SQ_LEN)
+        yminblack = max(min(yvertices)+1*SQ_LEN, -12*SQ_LEN)
         ymaxblack = -4*SQ_LEN
         yminwhite = +4*SQ_LEN
-        ymaxwhite = min(max(yvertices), +12*SQ_LEN)
+        ymaxwhite = min(max(yvertices)-1*SQ_LEN, +12*SQ_LEN)
 
     bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=xmin, xmax=xmax,
