@@ -237,7 +237,7 @@ def add_piece(piece, square, coll, piece_style):
 
     # Position the piece in the middle of the square
     offsets = np.random.normal((.5,)*2, (.1,)*2)
-    offsets = np.clip(offsets, .3, .7)
+    offsets = np.clip(offsets, .32, .68)
     rank_offset, file_offset = offsets
     rank = chess.square_rank(square) + rank_offset
     file = chess.square_file(square) + file_offset
@@ -422,9 +422,6 @@ def setup_shot(position, output_file, cap_pieces):
         coll = bpy.data.collections.new(COLLECTION_NAME)
         scene.collection.children.link(coll)
     coll = bpy.data.collections[COLLECTION_NAME]
-
-    # Remove all objects from the collection
-    # bpy.ops.object.delete({"selected_objects": collection.objects})
 
     for obj in coll.objects:
         obj.select_set(True)
