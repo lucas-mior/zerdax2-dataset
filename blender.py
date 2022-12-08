@@ -310,12 +310,12 @@ def place_captured(cap_pieces, piece_style, coll, table_style):
     xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
     yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
     if True or (table_style != 2 and table_style != 3):
-        xmin = min(xvertices)
-        xmax = max(xvertices)
-        yminblack = min(yvertices)
+        xmin = max(min(xvertices), -12*SQ_LEN)
+        xmax = min(max(xvertices), +12*SQ_LEN)
+        yminblack = max(min(yvertices), -12*SQ_LEN)
         ymaxblack = -4*SQ_LEN
         yminwhite = +4*SQ_LEN
-        ymaxwhite = max(yvertices)
+        ymaxwhite = min(max(yvertices), +12*SQ_LEN)
 
     bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=xmin, xmax=xmax,
