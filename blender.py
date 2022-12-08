@@ -588,11 +588,8 @@ def get_missing_pieces(fen):
 
 
 if __name__ == "__main__":
-    print("="*60)
-    print(f"running script {sys.argv[0]}.py ...")
-
     argv = sys.argv
-
+    print("="*30, argv[0], "="*30)
     if "--" in argv:
         argv = argv[argv.index("--") + 1:]
         begin = int(argv[0])
