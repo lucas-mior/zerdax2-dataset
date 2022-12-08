@@ -568,10 +568,10 @@ def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
                  dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
 
     corners = (
-        int(round(min_x * dim_x)),
-        int(round(dim_y - max_y * dim_y)),
-        int(round((max_x - min_x) * dim_x)),
-        int(round((max_y - min_y) * dim_y))
+        round(min_x * dim_x),
+        round(dim_y - max_y * dim_y),
+        round((max_x - min_x) * dim_x),
+        round((max_y - min_y) * dim_y)
     )
     return corners
 
