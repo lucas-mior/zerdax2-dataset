@@ -16,6 +16,7 @@ import builtins as __builtin__
 
 
 DEBUG = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 25  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
@@ -270,8 +271,8 @@ def place_group(group, xmin, xmax, ymin, ymax):
         xcenter = np.random.uniform(xmin, xmax)
         ycenter = np.random.uniform(ymin, ymax)
     for piece in group:
-        x = np.random.uniform(xcenter-1*SQ_LEN, xcenter+1*SQ_LEN)
-        y = np.random.uniform(ycenter-6*SQ_LEN, ycenter+6*SQ_LEN)
+        x = np.random.uniform(xcenter-5*SQ_LEN, xcenter+5*SQ_LEN)
+        y = np.random.uniform(ycenter-5*SQ_LEN, ycenter+5*SQ_LEN)
         if xcenter > ycenter:
             while abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN:
                 x = np.random.uniform(xcenter-2*SQ_LEN, xcenter+2*SQ_LEN)
@@ -390,10 +391,10 @@ def dist_point(P1, P2):
     return np.sqrt(a)
 
 
-def render_board(position, output_file, cap_pieces, do_render):
-    print(f"render_board(position={position.board_fen()},\n",
+def setup_shot(position, output_file, cap_pieces):
+    print(f"setup_shot(position={position.board_fen()},\n",
           f"output_file={output_file},\n",
-          f"cap_pieces={cap_pieces}, do_render={do_render})")
+          f"cap_pieces={cap_pieces})")
     scene = bpy.context.scene
 
     # Setup rendering
@@ -442,8 +443,8 @@ def render_board(position, output_file, cap_pieces, do_render):
         })
         piece_amount += 1
 
-    place_captured(cap_pieces, piece_style, coll, table_style)
-
+    if np.random.randint(0, 2) == 1:
+        place_captured(cap_pieces, piece_style, coll, table_style)
     if np.random.randint(0, 2) == 1:
         add_to_table("RedCup", coll, table_style, dfact=7)
     if np.random.randint(0, 2) == 1:
@@ -466,13 +467,7 @@ def render_board(position, output_file, cap_pieces, do_render):
         "camera": camera_params,
         "lighting": lighting_params,
     }
-    if do_render:
-        print(f"rendering {output_file}...")
-        jsonpath = output_file.parent / (output_file.stem + ".json")
-        with jsonpath.open("w") as f:
-            json.dump(data, f, indent=4)
-        bpy.ops.render.render(write_still=1)
-    return
+    return data
 
 
 def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
@@ -615,7 +610,13 @@ if __name__ == "__main__":
                 filename = Path("render") / f"{i:05d}.png"
                 position = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
-                render_board(position, filename, cap_pieces, False)
+                data = setup_shot(position, filename, cap_pieces)
+                if DO_RENDER:
+                    print(f"rendering {filename}...")
+                    jsonpath = filename.parent / (filename.stem + ".json")
+                    with jsonpath.open("w") as f:
+                        json.dump(data, f, indent=4)
+                    bpy.ops.render.render(write_still=1)
                 if i % 10 == 0:
                     gc.collect()
                     bpy.ops.outliner.orphans_purge()
