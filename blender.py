@@ -268,7 +268,7 @@ def add_piece(piece, square, coll, piece_style):
     return obj
 
 
-def place_group(group, xmin, xmax, ymin, ymax):
+def place_group(group, xmin, xmax, ymin, ymax, dfact=5):
     print(f"place_group(group={group},",
           f"xmin={xmin/SQ_LEN:.2f}, xmax={xmax/SQ_LEN:.2f},",
           f"ymin={ymin/SQ_LEN:.2f}, ymax={ymax/SQ_LEN:.2f})")
@@ -276,7 +276,7 @@ def place_group(group, xmin, xmax, ymin, ymax):
     xcenter = np.random.uniform(xmin, xmax)
     ycenter = np.random.uniform(ymin, ymax)
     print(f"center = ({xcenter/SQ_LEN}, {ycenter/SQ_LEN})")
-    while abs(xcenter) < 6*SQ_LEN and abs(ycenter) < 6*SQ_LEN:
+    while abs(xcenter) < dfact*SQ_LEN and abs(ycenter) < dfact*SQ_LEN:
         xcenter = np.random.uniform(xmin, xmax)
         ycenter = np.random.uniform(ymin, ymax)
 
@@ -284,8 +284,9 @@ def place_group(group, xmin, xmax, ymin, ymax):
         x = 1000
         y = 1000
         dist = 0
+        i = 0
         if abs(xcenter) > abs(ycenter):
-            while (abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN) or dist < SQ_LEN/2:
+            while (abs(x) < dfact*SQ_LEN and abs(y) < dfact*SQ_LEN) or dist < SQ_LEN/2:
                 dist = 1000
                 x = np.random.normal(xcenter, 2*SQ_LEN)
                 y = np.random.normal(ycenter, 4*SQ_LEN)
@@ -295,8 +296,11 @@ def place_group(group, xmin, xmax, ymin, ymax):
                     d = dist_point((x, y, 0), (p[1][0], p[1][1], 0))
                     if d < dist:
                         dist = d
+                i += 1
+                if i >= 20:
+                    break
         else:
-            while (abs(x) < 6*SQ_LEN and abs(y) < 6*SQ_LEN) or dist < SQ_LEN/2:
+            while (abs(x) < dfact*SQ_LEN and abs(y) < dfact*SQ_LEN) or dist < SQ_LEN/2:
                 dist = 1000
                 x = np.random.normal(xcenter, 4*SQ_LEN)
                 y = np.random.normal(ycenter, 2*SQ_LEN)
@@ -306,11 +310,15 @@ def place_group(group, xmin, xmax, ymin, ymax):
                     d = dist_point((x, y, 0), (p[1][0], p[1][1], 0))
                     if d < dist:
                         dist = d
-        pieces_loc.append((piece, (x, y)))
+                i += 1
+                if i >= 20:
+                    break
+        if i < 20:
+            pieces_loc.append((piece, (x, y)))
     return (xcenter, ycenter, 0), pieces_loc
 
 
-def place_captured(cap_pieces, piece_style, coll, table_style):
+def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
     print(f"place_captured(cap_pieces={cap_pieces},",
           f"piece_style={piece_style}, coll={coll.name},",
           f"table_style={table_style})")
@@ -340,15 +348,21 @@ def place_captured(cap_pieces, piece_style, coll, table_style):
     ymaxblack = -2*SQ_LEN
     yminwhite = +2*SQ_LEN
     ymaxwhite = max(yvertices)
+    if board_style == 3:
+        dfact = 6
+    else:
+        dfact = 5
 
     bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=xmin, xmax=xmax,
-                                         ymin=yminblack, ymax=ymaxblack)
+                                         ymin=yminblack, ymax=ymaxblack,
+                                         dfact=dfact)
 
     while True:
         wcenter, cap_white_loc = place_group(cap_white,
                                              xmin=xmin, xmax=xmax,
-                                             ymin=yminwhite, ymax=ymaxwhite)
+                                             ymin=yminwhite, ymax=ymaxwhite,
+                                             dfact=dfact)
         if dist_point(wcenter, bcenter) > 6*SQ_LEN:
             break
 
@@ -366,34 +380,56 @@ def place_captured(cap_pieces, piece_style, coll, table_style):
 def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
     dprint(f"add_to_table(name={name}, coll={coll.name},",
            f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
-    src_obj = bpy.data.objects[name]
-    obj = src_obj.copy()
-    obj.data = src_obj.data.copy()
-    obj.animation_data_clear()
+
+    rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
 
     table = bpy.data.objects[f'Table{table_style}']
-    z = max([(table.matrix_world @ v.co).z for v in table.data.vertices])
+
+    zvertices = [(table.matrix_world @ v.co).z for v in table.data.vertices]
+    xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
+    yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
+    z = max(zvertices)
+    xmin = min(xvertices)
+    xmax = max(xvertices)
+    ymin = min(yvertices)
+    ymax = max(yvertices)
 
     dist = 1000*SQ_LEN
+    i = 0
     if x == 0 and y == 0:
         while True:
-            x = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
-            y = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
+            x = np.random.uniform(xmin, xmax)
+            y = np.random.uniform(ymin, ymax)
+            j = 0
             while abs(x) < dfact*SQ_LEN and abs(y) < dfact*SQ_LEN:
-                x = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
-                y = np.random.uniform(-11*SQ_LEN, 11*SQ_LEN)
+                x = np.random.uniform(xmin, xmax)
+                y = np.random.uniform(ymin, ymax)
+                j += 1
+                if j >= 20:
+                    break
+            if j >= 20:
+                i = 20
+                break
+
             for obj_name in table_stuff:
-                d = dist_obj(bpy.data.objects[obj_name], obj)
+                d = dist_point(bpy.data.objects[obj_name].location, (x, y, z))
                 if d < dist:
                     dist = d
             if dist > SQ_LEN:
                 break
+            i += 1
+            if i >= 20:
+                break
 
-    rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-    obj.location = (x, y, z)
-    obj.rotation_euler = rotation
-    coll.objects.link(obj)
-    table_stuff.append(obj.name)
+    if i < 20:
+        src_obj = bpy.data.objects[name]
+        obj = src_obj.copy()
+        obj.data = src_obj.data.copy()
+        obj.animation_data_clear()
+        obj.location = (x, y, z)
+        obj.rotation_euler = rotation
+        coll.objects.link(obj)
+        table_stuff.append(obj.name)
     return
 
 
@@ -466,7 +502,7 @@ def setup_shot(position, output_file, cap_pieces):
         piece_amount += 1
 
     if np.random.randint(0, 2) == 1:
-        place_captured(cap_pieces, piece_style, coll, table_style)
+        place_captured(cap_pieces, piece_style, coll, table_style, board_style)
     if np.random.randint(0, 2) == 1:
         add_to_table("RedCup", coll, table_style, dfact=7)
     if np.random.randint(0, 2) == 1:
@@ -611,7 +647,7 @@ def get_missing_pieces(fen):
 
 if __name__ == "__main__":
     argv = sys.argv
-    print("="*30, argv[0], "="*30)
+    print("="*30, f"{argv[0]}.py", "="*30)
     if "--" in argv:
         argv = argv[argv.index("--") + 1:]
         begin = int(argv[0])
