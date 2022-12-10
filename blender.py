@@ -17,7 +17,7 @@ import builtins as __builtin__
 
 DEBUG = True
 DO_RENDER = True
-MIN_BOARD_CORNER_PADDING = 25  # pixels
+MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 7
@@ -439,6 +439,11 @@ def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
         obj.location = (x, y, z)
         obj.rotation_euler = rotation
         coll.objects.link(obj)
+
+        obj.hide_render = False
+        obj.hide_set(False)
+        obj.hide_viewport = False
+
         table_stuff.append(obj.name)
     return
 
@@ -669,7 +674,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i % 100 == 0:
+            if begin <= i < begin+increment:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:05d}.png"
