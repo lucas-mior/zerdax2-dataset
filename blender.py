@@ -275,7 +275,7 @@ def add_piece(piece, square, coll, piece_style):
     return obj
 
 
-def place_group(group, xmin, xmax, ymin, ymax, dfact=5):
+def place_group(group, xmin, xmax, ymin, ymax, dfact=6):
     print(f"place_group(group={group},",
           f"xmin={xmin/SQ_LEN:.2f}, xmax={xmax/SQ_LEN:.2f},",
           f"ymin={ymin/SQ_LEN:.2f}, ymax={ymax/SQ_LEN:.2f})")
@@ -356,9 +356,9 @@ def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
     yminwhite = +2*SQ_LEN
     ymaxwhite = max(yvertices)
     if board_style == 3:
-        dfact = 6
+        dfact = 7
     else:
-        dfact = 5
+        dfact = 6
 
     bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=xmin, xmax=xmax,
@@ -376,11 +376,11 @@ def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
     for piece in cap_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, coll, table_style,
-                     dfact=6, x=piece[1][0], y=piece[1][1])
+                     dfact=7, x=piece[1][0], y=piece[1][1])
     for piece in cap_white_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, coll, table_style,
-                     dfact=6, x=piece[1][0], y=piece[1][1])
+                     dfact=7, x=piece[1][0], y=piece[1][1])
     return
 
 
