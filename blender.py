@@ -68,7 +68,7 @@ def setup_camera(board_style):
     print(f"setup_camera(board_style={board_style})")
     camera = bpy.context.scene.camera
     angle = 90
-    while angle >= 62 or angle <= 18:
+    while angle >= 60 or angle <= 20:
         z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
         z = np.clip(z, 10*SQ_LEN, 16*SQ_LEN)
         x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
@@ -224,6 +224,13 @@ def setup_lighting():
         }
     }
     return data
+
+
+def in_square(x, y, d):
+    if abs(x) < (d*SQ_LEN) and abs(y) < (d*SQ_LEN):
+        return True
+    else:
+        return False
 
 
 def add_piece(piece, square, coll, piece_style):
