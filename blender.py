@@ -15,8 +15,8 @@ import gc
 import builtins as __builtin__
 
 
-DEBUG = False
-DO_RENDER = False
+DEBUG = True
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 25  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
@@ -68,7 +68,7 @@ def setup_camera(board_style):
     print(f"setup_camera(board_style={board_style})")
     camera = bpy.context.scene.camera
     angle = 90
-    while angle >= 60 or angle <= 20:
+    while angle >= 60 or angle <= 30:
         z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
         z = np.clip(z, 10*SQ_LEN, 16*SQ_LEN)
         x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
@@ -118,7 +118,10 @@ def setup_spotlight(light):
     print(f"setup_spotlight(light={light.name})")
     z = np.random.normal(16*SQ_LEN, 2*SQ_LEN)
     z = np.clip(z, 13*SQ_LEN, 22*SQ_LEN)
-    x = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
+    if light.name == "Spot1":
+        x = np.random.uniform(-18*SQ_LEN, 0)
+    else:
+        x = np.random.uniform(0, 18*SQ_LEN)
     y = np.random.uniform(-18*SQ_LEN, 18*SQ_LEN)
     location = mathutils.Vector((x, y, z))
     light.location = location
@@ -349,12 +352,12 @@ def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
 
     xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
     yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
-    xmin = min(xvertices)
-    xmax = max(xvertices)
-    yminblack = min(yvertices)
+    xmin = min(xvertices) + SQ_LEN/2
+    xmax = max(xvertices) - SQ_LEN/2
+    yminblack = min(yvertices) + SQ_LEN/2
     ymaxblack = -2*SQ_LEN
     yminwhite = +2*SQ_LEN
-    ymaxwhite = max(yvertices)
+    ymaxwhite = max(yvertices) - SQ_LEN/2
     if board_style == 3:
         dfact = 7
     else:
@@ -396,10 +399,10 @@ def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
     xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
     yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
     z = max(zvertices)
-    xmin = min(xvertices)
-    xmax = max(xvertices)
-    ymin = min(yvertices)
-    ymax = max(yvertices)
+    xmin = min(xvertices) + SQ_LEN/2
+    xmax = max(xvertices) - SQ_LEN/2
+    ymin = min(yvertices) + SQ_LEN/2
+    ymax = max(yvertices) - SQ_LEN/2
 
     dist = 1000*SQ_LEN
     i = 0
@@ -666,7 +669,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if begin <= i < begin+increment:
+            if i % 100 == 0:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:05d}.png"
