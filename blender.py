@@ -680,7 +680,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if begin <= i < begin+increment:
+            if i % 16 == 0:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("render") / f"{i:05d}.png"
@@ -694,7 +694,7 @@ if __name__ == "__main__":
                         json.dump(data, f, indent=4)
                     print(f"rendering {filename}...")
                     bpy.ops.render.render(write_still=1)
-                if i % 10 == 0:
+                if i % 64 == 0:
                     gc.collect()
                     bpy.ops.outliner.orphans_purge()
             else:
