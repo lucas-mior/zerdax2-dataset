@@ -17,6 +17,7 @@ import builtins as __builtin__
 
 DEBUG = True
 DO_RENDER = True
+ADD_PIECES = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
@@ -507,14 +508,15 @@ def setup_shot(position, output_file, cap_pieces):
     table_stuff.clear()
     piece_amount = 0
     piece_style = np.random.randint(1, PIECE_STYLES)
-    for square, piece in position.piece_map().items():
-        obj = add_piece(piece, square, coll, piece_style)
-        piece_data.append({
-            "piece": piece.symbol(),
-            "square": chess.square_name(square),
-            "box": get_bounding_box(scene, obj)
-        })
-        piece_amount += 1
+    if ADD_PIECES:
+        for square, piece in position.piece_map().items():
+            obj = add_piece(piece, square, coll, piece_style)
+            piece_data.append({
+                "piece": piece.symbol(),
+                "square": chess.square_name(square),
+                "box": get_bounding_box(scene, obj)
+            })
+            piece_amount += 1
 
     if np.random.randint(0, 2) == 1:
         place_captured(cap_pieces, piece_style, coll, table_style, board_style)
@@ -528,13 +530,17 @@ def setup_shot(position, output_file, cap_pieces):
         "board": board_style,
         "piece": piece_style,
     }
+    if ADD_PIECES:
+        fen_save = position.board_fen()
+    else:
+        fen_save = "8/8/8/8/8/8/8/8"
 
     # Write data output
     data = {
         "corners": corner_coords,
         "pieces": piece_data,
         "piece_amount": piece_amount,
-        "fen": position.board_fen(),
+        "fen": fen_save,
         "styles": styles,
         "table_stuff": table_stuff,
         "camera": camera_params,
@@ -682,10 +688,11 @@ if __name__ == "__main__":
                 cap_pieces = get_missing_pieces(fen)
                 data = setup_shot(position, filename, cap_pieces)
                 if DO_RENDER:
-                    print(f"rendering {filename}...")
                     jsonpath = filename.parent / (filename.stem + ".json")
+                    print(f"dumping json {jsonpath}...")
                     with jsonpath.open("w") as f:
                         json.dump(data, f, indent=4)
+                    print(f"rendering {filename}...")
                     bpy.ops.render.render(write_still=1)
                 if i % 10 == 0:
                     gc.collect()
