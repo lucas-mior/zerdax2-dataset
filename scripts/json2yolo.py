@@ -1,32 +1,27 @@
 #!/usr/bin/python
+"""
+converts json to yolo plain txt label format
+"""
 
 import json
 import sys
+import cv2
+
+from zerdax2 import CLASSES
 
 
-def json2yolo(filename):
-    data_file = open(filename)
+def json2yolo(jsonname):
+    data_file = open(jsonname)
     data = json.load(data_file)
 
-    name_to_class = {
-        "K": 0,
-        "Q": 1,
-        "R": 2,
-        "B": 3,
-        "N": 4,
-        "P": 5,
-        "k": 0,
-        "q": 1,
-        "r": 2,
-        "b": 3,
-        "n": 4,
-        "p": 5,
-    }
+    basename = jsonname.rsplit(".", 1)[0]
+    imgname = f'{basename}.png'
+    txtname = f'{basename}.txt'
+    txt = open(txtname, 'w')
+    img = cv2.imread(imgname)
 
-    # width = data['width']
-    # heigth = data['heigth']
-    width = 1280
-    heigth = 800
+    width = img.shape[1]
+    heigth = img.shape[0]
 
     for piece in data['pieces']:
         name = piece['piece']
@@ -41,7 +36,7 @@ def json2yolo(filename):
         y = ((top + bottom)/2) / heigth
         dx = dx / width
         dy = dy / heigth
-        print(name_to_class[name], x, y, dx, dy)
+        print(CLASSES[name], x, y, dx, dy, file=txt)
 
     # Closing file
     data_file.close()
@@ -49,5 +44,6 @@ def json2yolo(filename):
 
 
 if __name__ == "__main__":
-    filename = sys.argv[1]
-    json2yolo(filename)
+    files = sys.argv[1:]
+    for jsonname in files:
+        json2yolo(jsonname)

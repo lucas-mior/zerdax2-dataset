@@ -1,0 +1,57 @@
+#!/usr/bin/python
+"""
+draws boxes and corners on image based on json info
+"""
+
+import json
+import cv2
+import numpy as np
+import sys
+
+from zerdax2 import COLORS, CLASSES
+
+
+def draw_boxes(canvas, pieces):
+    print("Pieces:")
+    for piece in pieces:
+        name = piece['piece']
+        number = CLASSES[name]
+        color = COLORS[number]
+        left = piece['box'][0]
+        top = piece['box'][1]
+        right = left + piece['box'][2]
+        bottom = top + piece['box'][3]
+        cv2.rectangle(canvas, (left, top), (right, bottom),
+                      color=color, thickness=2)
+        print(piece)
+    return canvas
+
+
+def draw_corners(canvas, corners):
+    print("Board corners:")
+    for i, corner in enumerate(corners):
+        canvas = cv2.circle(canvas, corner,
+                            radius=7, color=(0, 200, 170-i*40), thickness=-1)
+        print(corner)
+    return canvas
+
+
+if __name__ == "__main__":
+    files = sys.argv[1:]
+    for imgname in files:
+        print(f"drawing {imgname}...")
+        basename = imgname.rsplit(".", 1)[0]
+
+        img = cv2.imread(imgname)
+        canvas = np.empty(img.shape, dtype='uint8') * 0
+
+        data_file = open(f'{basename}.json')
+        data = json.load(data_file)
+
+        canvas = draw_boxes(canvas, data['pieces'])
+        canvas = draw_corners(canvas, data['corners'])
+
+        output = cv2.addWeighted(img, 1, canvas, 0.6, 1)
+        cv2.imwrite(f"{basename}_draw.png", output)
+
+        data_file.close()
