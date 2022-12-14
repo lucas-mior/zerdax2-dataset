@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import sys
 
-from zerdax2 import COLORS, NAMES
+from zerdax2 import COLORS, SYMBOLS
 
 
 def get_piece(line, width, heigth):
@@ -21,7 +21,7 @@ def get_piece(line, width, heigth):
     y1 = round(y1*heigth)
     piece = {
         "number": a[0],
-        "name": NAMES[str(a[0])]
+        "symbol": SYMBOLS[str(a[0])]
     }
     return (piece, x0, y0, x1, y1)
 
@@ -46,7 +46,7 @@ def draw_boxes(img_name, txt_name):
         p, x0, y0, x1, y1 = piece
         color = COLORS[p['number']]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color, 2)
-        cv2.putText(canvas, p['name'], (x0-10, y0-2),
+        cv2.putText(canvas, p['symbol'], (x0-10, y0-2),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
         canvas2 = cv2.addWeighted(img, 1, canvas, 0.6, 1)
     cv2.imwrite(output, canvas2)

@@ -9,7 +9,7 @@ COLORS = {
     "5": (120, 0, 120)
 }
 
-NAMES = {
+SYMBOLS = {
     "0": "K",
     "1": "Q",
     "2": "R",
@@ -22,6 +22,36 @@ NAMES = {
     "9": "B",
     "10": "N",
     "11": "P"
+}
+
+NAMES = {
+    "0": "King",
+    "1": "Queen",
+    "2": "Rook",
+    "3": "Bishop",
+    "4": "Knight",
+    "5": "Pawn",
+    "6": "King",
+    "7": "Queen",
+    "8": "Rook",
+    "9": "Bishop",
+    "10": "Knight",
+    "11": "Pawn"
+}
+
+PIECES = {
+    "K": "White King",
+    "Q": "White Queen",
+    "R": "White Rook",
+    "B": "White Bishop",
+    "N": "White Knight",
+    "P": "White Pawn",
+    "k": "Black King",
+    "q": "Black Queen",
+    "r": "Black Rook",
+    "b": "Black Bishop",
+    "n": "Black Knight",
+    "p": "Black Pawn",
 }
 
 CLASSES = {
@@ -37,19 +67,4 @@ CLASSES = {
     "b": "3",
     "n": "4",
     "p": "5"
-}
-
-PIECE = {
-    "K": "White King",
-    "Q": "White Queen",
-    "R": "White Rook",
-    "B": "White Bishop",
-    "N": "White Knight",
-    "P": "White Pawn",
-    "k": "Black King",
-    "q": "Black Queen",
-    "r": "Black Rook",
-    "b": "Black Bishop",
-    "n": "Black Knight",
-    "p": "Black Pawn",
 }

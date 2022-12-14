@@ -52,6 +52,6 @@ if __name__ == "__main__":
         canvas = draw_corners(canvas, data['corners'])
 
         output = cv2.addWeighted(img, 1, canvas, 0.6, 1)
-        cv2.imwrite(f"{basename}_draw.png", output)
+        cv2.imwrite(f"{basename}_json.png", output)
 
         data_file.close()

@@ -10,13 +10,14 @@ import cv2
 from zerdax2 import CLASSES
 
 
-def json2yolo(jsonname):
-    data_file = open(jsonname)
-    data = json.load(data_file)
-
-    basename = jsonname.rsplit(".", 1)[0]
+def json2yolo(filename):
+    basename = filename.rsplit(".", 1)[0]
+    jsonname = f'{basename}.json'
     imgname = f'{basename}.png'
     txtname = f'{basename}.txt'
+
+    data_file = open(jsonname)
+    data = json.load(data_file)
     txt = open(txtname, 'w')
     img = cv2.imread(imgname)
 
@@ -40,10 +41,11 @@ def json2yolo(jsonname):
 
     # Closing file
     data_file.close()
+    txt.close()
     return
 
 
 if __name__ == "__main__":
     files = sys.argv[1:]
-    for jsonname in files:
-        json2yolo(jsonname)
+    for filename in files:
+        json2yolo(filename)

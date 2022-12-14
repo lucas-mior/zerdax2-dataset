@@ -17,7 +17,7 @@ import builtins as __builtin__
 
 DEBUG = True
 DO_RENDER = True
-ADD_PIECES = False
+ADD_PIECES = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
@@ -518,8 +518,8 @@ def setup_shot(position, output_file, cap_pieces):
             })
             piece_amount += 1
 
-    if np.random.randint(0, 2) == 1:
-        place_captured(cap_pieces, piece_style, coll, table_style, board_style)
+    # if np.random.randint(0, 2) == 1:
+    place_captured(cap_pieces, piece_style, coll, table_style, board_style)
     if np.random.randint(0, 2) == 1:
         add_to_table("RedCup", coll, table_style, dfact=7)
     if np.random.randint(0, 2) == 1:
@@ -680,10 +680,10 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i % 16 == 0:
+            if i == 6000:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
-                filename = Path("render") / f"{i:05d}.png"
+                filename = Path("renders") / f"{i:05d}.png"
                 position = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
                 data = setup_shot(position, filename, cap_pieces)
