@@ -23,6 +23,8 @@ def draw_boxes(canvas, pieces):
         bottom = top + piece['box'][3]
         cv2.rectangle(canvas, (left, top), (right, bottom),
                       color=color, thickness=2)
+        cv2.putText(canvas, name, (left-10, top-2),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
         print(piece)
     return canvas
 
