@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-draws labels and boxes around chess pieces
+draws labels and boxes around chess pieces based on yolo txt
 """
 import cv2
 import numpy as np
