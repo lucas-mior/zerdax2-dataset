@@ -13,6 +13,7 @@ from zerdax2 import COLORS, CLASSES
 
 def draw_boxes(canvas, pieces):
     print("Pieces:")
+    thick = 2 * (canvas.shape[0] / 1280)
     for piece in pieces:
         name = piece['piece']
         number = CLASSES[name]
@@ -22,7 +23,7 @@ def draw_boxes(canvas, pieces):
         right = left + piece['box'][2]
         bottom = top + piece['box'][3]
         cv2.rectangle(canvas, (left, top), (right, bottom),
-                      color=color, thickness=2)
+                      color=color, thickness=thick)
         cv2.putText(canvas, name, (left-10, top-2),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
         print(piece)
@@ -51,7 +52,7 @@ if __name__ == "__main__":
         data = json.load(data_file)
 
         canvas = draw_boxes(canvas, data['pieces'])
-        canvas = draw_corners(canvas, data['corners'])
+        # canvas = draw_corners(canvas, data['corners'])
 
         output = cv2.addWeighted(img, 1, canvas, 0.6, 1)
         cv2.imwrite(f"{basename}_json.png", output)

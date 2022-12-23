@@ -1,4 +1,8 @@
 #!/usr/bin/python
+"""
+Adds normalized corners coordinates
+to json file
+"""
 
 import json
 import sys

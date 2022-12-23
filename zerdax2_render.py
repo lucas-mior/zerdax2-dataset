@@ -69,7 +69,7 @@ def setup_camera(board_style):
     print(f"setup_camera(board_style={board_style})")
     camera = bpy.context.scene.camera
     angle = 90
-    while angle >= 60 or angle <= 30:
+    while angle >= 60 or angle <= 40:
         z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
         z = np.clip(z, 10*SQ_LEN, 16*SQ_LEN)
         x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
