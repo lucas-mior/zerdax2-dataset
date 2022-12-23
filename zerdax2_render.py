@@ -88,14 +88,14 @@ def setup_camera(board_style):
         dot = np.dot(v, w)
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
-        print(f"Camera to table angle:{angle:.2f}")
+        print(f"Camera to table angle: {angle:.2f}")
 
     if x <= -4*SQ_LEN:
-        perspective = "left"
+        perspective = "left" if y >= 0 else "right"
     elif -4*SQ_LEN < x < +4*SQ_LEN:
         perspective = "center"
     else:
-        perspective = "right"
+        perspective = "right" if y <= 0 else "left"
 
     rx = np.random.uniform(-0.01, -0.04)
     ry = np.random.uniform(-0.01, +0.01)
@@ -539,12 +539,8 @@ def setup_shot(position, output_file, cap_pieces):
     data = {
         "corners": corner_coords,
         "pieces": piece_data,
-        "piece_amount": piece_amount,
         "fen": fen_save,
-        "styles": styles,
-        "table_stuff": table_stuff,
         "camera": camera_params,
-        "lighting": lighting_params,
     }
     return data
 
