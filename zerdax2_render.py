@@ -97,9 +97,9 @@ def setup_camera(board_style):
     else:
         perspective = "right" if y <= 0 else "left"
 
-    rx = np.random.uniform(-0.01, -0.04)
-    ry = np.random.uniform(-0.01, +0.01)
-    rz = np.random.uniform(-0.01, +0.01)
+    rx = np.random.uniform(-0.01, -0.05)
+    ry = np.random.uniform(-0.02, +0.02)
+    rz = np.random.uniform(-0.02, +0.02)
 
     bpy.context.view_layer.update()
     camera.rotation_euler[0] += rx
