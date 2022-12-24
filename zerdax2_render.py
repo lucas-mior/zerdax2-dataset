@@ -15,8 +15,8 @@ import gc
 import builtins as __builtin__
 
 
-DEBUG = True
-DO_RENDER = True
+DEBUG = False
+DO_RENDER = False
 ADD_PIECES = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
@@ -465,8 +465,25 @@ def dist_point(P1, P2):
     return np.sqrt(a)
 
 
-def board_box(corners)
-    return corners
+def board_box(corners):
+    print(f"corners = {corners}")
+    x = [c[0] for c in corners]
+    y = [c[1] for c in corners]
+    cornersx = sorted(x)
+    cornersy = sorted(y)
+
+    x0, x1 = cornersx[0], cornersx[3]
+    xc = round(x0+x1/2)
+    dx = x1 - x0
+
+    y0, y1 = cornersy[0], cornersy[3]
+    yc = round(y0+y1/2)
+    dy = y1 - y0
+
+    print(f"0 {xc} {dx} {yc} {dy}")
+    box = [xc, dx, yc, dy]
+    return box
+
 
 def setup_shot(position, output_file, cap_pieces):
     print(f"setup_shot(position={position.board_fen()},\n",
