@@ -211,23 +211,7 @@ def setup_lighting():
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
 
-    data = {
-        "mode": mode,
-        "flash": {
-            "active": not flash.hide_render
-        },
-        "sun": {
-            "active": not sun.hide_render,
-            "strenth": setup_sun(),
-        },
-        **{
-            key: {
-                "active": not obj.hide_render,
-                **setup_spotlight(obj)
-            } for (key, obj) in {"spot1": spot1, "spot2": spot2}.items()
-        }
-    }
-    return data
+    return
 
 
 def in_square(x, y, d):
@@ -505,7 +489,7 @@ def setup_shot(position, output_file, cap_pieces):
         camera_params = setup_camera(board_style)
         corner_coords = get_corner_coordinates(scene)
 
-    lighting_params = setup_lighting()
+    setup_lighting()
     setup_board(board_style)
     setup_table(table_style, board_style)
 
