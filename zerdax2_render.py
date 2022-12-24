@@ -465,6 +465,9 @@ def dist_point(P1, P2):
     return np.sqrt(a)
 
 
+def board_box(corners)
+    return corners
+
 def setup_shot(position, output_file, cap_pieces):
     print(f"setup_shot(position={position.board_fen()},\n",
           f"output_file={output_file},\n",
@@ -538,6 +541,7 @@ def setup_shot(position, output_file, cap_pieces):
     # Write data output
     data = {
         "corners": corner_coords,
+        "board_box": board_box(corner_coords),
         "pieces": piece_data,
         "fen": fen_save,
         "camera": camera_params,
