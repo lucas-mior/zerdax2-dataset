@@ -34,8 +34,7 @@ def sort_corners(imgname):
 
 
 if __name__ == "__main__":
-    files = sys.argv[1:]
-    for imgname in files:
+    for imgname in sys.argv[1:]:
         basename = imgname.rsplit(".", 1)[0]
         jsonname = f'{basename}.json'
         imgname = f'{basename}.png'

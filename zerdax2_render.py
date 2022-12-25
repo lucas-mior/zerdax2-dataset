@@ -11,8 +11,14 @@ from pathlib import Path
 import typing
 import json
 import sys
+import os
 import gc
 import builtins as __builtin__
+
+d = os.path.dirname(bpy.data.filepath)
+if d not in sys.path:
+    sys.path.append(d)
+from zerdax2 import COLORS, CLASSES
 
 
 DEBUG = False
@@ -20,6 +26,8 @@ DO_RENDER = True
 ADD_PIECES = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
+WIDTH = 1280
+HEIGTH = 800
 COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 7
 TABLE_STYLES = 5
@@ -219,6 +227,33 @@ def in_square(x, y, d):
         return True
     else:
         return False
+
+
+def dump_yolo_txt(txtpath):
+    print(f"dumping txt {txtpath}...")
+    with txtpath.open("w") as txt:
+        for obj in data['pieces']:
+            name = obj['piece']
+            number = CLASSES[name]
+
+            left = obj['box'][0]
+            top = obj['box'][1]
+            dx = obj['box'][2]
+            dy = obj['box'][3]
+
+            right = left + dx
+            bottom = top + dy
+            xc = round((left + right)/2)
+            yc = round((top + bottom)/2)
+
+            xc, dx = xc/WIDTH, dx/WIDTH
+            yc, dy = yc/HEIGTH, dy/HEIGTH
+
+            yolo = f"{number} {xc} {yc} {dx} {dy}\n"
+            print(yolo)
+            txt.write(yolo)
+        txt.close()
+    return
 
 
 def add_piece(piece, square, coll, piece_style):
@@ -479,8 +514,8 @@ def setup_shot(position, output_file, cap_pieces):
     scene.render.engine = "BLENDER_EEVEE"
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(output_file)
-    scene.render.resolution_x = 1280
-    scene.render.resolution_y = 800
+    scene.render.resolution_x = WIDTH
+    scene.render.resolution_y = HEIGTH
 
     board_style = np.random.randint(1, BOARD_STYLES)
     table_style = np.random.randint(1, TABLE_STYLES)
@@ -681,7 +716,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i % 100 == 0:
+            if i == 5000:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("renders") / f"{i:05d}.png"
@@ -693,6 +728,11 @@ if __name__ == "__main__":
                     print(f"dumping json {jsonpath}...")
                     with jsonpath.open("w") as f:
                         json.dump(data, f, indent=4)
+                        f.close()
+
+                    txtpath = filename.parent / (filename.stem + ".txt")
+                    dump_yolo_txt(txtpath)
+
                     print(f"rendering {filename}...")
                     bpy.ops.render.render(write_still=1)
                 if i % 64 == 0:
@@ -701,3 +741,5 @@ if __name__ == "__main__":
             else:
                 pass
     print("="*60)
+
+

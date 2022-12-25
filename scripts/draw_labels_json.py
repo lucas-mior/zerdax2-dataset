@@ -57,8 +57,7 @@ def draw_board_box(canvas, box):
 
 
 if __name__ == "__main__":
-    files = sys.argv[1:]
-    for imgname in files:
+    for imgname in sys.argv[1:]:
         print(f"drawing {imgname}...")
         basename = imgname.rsplit(".", 1)[0]
 
@@ -72,7 +71,7 @@ if __name__ == "__main__":
         canvas = draw_corners(canvas, data['corners'])
         canvas = draw_board_box(canvas, data['board_box'])
 
-        output = cv2.addWeighted(img, 1, canvas, 0.6, 1)
+        output = cv2.addWeighted(img, 0.9, canvas, 0.6, 1)
         cv2.imwrite(f"{basename}_json.png", output)
 
         data_file.close()
