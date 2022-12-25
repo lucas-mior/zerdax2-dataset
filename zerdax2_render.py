@@ -16,7 +16,7 @@ import builtins as __builtin__
 
 
 DEBUG = False
-DO_RENDER = False
+DO_RENDER = True
 ADD_PIECES = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
@@ -457,11 +457,11 @@ def board_box(corners):
     cornersy = sorted(y)
 
     x0, x1 = cornersx[0], cornersx[3]
-    xc = round(x0+x1/2)
+    xc = round((x0+x1)/2)
     dx = x1 - x0
 
     y0, y1 = cornersy[0], cornersy[3]
-    yc = round(y0+y1/2)
+    yc = round((y0+y1)/2)
     dy = y1 - y0
 
     print(f"0 {xc} {dx} {yc} {dy}")
@@ -681,7 +681,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i == 6000:
+            if i % 100 == 0:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
                 filename = Path("renders") / f"{i:05d}.png"
