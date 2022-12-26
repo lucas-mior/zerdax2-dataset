@@ -46,6 +46,5 @@ def json2yolo(filename):
 
 
 if __name__ == "__main__":
-    files = sys.argv[1:]
-    for filename in files:
+    for filename in sys.argv[1:]:
         json2yolo(filename)

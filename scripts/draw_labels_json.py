@@ -45,7 +45,7 @@ if __name__ == "__main__":
         basename = imgname.rsplit(".", 1)[0]
 
         img = cv2.imread(imgname)
-        canvas = np.empty(img.shape, dtype='uint8') * 0
+        canvas = np.zeros(img.shape, dtype='uint8')
 
         data_file = open(f'{basename}.json')
         data = json.load(data_file)
