@@ -181,7 +181,7 @@ def setup_board(board_style):
             obj.hide_set(True)
 
     bpy.context.view_layer.update()
-    return
+    return obj
 
 
 def setup_sun():
@@ -499,7 +499,7 @@ def board_box(corners):
     yc = round((y0+y1)/2)
     dy = y1 - y0
 
-    print(f"0 {xc} {dx} {yc} {dy}")
+    print(f"0 {xc} {yc} {dx} {dy}")
     box = [xc, dx, yc, dy]
     return box
 
@@ -525,7 +525,7 @@ def setup_shot(position, output_file, cap_pieces):
         corner_coords = get_corner_coordinates(scene)
 
     setup_lighting()
-    setup_board(board_style)
+    board = setup_board(board_style)
     setup_table(table_style, board_style)
 
     corner_coords = sorted(corner_coords, key=lambda x: x[0])
@@ -544,6 +544,13 @@ def setup_shot(position, output_file, cap_pieces):
         bpy.ops.object.delete()
 
     piece_data = []
+
+    piece_data.append({
+        "piece": "Board",
+        "square": None,
+        "box": get_bounding_box(scene, board)
+    })
+
     table_stuff.clear()
     piece_amount = 0
     piece_style = np.random.randint(1, PIECE_STYLES)
@@ -741,5 +748,3 @@ if __name__ == "__main__":
             else:
                 pass
     print("="*60)
-
-
