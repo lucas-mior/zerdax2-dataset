@@ -7,7 +7,7 @@ import json
 import sys
 import cv2
 
-from zerdax2 import CLASSES
+from zerdax2_misc import CLASSES
 
 
 def json2yolo(filename):

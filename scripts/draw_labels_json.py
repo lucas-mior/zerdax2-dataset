@@ -8,12 +8,12 @@ import cv2
 import numpy as np
 import sys
 
-from zerdax2 import COLORS, CLASSES
+from zerdax2_misc import COLORS, CLASSES
 
 
 def draw_boxes(canvas, pieces):
     print("Pieces:")
-    thick = round(2 * (canvas.shape[0] / 1280))
+    thick = round(2.5 * (canvas.shape[1] / 1280))
     for piece in pieces:
         name = piece['piece']
         number = CLASSES[name]

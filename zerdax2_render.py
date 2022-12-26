@@ -18,7 +18,7 @@ import builtins as __builtin__
 d = os.path.dirname(bpy.data.filepath)
 if d not in sys.path:
     sys.path.append(d)
-from zerdax2 import COLORS, CLASSES
+from zerdax2_misc import COLORS, CLASSES
 
 
 DEBUG = False
