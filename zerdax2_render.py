@@ -27,13 +27,13 @@ ADD_PIECES = False
 ADD_BOARD = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
-WIDTH = 640
-HEIGTH = 400
 COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 7
 TABLE_STYLES = 5
 PIECE_STYLES = 7
 table_stuff = []
+WIDTH = 640
+HEIGTH = 400
 
 
 def console_print(*args, **kwargs):
@@ -725,6 +725,10 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
+            if np.random.randint(0, 2) == 0:
+                aux = WIDTH
+                WIDTH = HEIGTH
+                HEIGHT = aux
             if i % 20 == 0:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
