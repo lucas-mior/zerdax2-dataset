@@ -26,7 +26,7 @@ def get_piece(line, width, heigth):
     y1 = round(y1*heigth)
     piece = {
         "number": a[0],
-        "symbol": SYMBOLS[str(a[0])],
+        "symbol": SYMBOLS[a[0]],
         "conf": conf
     }
     return (piece, x0, y0, x1, y1)
@@ -51,7 +51,7 @@ def draw_boxes(img_name, txt_name):
     thick = round(2.5 * (img.shape[1] / 1280))
     for piece in pieces:
         p, x0, y0, x1, y1 = piece
-        color = COLORS[p['number']]
+        color = COLORS[int(p['number'])]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
         conf = p['conf']
         if conf != 0:

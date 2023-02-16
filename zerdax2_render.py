@@ -23,11 +23,12 @@ from zerdax2_misc import CLASSES
 
 DEBUG = False
 DO_RENDER = True
-ADD_PIECES = True
+ADD_PIECES = False
+ADD_BOARD = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
-WIDTH = 1280
-HEIGTH = 800
+WIDTH = 640
+HEIGTH = 400
 COLLECTION_NAME = "ChessPosition"
 BOARD_STYLES = 7
 TABLE_STYLES = 5
@@ -171,7 +172,7 @@ def setup_board(board_style):
     print(f"setup_board(board_style={board_style})")
     for i in range(1, BOARD_STYLES):
         obj = bpy.data.objects[f"Board{i}"]
-        if i == board_style:
+        if i == board_style and ADD_BOARD:
             obj.hide_render = False
             obj.hide_viewport = False
             obj.hide_set(False)
@@ -250,7 +251,7 @@ def dump_yolo_txt(txtpath):
             yc, dy = yc/HEIGTH, dy/HEIGTH
 
             yolo = f"{number} {xc} {yc} {dx} {dy}\n"
-            print(yolo)
+            print(yolo, end="")
             txt.write(yolo)
         txt.close()
     return
@@ -545,11 +546,12 @@ def setup_shot(position, output_file, cap_pieces):
 
     piece_data = []
 
-    piece_data.append({
-        "piece": "Board",
-        "square": None,
-        "box": get_bounding_box(scene, board)
-    })
+    if ADD_BOARD:
+        piece_data.append({
+            "piece": "Board",
+            "square": None,
+            "box": get_bounding_box(scene, board)
+        })
 
     table_stuff.clear()
     piece_amount = 0
@@ -571,11 +573,11 @@ def setup_shot(position, output_file, cap_pieces):
     if np.random.randint(0, 2) == 1:
         add_to_table("CoffeCup", coll, table_style, dfact=8)
 
-    styles = {
-        "table": table_style,
-        "board": board_style,
-        "piece": piece_style,
-    }
+    # styles = {
+    #     "table": table_style,
+    #     "board": board_style,
+    #     "piece": piece_style,
+    # }
     if ADD_PIECES:
         fen_save = position.board_fen()
     else:
@@ -723,28 +725,35 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i == 5000:
+            if i % 20 == 0:
                 print(f"FEN #{i} = {fen}")
                 print(f"FEN #{i} = {fen}", file=sys.stderr)
-                filename = Path("renders") / f"{i:05d}.png"
+                if ADD_BOARD and ADD_PIECES:
+                    mode = "a"
+                elif ADD_BOARD:
+                    mode = "b"
+                else:
+                    mode = "c"
+                filename = Path("renders") / f"{mode}{i:05d}.png"
                 position = chess.Board("".join(fen))
                 cap_pieces = get_missing_pieces(fen)
                 data = setup_shot(position, filename, cap_pieces)
                 if DO_RENDER:
-                    jsonpath = filename.parent / (filename.stem + ".json")
-                    print(f"dumping json {jsonpath}...")
-                    with jsonpath.open("w") as f:
-                        json.dump(data, f, indent=4)
-                        f.close()
+                    # jsonpath = filename.parent / (filename.stem + ".json")
+                    # print(f"dumping json {jsonpath}...")
+                    # with jsonpath.open("w") as f:
+                    #     json.dump(data, f, indent=4)
+                    #     f.close()
 
-                    txtpath = filename.parent / (filename.stem + ".txt")
-                    dump_yolo_txt(txtpath)
+                    if ADD_BOARD or ADD_PIECES:
+                        txtpath = filename.parent / (filename.stem + ".txt")
+                        dump_yolo_txt(txtpath)
 
                     print(f"rendering {filename}...")
                     bpy.ops.render.render(write_still=1)
-                if i % 64 == 0:
-                    gc.collect()
-                    bpy.ops.outliner.orphans_purge()
+            if i % 100 == 0:
+                gc.collect()
+                bpy.ops.outliner.orphans_purge()
             else:
                 pass
     print("="*60)
