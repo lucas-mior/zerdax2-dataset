@@ -4,14 +4,16 @@
 
 import bpy
 import bpy_extras.object_utils
+import os
+import sys
+
+sys.path.append("/home/lucas/.local/lib/python3.10/site-packages")
 import mathutils
 import chess
 import numpy as np
 from pathlib import Path
 import typing
 import json
-import sys
-import os
 import gc
 import builtins as __builtin__
 
@@ -23,8 +25,9 @@ from zerdax2_misc import CLASSES
 
 DEBUG = False
 DO_RENDER = True
-ADD_PIECES = False
-ADD_BOARD = False
+DO_JSON = False
+ADD_PIECES = True
+ADD_BOARD = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
@@ -32,8 +35,6 @@ BOARD_STYLES = 7
 TABLE_STYLES = 5
 PIECE_STYLES = 7
 table_stuff = []
-WIDTH = 640
-HEIGTH = 400
 
 
 def console_print(*args, **kwargs):
@@ -79,9 +80,9 @@ def setup_camera(board_style):
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 60 or angle <= 40:
-        z = np.random.normal(14*SQ_LEN, 2*SQ_LEN)
-        z = np.clip(z, 10*SQ_LEN, 16*SQ_LEN)
-        x = np.random.uniform(-10*SQ_LEN, 10*SQ_LEN)
+        z = np.random.normal(13*SQ_LEN, 2*SQ_LEN)
+        z = np.clip(z, 10*SQ_LEN, 15*SQ_LEN)
+        x = np.random.uniform(-9*SQ_LEN, 9*SQ_LEN)
         dy = np.random.normal(9*SQ_LEN, SQ_LEN)
         dy = np.clip(dy, 8.5*SQ_LEN, 9.5*SQ_LEN)
         y = 0.7*abs(x) + 0.1*abs(z) + dy
@@ -726,35 +727,38 @@ if __name__ == "__main__":
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
             if np.random.randint(0, 2) == 0:
-                aux = WIDTH
-                WIDTH = HEIGTH
-                HEIGHT = aux
-            if i % 20 == 0:
-                print(f"FEN #{i} = {fen}")
-                print(f"FEN #{i} = {fen}", file=sys.stderr)
-                if ADD_BOARD and ADD_PIECES:
-                    mode = "a"
-                elif ADD_BOARD:
-                    mode = "b"
-                else:
-                    mode = "c"
-                filename = Path("renders") / f"{mode}{i:05d}.png"
-                position = chess.Board("".join(fen))
-                cap_pieces = get_missing_pieces(fen)
-                data = setup_shot(position, filename, cap_pieces)
-                if DO_RENDER:
-                    # jsonpath = filename.parent / (filename.stem + ".json")
-                    # print(f"dumping json {jsonpath}...")
-                    # with jsonpath.open("w") as f:
-                    #     json.dump(data, f, indent=4)
-                    #     f.close()
+                WIDTH = 640
+                HEIGTH = 400
+            else:
+                WIDTH = 400
+                HEIGTH = 640
 
-                    if ADD_BOARD or ADD_PIECES:
-                        txtpath = filename.parent / (filename.stem + ".txt")
-                        dump_yolo_txt(txtpath)
+            print(f"FEN #{i} = {fen}")
+            print(f"FEN #{i} = {fen}", file=sys.stderr)
+            if ADD_BOARD and ADD_PIECES:
+                mode = "a"
+            elif ADD_BOARD:
+                mode = "b"
+            else:
+                mode = "c"
+            filename = Path("renders") / f"{mode}{i:05d}.png"
+            position = chess.Board("".join(fen))
+            cap_pieces = get_missing_pieces(fen)
+            data = setup_shot(position, filename, cap_pieces)
+            if DO_RENDER:
+                if DO_JSON:
+                    jsonpath = filename.parent / (filename.stem + ".json")
+                    print(f"dumping json {jsonpath}...")
+                    with jsonpath.open("w") as f:
+                        json.dump(data, f, indent=4)
+                        f.close()
 
-                    print(f"rendering {filename}...")
-                    bpy.ops.render.render(write_still=1)
+                if ADD_BOARD or ADD_PIECES:
+                    txtpath = filename.parent / (filename.stem + ".txt")
+                    dump_yolo_txt(txtpath)
+
+                print(f"rendering {filename}...")
+                bpy.ops.render.render(write_still=1)
             if i % 100 == 0:
                 gc.collect()
                 bpy.ops.outliner.orphans_purge()
