@@ -6,16 +6,16 @@ import bpy
 import bpy_extras.object_utils
 import os
 import sys
+from pathlib import Path
+import numpy as np
+import builtins as __builtin__
+import gc
+import typing
 
 sys.path.append("/home/lucas/.local/lib/python3.10/site-packages")
 import mathutils
 import chess
-import numpy as np
-from pathlib import Path
-import typing
 import json
-import gc
-import builtins as __builtin__
 
 d = os.path.dirname(bpy.data.filepath)
 if d not in sys.path:
