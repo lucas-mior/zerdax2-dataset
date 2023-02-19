@@ -514,7 +514,7 @@ def setup_shot(position, output_file, cap_pieces):
 
     # Setup rendering
     scene.render.engine = "BLENDER_EEVEE"
-    scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.file_format = "JPEG"
     scene.render.filepath = str(output_file)
     scene.render.resolution_x = WIDTH
     scene.render.resolution_y = HEIGTH
@@ -727,11 +727,11 @@ if __name__ == "__main__":
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
             if i % 2 == 0:
-                WIDTH = 640
-                HEIGTH = 400
+                WIDTH = 960
+                HEIGTH = 600
             else:
-                WIDTH = 400
-                HEIGTH = 640
+                WIDTH = 600
+                HEIGTH = 960
 
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)

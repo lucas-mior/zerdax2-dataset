@@ -26,7 +26,7 @@ def get_piece(line, width, heigth):
     y1 = round(y1*heigth)
     piece = {
         "number": a[0],
-        "symbol": SYMBOLS[a[0]],
+        "symbol": SYMBOLS[int(a[0])],
         "conf": conf
     }
     return (piece, x0, y0, x1, y1)
