@@ -726,7 +726,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if np.random.randint(0, 2) == 0:
+            if i % 2 == 0:
                 WIDTH = 640
                 HEIGTH = 400
             else:
@@ -762,6 +762,4 @@ if __name__ == "__main__":
             if i % 100 == 0:
                 gc.collect()
                 bpy.ops.outliner.orphans_purge()
-            else:
-                pass
     print("="*60)
