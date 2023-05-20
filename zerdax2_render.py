@@ -221,13 +221,6 @@ def setup_lighting():
     return
 
 
-def in_square(x, y, d):
-    if abs(x) < (d*SQUARE_LENGTH) and abs(y) < (d*SQUARE_LENGTH):
-        return True
-    else:
-        return False
-
-
 def dump_yolo_txt(txtpath):
     print(f"dumping txt {txtpath}...")
     with txtpath.open("w") as txt:
@@ -297,7 +290,7 @@ def add_piece(piece, square, collection, piece_style):
     return obj
 
 
-def place_group(group, xmin, xmax, ymin, ymax, dfact=6):
+def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
     print(f"place_group(group={group},",
           f"xmin={xmin/SQUARE_LENGTH:.2f}, xmax={xmax/SQUARE_LENGTH:.2f},",
           f"ymin={ymin/SQUARE_LENGTH:.2f}, ymax={ymax/SQUARE_LENGTH:.2f})")
@@ -305,7 +298,7 @@ def place_group(group, xmin, xmax, ymin, ymax, dfact=6):
     xcenter = np.random.uniform(xmin, xmax)
     ycenter = np.random.uniform(ymin, ymax)
     print(f"center = ({xcenter/SQUARE_LENGTH}, {ycenter/SQUARE_LENGTH})")
-    while abs(xcenter) < dfact*SQUARE_LENGTH and abs(ycenter) < dfact*SQUARE_LENGTH:
+    while abs(xcenter) < dist_factor*SQUARE_LENGTH and abs(ycenter) < dist_factor*SQUARE_LENGTH:
         xcenter = np.random.uniform(xmin, xmax)
         ycenter = np.random.uniform(ymin, ymax)
 
@@ -315,7 +308,7 @@ def place_group(group, xmin, xmax, ymin, ymax, dfact=6):
         dist = 0
         i = 0
         if abs(xcenter) > abs(ycenter):
-            while (abs(x) < dfact*SQUARE_LENGTH and abs(y) < dfact*SQUARE_LENGTH) or dist < SQUARE_LENGTH/2:
+            while (abs(x) < dist_factor*SQUARE_LENGTH and abs(y) < dist_factor*SQUARE_LENGTH) or dist < SQUARE_LENGTH/2:
                 dist = 1000
                 x = np.random.normal(xcenter, 2*SQUARE_LENGTH)
                 y = np.random.normal(ycenter, 4*SQUARE_LENGTH)
@@ -329,7 +322,7 @@ def place_group(group, xmin, xmax, ymin, ymax, dfact=6):
                 if i >= 20:
                     break
         else:
-            while (abs(x) < dfact*SQUARE_LENGTH and abs(y) < dfact*SQUARE_LENGTH) or dist < SQUARE_LENGTH/2:
+            while (abs(x) < dist_factor*SQUARE_LENGTH and abs(y) < dist_factor*SQUARE_LENGTH) or dist < SQUARE_LENGTH/2:
                 dist = 1000
                 x = np.random.normal(xcenter, 4*SQUARE_LENGTH)
                 y = np.random.normal(ycenter, 2*SQUARE_LENGTH)
@@ -378,37 +371,37 @@ def place_captured(captured_pieces, piece_style, collection, table_style, board_
     yminwhite = +2*SQUARE_LENGTH
     ymaxwhite = max(yvertices) - SQUARE_LENGTH/2
     if board_style == 3:
-        dfact = 7
+        dist_factor = 7
     else:
-        dfact = 6
+        dist_factor = 6
 
     bcenter, cap_black_loc = place_group(cap_black,
                                          xmin=xmin, xmax=xmax,
                                          ymin=yminblack, ymax=ymaxblack,
-                                         dfact=dfact)
+                                         dist_factor=dist_factor)
 
     while True:
         wcenter, cap_white_loc = place_group(cap_white,
                                              xmin=xmin, xmax=xmax,
                                              ymin=yminwhite, ymax=ymaxwhite,
-                                             dfact=dfact)
+                                             dist_factor=dist_factor)
         if dist_point(wcenter, bcenter) > 6*SQUARE_LENGTH:
             break
 
     for piece in cap_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style,
-                     dfact=7, x=piece[1][0], y=piece[1][1])
+                     dist_factor=7, x=piece[1][0], y=piece[1][1])
     for piece in cap_white_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style,
-                     dfact=7, x=piece[1][0], y=piece[1][1])
+                     dist_factor=7, x=piece[1][0], y=piece[1][1])
     return
 
 
-def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
+def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
     debug_print(f"add_to_table(name={name}, collection={collection.name},",
-                f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
+                f"table_style={table_style}, dist_factor={dist_factor}, x={x:.2f}, y={y:.2f})")
 
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
 
@@ -430,7 +423,7 @@ def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
             x = np.random.uniform(xmin, xmax)
             y = np.random.uniform(ymin, ymax)
             j = 0
-            while abs(x) < dfact*SQUARE_LENGTH and abs(y) < dfact*SQUARE_LENGTH:
+            while abs(x) < dist_factor*SQUARE_LENGTH and abs(y) < dist_factor*SQUARE_LENGTH:
                 x = np.random.uniform(xmin, xmax)
                 y = np.random.uniform(ymin, ymax)
                 j += 1
@@ -567,9 +560,9 @@ def setup_shot(position, output_file, captured_pieces):
     # if np.random.randint(0, 2) == 1:
     place_captured(captured_pieces, piece_style, collection, table_style, board_style)
     if np.random.randint(0, 2) == 1:
-        add_to_table("RedCup", collection, table_style, dfact=7)
+        add_to_table("RedCup", collection, table_style, dist_factor=7)
     if np.random.randint(0, 2) == 1:
-        add_to_table("CoffeCup", collection, table_style, dfact=8)
+        add_to_table("CoffeCup", collection, table_style, dist_factor=8)
 
     # styles = {
     #     "table": table_style,
