@@ -26,8 +26,6 @@ from zerdax2_misc import CLASSES
 DEBUG = False
 DO_RENDER = True
 DO_JSON = False
-ADD_PIECES = True
-ADD_BOARD = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
 COLLECTION_NAME = "ChessPosition"
@@ -732,16 +730,25 @@ if __name__ == "__main__":
             else:
                 WIDTH = 600
                 HEIGTH = 960
+            if i % 11 == 0:
+                ADD_BOARD = False
+                ADD_PIECES = False
+            elif i % 23 == 0:
+                ADD_BOARD = True
+                ADD_PIECES = False
+            else:
+                ADD_BOARD = True
+                ADD_PIECES = True
 
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
             if ADD_BOARD and ADD_PIECES:
-                mode = "a"
+                mode = "board_and_pieces"
             elif ADD_BOARD:
-                mode = "b"
+                mode = "board_only"
             else:
-                mode = "c"
-            filename = Path("renders") / f"{mode}{i:05d}.png"
+                mode = "background_only"
+            filename = Path("renders") / mode / f"{i:05d}.png"
             position = chess.Board("".join(fen))
             cap_pieces = get_missing_pieces(fen)
             data = setup_shot(position, filename, cap_pieces)
@@ -753,7 +760,7 @@ if __name__ == "__main__":
                         json.dump(data, f, indent=4)
                         f.close()
 
-                if ADD_BOARD or ADD_PIECES:
+                if ADD_BOARD:
                     txtpath = filename.parent / (filename.stem + ".txt")
                     dump_yolo_txt(txtpath)
 
