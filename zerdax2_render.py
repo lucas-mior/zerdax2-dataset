@@ -24,7 +24,7 @@ from zerdax2_misc import CLASSES
 
 
 DEBUG = False
-DO_RENDER = True
+DO_RENDER = False
 DO_JSON = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
@@ -724,16 +724,18 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i % 2 == 0:
+            rand_num = np.random.randint(1, 1000)
+            # rand_num = i
+            if rand_num % 2 == 0:
                 WIDTH = 960
                 HEIGTH = 600
             else:
                 WIDTH = 600
                 HEIGTH = 960
-            if i % 11 == 0:
+            if rand_num % 11 == 0:
                 ADD_BOARD = False
                 ADD_PIECES = False
-            elif i % 23 == 0:
+            elif rand_num % 23 == 0:
                 ADD_BOARD = True
                 ADD_PIECES = False
             else:
@@ -769,4 +771,5 @@ if __name__ == "__main__":
             if i % 100 == 0:
                 gc.collect()
                 bpy.ops.outliner.orphans_purge()
+            break
     print("="*60)
