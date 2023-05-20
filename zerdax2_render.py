@@ -295,23 +295,24 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
           f"xmin={xmin/SQUARE_LENGTH:.2f}, xmax={xmax/SQUARE_LENGTH:.2f},",
           f"ymin={ymin/SQUARE_LENGTH:.2f}, ymax={ymax/SQUARE_LENGTH:.2f})")
     pieces_loc = []
-    xcenter = np.random.uniform(xmin, xmax)
-    ycenter = np.random.uniform(ymin, ymax)
-    print(f"center = ({xcenter/SQUARE_LENGTH}, {ycenter/SQUARE_LENGTH})")
-    while abs(xcenter) < dist_factor*SQUARE_LENGTH and abs(ycenter) < dist_factor*SQUARE_LENGTH:
-        xcenter = np.random.uniform(xmin, xmax)
-        ycenter = np.random.uniform(ymin, ymax)
+    xc = np.random.uniform(xmin, xmax)
+    yc = np.random.uniform(ymin, ymax)
+    print(f"center = ({xc/SQUARE_LENGTH}, {yc/SQUARE_LENGTH})")
+    limit = dist_factor*SQUARE_LENGTH
+    while abs(xc) < limit and abs(yc) < limit:
+        xc = np.random.uniform(xmin, xmax)
+        yc = np.random.uniform(ymin, ymax)
 
     for piece in group:
         x = 1000
         y = 1000
         dist = 0
         i = 0
-        if abs(xcenter) > abs(ycenter):
+        if abs(xc) > abs(yc):
             while (abs(x) < dist_factor*SQUARE_LENGTH and abs(y) < dist_factor*SQUARE_LENGTH) or dist < SQUARE_LENGTH/2:
                 dist = 1000
-                x = np.random.normal(xcenter, 2*SQUARE_LENGTH)
-                y = np.random.normal(ycenter, 4*SQUARE_LENGTH)
+                x = np.random.normal(xc, 2*SQUARE_LENGTH)
+                y = np.random.normal(yc, 4*SQUARE_LENGTH)
                 x = np.clip(x, xmin, xmax)
                 y = np.clip(y, ymin, ymax)
                 for p in pieces_loc:
@@ -324,8 +325,8 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
         else:
             while (abs(x) < dist_factor*SQUARE_LENGTH and abs(y) < dist_factor*SQUARE_LENGTH) or dist < SQUARE_LENGTH/2:
                 dist = 1000
-                x = np.random.normal(xcenter, 4*SQUARE_LENGTH)
-                y = np.random.normal(ycenter, 2*SQUARE_LENGTH)
+                x = np.random.normal(xc, 4*SQUARE_LENGTH)
+                y = np.random.normal(yc, 2*SQUARE_LENGTH)
                 x = np.clip(x, xmin, xmax)
                 y = np.clip(y, ymin, ymax)
                 for p in pieces_loc:
@@ -337,7 +338,7 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
                     break
         if i < 20:
             pieces_loc.append((piece, (x, y)))
-    return (xcenter, ycenter, 0), pieces_loc
+    return (xc, yc, 0), pieces_loc
 
 
 def place_captured(captured_pieces, piece_style, collection, table_style, board_style):
@@ -358,8 +359,8 @@ def place_captured(captured_pieces, piece_style, collection, table_style, board_
         "r": "BlackRook",
         "p": "BlackPawn",
     }
-    cap_black = [c for c in captured_pieces if c.islower()]
-    cap_white = [c for c in captured_pieces if c.isupper()]
+    captured_black = [c for c in captured_pieces if c.islower()]
+    captured_white = [c for c in captured_pieces if c.isupper()]
     table = bpy.data.objects[f'Table{table_style}']
 
     xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
@@ -375,24 +376,24 @@ def place_captured(captured_pieces, piece_style, collection, table_style, board_
     else:
         dist_factor = 6
 
-    bcenter, cap_black_loc = place_group(cap_black,
-                                         xmin=xmin, xmax=xmax,
-                                         ymin=yminblack, ymax=ymaxblack,
-                                         dist_factor=dist_factor)
+    bcenter, captured_black_loc = place_group(captured_black,
+                                              xmin, xmax,
+                                              yminblack, ymaxblack,
+                                              dist_factor)
 
     while True:
-        wcenter, cap_white_loc = place_group(cap_white,
-                                             xmin=xmin, xmax=xmax,
-                                             ymin=yminwhite, ymax=ymaxwhite,
-                                             dist_factor=dist_factor)
+        wcenter, captured_white_loc = place_group(captured_white,
+                                                  xmin, xmax,
+                                                  yminwhite, ymaxwhite,
+                                                  dist_factor)
         if dist_point(wcenter, bcenter) > 6*SQUARE_LENGTH:
             break
 
-    for piece in cap_black_loc:
+    for piece in captured_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style,
                      dist_factor=7, x=piece[1][0], y=piece[1][1])
-    for piece in cap_white_loc:
+    for piece in captured_white_loc:
         name = piece_names[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style,
                      dist_factor=7, x=piece[1][0], y=piece[1][1])
@@ -400,8 +401,8 @@ def place_captured(captured_pieces, piece_style, collection, table_style, board_
 
 
 def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
-    debug_print(f"add_to_table(name={name}, collection={collection.name},",
-                f"table_style={table_style}, dist_factor={dist_factor}, x={x:.2f}, y={y:.2f})")
+    debug_print(f"add_to_table({name=}, collection={collection.name},",
+                f"{table_style=}, {dist_factor=}, x={x:.2f}, y={y:.2f})")
 
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
 
@@ -423,7 +424,8 @@ def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
             x = np.random.uniform(xmin, xmax)
             y = np.random.uniform(ymin, ymax)
             j = 0
-            while abs(x) < dist_factor*SQUARE_LENGTH and abs(y) < dist_factor*SQUARE_LENGTH:
+            limit = dist_factor*SQUARE_LENGTH
+            while abs(x) < limit and abs(y) < limit:
                 x = np.random.uniform(xmin, xmax)
                 y = np.random.uniform(ymin, ymax)
                 j += 1
@@ -558,7 +560,8 @@ def setup_shot(position, output_file, captured_pieces):
             piece_amount += 1
 
     # if np.random.randint(0, 2) == 1:
-    place_captured(captured_pieces, piece_style, collection, table_style, board_style)
+    place_captured(captured_pieces, piece_style,
+                   collection, table_style, board_style)
     if np.random.randint(0, 2) == 1:
         add_to_table("RedCup", collection, table_style, dist_factor=7)
     if np.random.randint(0, 2) == 1:
