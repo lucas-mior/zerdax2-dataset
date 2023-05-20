@@ -324,7 +324,8 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
                 if i >= 20:
                     break
         else:
-            while (abs(x) < dist_factor*SQUARE_LENGTH and abs(y) < dist_factor*SQUARE_LENGTH) or dist < SQUARE_LENGTH/2:
+            limit = dist_factor*SQUARE_LENGTH
+            while abs(x) < limit and abs(y) < limit or dist < SQUARE_LENGTH/2:
                 dist = 1000
                 x = np.random.normal(xc, 4*SQUARE_LENGTH)
                 y = np.random.normal(yc, 2*SQUARE_LENGTH)
