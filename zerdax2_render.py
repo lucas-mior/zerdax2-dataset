@@ -161,8 +161,8 @@ def setup_table(styles):
             obj.hide_set(True)
     table = bpy.data.objects[f'Table{table_style}']
     board = bpy.data.objects[f'Board{board_style}']
-    bmin = min([(board.matrix_world @ v.co).z for v in board.data.vertices])
-    table.location[2] = bmin
+    board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
+    table.location[2] = min(board_zs)
 
     bpy.context.view_layer.update()
     return
