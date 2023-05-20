@@ -28,8 +28,8 @@ DO_JSON = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.259
 COLLECTION_NAME = "ChessPosition"
-BOARD_STYLES = 7
 TABLE_STYLES = 5
+BOARD_STYLES = 7
 PIECE_STYLES = 7
 table_stuff = []
 
@@ -145,7 +145,9 @@ def setup_spotlight(light):
     return data
 
 
-def setup_table(table_style, board_style):
+def setup_table(styles):
+    table_style = styles["table"]
+    board_style = styles["board"]
     print(f"setup_table(style={table_style}, board_style={board_style})")
     for i in range(1, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
@@ -343,7 +345,10 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
     return (xc, yc, 0), pieces_loc
 
 
-def place_captured(captured_pieces, piece_style, collection, table_style, board_style):
+def place_captured(captured_pieces, styles, collection):
+    piece_style = styles["piece"]
+    board_style = styles["board"]
+    table_style = styles["table"]
     print(f"place_captured(captured_pieces={captured_pieces},",
           f"piece_style={piece_style}, collection={collection.name},",
           f"table_style={table_style})")
@@ -513,16 +518,20 @@ def setup_shot(position, output_file, captured_pieces):
     scene.render.resolution_x = WIDTH
     scene.render.resolution_y = HEIGTH
 
-    board_style = np.random.randint(1, BOARD_STYLES)
-    table_style = np.random.randint(1, TABLE_STYLES)
+    styles = {
+        "table": np.random.randint(1, TABLE_STYLES),
+        "board": np.random.randint(1, BOARD_STYLES),
+        "piece": np.random.randint(1, PIECE_STYLES),
+    }
+
     corner_coords = None
     while not corner_coords:
-        camera_params = setup_camera(board_style)
+        camera_params = setup_camera(styles['board'])
         corner_coords = get_corner_coordinates(scene)
 
     setup_lighting()
-    board = setup_board(board_style)
-    setup_table(table_style, board_style)
+    board = setup_board(styles['board'])
+    setup_table(styles)
 
     corner_coords = sorted(corner_coords, key=lambda x: x[0])
 
@@ -550,10 +559,9 @@ def setup_shot(position, output_file, captured_pieces):
 
     table_stuff.clear()
     piece_amount = 0
-    piece_style = np.random.randint(1, PIECE_STYLES)
     if ADD_PIECES:
         for square, piece in position.piece_map().items():
-            obj = add_piece(piece, square, collection, piece_style)
+            obj = add_piece(piece, square, collection, styles['piece'])
             piece_data.append({
                 "piece": piece.symbol(),
                 "square": chess.square_name(square),
@@ -562,18 +570,12 @@ def setup_shot(position, output_file, captured_pieces):
             piece_amount += 1
 
     # if np.random.randint(0, 2) == 1:
-    place_captured(captured_pieces, piece_style,
-                   collection, table_style, board_style)
+    place_captured(captured_pieces, styles, collection)
     if np.random.randint(0, 2) == 1:
-        add_to_table("RedCup", collection, table_style, dist_factor=7)
+        add_to_table("RedCup", collection, styles['table'], dist_factor=7)
     if np.random.randint(0, 2) == 1:
-        add_to_table("CoffeCup", collection, table_style, dist_factor=8)
+        add_to_table("CoffeCup", collection, styles['table'], dist_factor=8)
 
-    # styles = {
-    #     "table": table_style,
-    #     "board": board_style,
-    #     "piece": piece_style,
-    # }
     if ADD_PIECES:
         fen_save = position.board_fen()
     else:
