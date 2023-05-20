@@ -255,9 +255,9 @@ def dump_yolo_txt(txtpath):
     return
 
 
-def add_piece(piece, square, coll, piece_style):
+def add_piece(piece, square, collection, piece_style):
     debug_print(f"add_piece(piece={piece}, square={square},",
-                f"coll={coll.name}, piece_style={piece_style})")
+                f"collection={collection.name}, piece_style={piece_style})")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -293,7 +293,7 @@ def add_piece(piece, square, coll, piece_style):
     obj.animation_data_clear()
     obj.location = location
     obj.rotation_euler = rotation
-    coll.objects.link(obj)
+    collection.objects.link(obj)
     return obj
 
 
@@ -347,9 +347,9 @@ def place_group(group, xmin, xmax, ymin, ymax, dfact=6):
     return (xcenter, ycenter, 0), pieces_loc
 
 
-def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
-    print(f"place_captured(cap_pieces={cap_pieces},",
-          f"piece_style={piece_style}, coll={coll.name},",
+def place_captured(captured_pieces, piece_style, collection, table_style, board_style):
+    print(f"place_captured(captured_pieces={captured_pieces},",
+          f"piece_style={piece_style}, collection={collection.name},",
           f"table_style={table_style})")
     piece_names = {
         "K": "WhiteKing",
@@ -365,8 +365,8 @@ def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
         "r": "BlackRook",
         "p": "BlackPawn",
     }
-    cap_black = [c for c in cap_pieces if c.islower()]
-    cap_white = [c for c in cap_pieces if c.isupper()]
+    cap_black = [c for c in captured_pieces if c.islower()]
+    cap_white = [c for c in captured_pieces if c.isupper()]
     table = bpy.data.objects[f'Table{table_style}']
 
     xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
@@ -397,17 +397,17 @@ def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
 
     for piece in cap_black_loc:
         name = piece_names[piece[0]] + str(piece_style)
-        add_to_table(name, coll, table_style,
+        add_to_table(name, collection, table_style,
                      dfact=7, x=piece[1][0], y=piece[1][1])
     for piece in cap_white_loc:
         name = piece_names[piece[0]] + str(piece_style)
-        add_to_table(name, coll, table_style,
+        add_to_table(name, collection, table_style,
                      dfact=7, x=piece[1][0], y=piece[1][1])
     return
 
 
-def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
-    debug_print(f"add_to_table(name={name}, coll={coll.name},",
+def add_to_table(name, collection, table_style, dfact=6, x=0, y=0):
+    debug_print(f"add_to_table(name={name}, collection={collection.name},",
                 f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
 
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
@@ -457,7 +457,7 @@ def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
         obj.animation_data_clear()
         obj.location = (x, y, z)
         obj.rotation_euler = rotation
-        coll.objects.link(obj)
+        collection.objects.link(obj)
 
         obj.hide_render = False
         obj.hide_set(False)
@@ -503,10 +503,10 @@ def board_box(corners):
     return box
 
 
-def setup_shot(position, output_file, cap_pieces):
+def setup_shot(position, output_file, captured_pieces):
     print(f"setup_shot(position={position.board_fen()},\n",
           f"output_file={output_file},\n",
-          f"cap_pieces={cap_pieces})")
+          f"captured_pieces={captured_pieces})")
     scene = bpy.context.scene
 
     # Setup rendering
@@ -531,14 +531,14 @@ def setup_shot(position, output_file, cap_pieces):
 
     # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
-        coll = bpy.data.collections.new(COLLECTION_NAME)
-        scene.collection.children.link(coll)
-    coll = bpy.data.collections[COLLECTION_NAME]
+        collection = bpy.data.collections.new(COLLECTION_NAME)
+        scene.collection.children.link(collection)
+    collection = bpy.data.collections[COLLECTION_NAME]
 
     for obj in bpy.data.objects:
         obj.select_set(False)
 
-    for obj in coll.objects:
+    for obj in collection.objects:
         obj.select_set(True)
         bpy.ops.object.delete()
 
@@ -556,7 +556,7 @@ def setup_shot(position, output_file, cap_pieces):
     piece_style = np.random.randint(1, PIECE_STYLES)
     if ADD_PIECES:
         for square, piece in position.piece_map().items():
-            obj = add_piece(piece, square, coll, piece_style)
+            obj = add_piece(piece, square, collection, piece_style)
             piece_data.append({
                 "piece": piece.symbol(),
                 "square": chess.square_name(square),
@@ -565,11 +565,11 @@ def setup_shot(position, output_file, cap_pieces):
             piece_amount += 1
 
     # if np.random.randint(0, 2) == 1:
-    place_captured(cap_pieces, piece_style, coll, table_style, board_style)
+    place_captured(captured_pieces, piece_style, collection, table_style, board_style)
     if np.random.randint(0, 2) == 1:
-        add_to_table("RedCup", coll, table_style, dfact=7)
+        add_to_table("RedCup", collection, table_style, dfact=7)
     if np.random.randint(0, 2) == 1:
-        add_to_table("CoffeCup", coll, table_style, dfact=8)
+        add_to_table("CoffeCup", collection, table_style, dfact=8)
 
     # styles = {
     #     "table": table_style,
@@ -752,8 +752,8 @@ if __name__ == "__main__":
                 mode = "background_only"
             filename = Path("renders") / mode / f"{i:05d}.png"
             position = chess.Board("".join(fen))
-            cap_pieces = get_missing_pieces(fen)
-            data = setup_shot(position, filename, cap_pieces)
+            captured_pieces = get_missing_pieces(fen)
+            data = setup_shot(position, filename, captured_pieces)
             if DO_RENDER:
                 if DO_JSON:
                     jsonpath = filename.parent / (filename.stem + ".json")
