@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import builtins as __builtin__
 import gc
-import typing
 
 sys.path.append("/home/lucas/.local/lib/python3.10/site-packages")
 import mathutils
@@ -24,7 +23,7 @@ from zerdax2_misc import CLASSES
 
 
 DEBUG = False
-DO_RENDER = False
+DO_RENDER = True
 DO_JSON = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQ_LEN = 0.259
@@ -258,7 +257,7 @@ def dump_yolo_txt(txtpath):
 
 def add_piece(piece, square, coll, piece_style):
     debug_print(f"add_piece(piece={piece}, square={square},",
-           f"coll={coll.name}, piece_style={piece_style})")
+                f"coll={coll.name}, piece_style={piece_style})")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -409,7 +408,7 @@ def place_captured(cap_pieces, piece_style, coll, table_style, board_style):
 
 def add_to_table(name, coll, table_style, dfact=6, x=0, y=0):
     debug_print(f"add_to_table(name={name}, coll={coll.name},",
-           f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
+                f"table_style={table_style}, dfact={dfact}, x={x:.2f}, y={y:.2f})")
 
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
 
@@ -479,7 +478,7 @@ def dist_obj(obj1, obj2):
 def dist_point(P1, P2):
     debug_print("dist_point(", end=' ')
     debug_print(f"({P1[0]:.2f}, {P1[1]:.2f}, {P1[2]:.2f}), ",
-           f"({P2[0]:.2f}, {P2[1]:.2f}, {P1[2]:.2f}))", sep='')
+                f"({P2[0]:.2f}, {P2[1]:.2f}, {P1[2]:.2f}))", sep='')
     a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
     return np.sqrt(a)
 
@@ -593,8 +592,8 @@ def setup_shot(position, output_file, cap_pieces):
     return data
 
 
-def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
-    debug_print("get_corner_coordinates(scene) -> typing.List[typing.List[int]]:")
+def get_corner_coordinates(scene):
+    debug_print("get_corner_coordinates(scene)")
     corner_points = np.array([[-1., -1],
                               [-1, 1],
                               [1, 1],
@@ -604,7 +603,7 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
 
     def _surpass_padding(resolution, p):
         dp = resolution - MIN_BOARD_CORNER_PADDING
-        return not(MIN_BOARD_CORNER_PADDING <= p <= dp)
+        return not (MIN_BOARD_CORNER_PADDING <= p <= dp)
 
     def _get_coords_corners():
         debug_print("_get_coords_corners()")
@@ -627,9 +626,8 @@ def get_corner_coordinates(scene) -> typing.List[typing.List[int]]:
         return None
 
 
-def get_bounding_box(scene, obj) -> typing.Tuple[int, int, int, int]:
-    debug_print(f"get_bounding_box({scene.name}, {obj.name})",
-           "-> typing.Tuple[int, int, int, int]:")
+def get_bounding_box(scene, obj):
+    debug_print(f"get_bounding_box({scene.name}, {obj.name})")
     """Obtain the bounding box of an object.
 
     Args:
@@ -724,6 +722,8 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
+            if i % 5 != 0:
+                continue
             rand_num = np.random.randint(1, 1000)
             # rand_num = i
             if rand_num % 2 == 0:
@@ -771,5 +771,4 @@ if __name__ == "__main__":
             if i % 100 == 0:
                 gc.collect()
                 bpy.ops.outliner.orphans_purge()
-            break
     print("="*60)
