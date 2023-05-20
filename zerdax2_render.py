@@ -629,13 +629,10 @@ def get_corner_coordinates(scene):
 def get_bounding_box(scene, obj):
     debug_print(f"get_bounding_box({scene.name}, {obj.name})")
     """Obtain the bounding box of an object.
-
     Args:
         scene: the scene
         obj: the object
-
     Returns:
-        typing.Tuple[int, int, int, int]:
         the box coordinates in the form (x, y, width, height)
     """
     # adapted from https://blender.stackexchange.com/a/158236
