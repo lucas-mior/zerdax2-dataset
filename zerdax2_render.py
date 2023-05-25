@@ -63,14 +63,15 @@ def print(*args, **kwargs):
 
 
 def set_configs():
-    rand_num = np.random.rand()
     global WIDTH, HEIGHT, ADD_TABLE, ADD_BOARD, ADD_PIECES
-    if rand_num < 0.5:
+    if np.random.rand() < 0.5:
         WIDTH = 960
         HEIGHT = 600
     else:
         WIDTH = 600
         HEIGHT = 960
+
+    rand_num = np.random.rand()
     if rand_num < 0.05:
         ADD_TABLE = False
         ADD_BOARD = False
