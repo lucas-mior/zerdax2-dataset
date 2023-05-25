@@ -744,6 +744,7 @@ if __name__ == "__main__":
 
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
+
             if i % 100 == 0:
                 gc.collect()
                 bpy.ops.outliner.orphans_purge()
