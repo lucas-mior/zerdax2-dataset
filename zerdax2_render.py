@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 import numpy as np
+import random
 import builtins as __builtin__
 import gc
 
@@ -113,6 +114,28 @@ def point_to(obj, focus, roll=0):
 
 
 def setup_world():
+    if bpy.context.scene.world.use_nodes:
+        world = bpy.context.scene.world
+        world.node_tree.nodes.clear()
+        for image in bpy.data.images:
+            bpy.data.images.remove(image)
+
+    hdr_files = [f for f in os.listdir("backgrounds/") if f.endswith(".hdr")]
+
+    hdr_file = "backgrounds/" + random.choice(hdr_files)
+    bpy.context.scene.world.use_nodes = True
+
+    world = bpy.context.scene.world
+
+    world.node_tree.nodes.clear()
+
+    env_tex_node = world.node_tree.nodes.new('ShaderNodeTexEnvironment')
+    env_tex_node.image = bpy.data.images.load(hdr_file)
+
+    output_node = world.node_tree.nodes.new('ShaderNodeOutputWorld')
+
+    world.node_tree.links.new(env_tex_node.outputs['Color'],
+                              output_node.inputs['Surface'])
     return
 
 
