@@ -7,7 +7,6 @@ import bpy_extras.object_utils
 import os
 import sys
 from pathlib import Path
-from types import SimpleNamespace
 import numpy as np
 import builtins as __builtin__
 import gc
@@ -15,7 +14,6 @@ import gc
 sys.path.append("/home/lucas/.local/lib/python3.10/site-packages")
 import mathutils
 import chess
-import json
 
 d = os.path.dirname(bpy.data.filepath)
 if d not in sys.path:
@@ -23,18 +21,24 @@ if d not in sys.path:
 from zerdax2_misc import CLASSES
 
 
-DEBUG = False
+DO_DEBUG = False
 DO_RENDER = True
-DO_JSON = False
+
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.259
 COLLECTION_NAME = "ChessPosition"
+
 TABLE_STYLES = 5
 BOARD_STYLES = 7
 PIECE_STYLES = 7
-table_stuff = []
+
 WIDTH = 960
 HEIGHT = 600
+ADD_TABLE = True
+ADD_BOARD = True
+ADD_PIECES = True
+
+table_stuff = []
 
 
 def console_print(*args, **kwargs):
@@ -52,7 +56,7 @@ def console_print(*args, **kwargs):
 
 
 def debug_print(*args, **kwargs):
-    if DEBUG:
+    if DO_DEBUG:
         print(*args, **kwargs)
 
 
@@ -133,13 +137,6 @@ def setup_camera(board_style):
         angle = np.degrees(np.arcsin(dot/modulo))
         print(f"Camera to table angle: {angle:.2f}")
 
-    if x <= -4*SQUARE_LENGTH:
-        perspective = "left" if y >= 0 else "right"
-    elif -4*SQUARE_LENGTH < x < +4*SQUARE_LENGTH:
-        perspective = "center"
-    else:
-        perspective = "right" if y <= 0 else "left"
-
     rot_x = np.random.uniform(-0.01, -0.05)
     rot_y = np.random.uniform(-0.02, +0.02)
     rot_z = np.random.uniform(-0.02, +0.02)
@@ -150,12 +147,7 @@ def setup_camera(board_style):
     camera.rotation_euler[2] += rot_z
 
     bpy.context.view_layer.update()
-    data = {
-        "perspective": perspective,
-        "angle_variation": (rot_x, rot_y, rot_z),
-        "location": (x, y, z),
-    }
-    return data
+    return
 
 
 def setup_spotlight(light):
@@ -174,11 +166,7 @@ def setup_spotlight(light):
     y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     focus = mathutils.Vector((x, y, z))
     point_to(light, focus)
-    data = {
-        "focus": focus.to_tuple(),
-        "location": location.to_tuple()
-    }
-    return data
+    return
 
 
 def setup_table(styles):
@@ -589,7 +577,6 @@ def setup_shot(position, output_file, captured_pieces):
     if ADD_BOARD:
         piece_data.append({
             "piece": "Board",
-            "square": None,
             "box": get_bounding_box(scene, board)
         })
 
@@ -600,7 +587,6 @@ def setup_shot(position, output_file, captured_pieces):
             obj = add_piece(piece, square, collection, styles['piece'])
             piece_data.append({
                 "piece": piece.symbol(),
-                "square": chess.square_name(square),
                 "box": get_bounding_box(scene, obj)
             })
             piece_amount += 1
@@ -612,18 +598,8 @@ def setup_shot(position, output_file, captured_pieces):
     if np.random.randint(0, 2) == 1:
         add_to_table("CoffeCup", collection, styles['table'], dist_factor=8)
 
-    if ADD_PIECES:
-        fen_save = position.board_fen()
-    else:
-        fen_save = "8/8/8/8/8/8/8/8"
-
-    # Write data output
     data = {
-        "corners": corner_coords,
-        "board_box": board_box(corner_coords),
         "pieces": piece_data,
-        "fen": fen_save,
-        "camera": camera_params,
     }
     return data
 
@@ -759,29 +735,12 @@ if __name__ == "__main__":
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
             set_configs()
-            if ADD_TABLE and ADD_BOARD and ADD_PIECES:
-                mode = "table_board_pieces"
-            elif ADD_TABLE and ADD_BOARD:
-                mode = "table_board"
-            elif ADD_BOARD and ADD_PIECES:
-                mode = "board_pieces"
-            elif ADD_BOARD:
-                mode = "board"
-            else:
-                mode = "background"
 
-            filename = Path("renders") / mode / f"{i:05d}.png"
+            filename = Path("renders") / f"{i:05d}.png"
             position = chess.Board("".join(fen))
             captured_pieces = get_missing_pieces(fen)
             data = setup_shot(position, filename, captured_pieces)
             if DO_RENDER:
-                if DO_JSON:
-                    jsonpath = filename.parent / (filename.stem + ".json")
-                    print(f"dumping json {jsonpath}...")
-                    with jsonpath.open("w") as f:
-                        json.dump(data, f, indent=4)
-                        f.close()
-
                 if ADD_BOARD:
                     txtpath = filename.parent / (filename.stem + ".txt")
                     dump_yolo_txt(txtpath)
