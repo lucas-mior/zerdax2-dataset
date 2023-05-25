@@ -29,8 +29,8 @@ SQUARE_LENGTH = 0.259
 COLLECTION_NAME = "ChessPosition"
 
 TABLE_STYLES = 5
-BOARD_STYLES = 7
-PIECE_STYLES = 7
+BOARD_STYLES = 8
+PIECE_STYLES = 8
 
 WIDTH = 960
 HEIGHT = 600
@@ -213,7 +213,7 @@ def setup_sun():
     print("setup_sun()")
     strength = np.random.uniform(0.4, 0.5)
     bpy.data.lights['Sun'].energy = strength
-    return strength
+    return
 
 
 def setup_lighting():
@@ -550,7 +550,7 @@ def setup_shot(position, output_file, captured_pieces):
 
     corner_coords = None
     while not corner_coords:
-        camera_params = setup_camera(styles['board'])
+        setup_camera(styles['board'])
         corner_coords = get_corner_coordinates(scene)
 
     setup_lighting()
