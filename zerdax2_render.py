@@ -247,10 +247,10 @@ def setup_lighting():
     return
 
 
-def dump_yolo_txt(txtpath):
+def dump_yolo_txt(txtpath, objects):
     print(f"dumping txt {txtpath}...")
     with txtpath.open("w") as txt:
-        for obj in data['pieces']:
+        for obj in objects:
             name = obj['piece']
             number = CLASSES[name]
 
@@ -598,10 +598,7 @@ def setup_shot(position, output_file, captured_pieces):
     if np.random.randint(0, 2) == 1:
         add_to_table("CoffeCup", collection, styles['table'], dist_factor=8)
 
-    data = {
-        "pieces": piece_data,
-    }
-    return data
+    return piece_data
 
 
 def get_corner_coordinates(scene):
@@ -739,11 +736,11 @@ if __name__ == "__main__":
             filename = Path("renders") / f"{i:05d}.png"
             position = chess.Board("".join(fen))
             captured_pieces = get_missing_pieces(fen)
-            data = setup_shot(position, filename, captured_pieces)
+            objects = setup_shot(position, filename, captured_pieces)
             if DO_RENDER:
                 if ADD_BOARD:
                     txtpath = filename.parent / (filename.stem + ".txt")
-                    dump_yolo_txt(txtpath)
+                    dump_yolo_txt(txtpath, objects)
 
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
