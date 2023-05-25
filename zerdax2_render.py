@@ -112,6 +112,10 @@ def point_to(obj, focus, roll=0):
     return
 
 
+def setup_world():
+    return
+
+
 def setup_camera(board_style):
     print(f"setup_camera(board_style={board_style})")
     camera = bpy.context.scene.camera
@@ -553,6 +557,7 @@ def setup_shot(position, output_file, captured_pieces):
         setup_camera(styles['board'])
         corner_coords = get_corner_coordinates(scene)
 
+    setup_world()
     setup_lighting()
     board = setup_board(styles['board'])
     setup_table(styles)
