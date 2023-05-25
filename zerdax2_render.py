@@ -77,11 +77,11 @@ def set_configs():
         ADD_BOARD = False
         ADD_PIECES = False
     elif rand_num < 0.1:
-        ADD_TABLE = True
+        ADD_TABLE = False
         ADD_BOARD = True
         ADD_PIECES = False
     elif rand_num < 0.15:
-        ADD_TABLE = False
+        ADD_TABLE = True
         ADD_BOARD = True
         ADD_PIECES = False
     elif rand_num < 0.20:
