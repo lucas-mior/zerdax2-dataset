@@ -738,12 +738,11 @@ if __name__ == "__main__":
             captured_pieces = get_missing_pieces(fen)
             objects = setup_shot(position, filename, captured_pieces)
             if DO_RENDER:
+                print(f"rendering {filename}...")
+                bpy.ops.render.render(write_still=1)
                 if ADD_BOARD:
                     txtpath = filename.parent / (filename.stem + ".txt")
                     dump_yolo_txt(txtpath, objects)
-
-                print(f"rendering {filename}...")
-                bpy.ops.render.render(write_still=1)
 
             if i % 100 == 0:
                 gc.collect()
