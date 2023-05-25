@@ -7,6 +7,7 @@ import bpy_extras.object_utils
 import os
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 import numpy as np
 import builtins as __builtin__
 import gc
@@ -32,6 +33,8 @@ TABLE_STYLES = 5
 BOARD_STYLES = 7
 PIECE_STYLES = 7
 table_stuff = []
+WIDTH = 960
+HEIGHT = 600
 
 
 def console_print(*args, **kwargs):
@@ -56,6 +59,38 @@ def debug_print(*args, **kwargs):
 def print(*args, **kwargs):
     console_print(*args, **kwargs)
     __builtin__.print(*args, **kwargs)
+    return
+
+
+def set_configs():
+    rand_num = np.random.rand()
+    global WIDTH, HEIGHT, ADD_TABLE, ADD_BOARD, ADD_PIECES
+    if rand_num < 0.5:
+        WIDTH = 960
+        HEIGHT = 600
+    else:
+        WIDTH = 600
+        HEIGHT = 960
+    if rand_num < 0.05:
+        ADD_TABLE = False
+        ADD_BOARD = False
+        ADD_PIECES = False
+    elif rand_num < 0.1:
+        ADD_TABLE = True
+        ADD_BOARD = True
+        ADD_PIECES = False
+    elif rand_num < 0.15:
+        ADD_TABLE = False
+        ADD_BOARD = True
+        ADD_PIECES = False
+    elif rand_num < 0.20:
+        ADD_TABLE = False
+        ADD_BOARD = True
+        ADD_PIECES = True
+    else:
+        ADD_TABLE = True
+        ADD_BOARD = True
+        ADD_PIECES = True
     return
 
 
@@ -151,7 +186,7 @@ def setup_table(styles):
     print(f"setup_table(style={table_style}, board_style={board_style})")
     for i in range(1, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
-        if i == table_style:
+        if i == table_style and ADD_TABLE:
             obj.hide_render = False
             obj.hide_viewport = False
             obj.hide_set(False)
@@ -241,7 +276,7 @@ def dump_yolo_txt(txtpath):
             yc = round((top + bottom)/2)
 
             xc, dx = xc/WIDTH, dx/WIDTH
-            yc, dy = yc/HEIGTH, dy/HEIGTH
+            yc, dy = yc/HEIGHT, dy/HEIGHT
 
             yolo = f"{number} {xc} {yc} {dx} {dy}\n"
             print(yolo, end="")
@@ -516,7 +551,7 @@ def setup_shot(position, output_file, captured_pieces):
     scene.render.image_settings.file_format = "JPEG"
     scene.render.filepath = str(output_file)
     scene.render.resolution_x = WIDTH
-    scene.render.resolution_y = HEIGTH
+    scene.render.resolution_y = HEIGHT
 
     styles = {
         "table": np.random.randint(1, TABLE_STYLES),
@@ -569,8 +604,8 @@ def setup_shot(position, output_file, captured_pieces):
             })
             piece_amount += 1
 
-    # if np.random.randint(0, 2) == 1:
-    place_captured(captured_pieces, styles, collection)
+    if np.random.randint(0, 2) == 1:
+        place_captured(captured_pieces, styles, collection)
     if np.random.randint(0, 2) == 1:
         add_to_table("RedCup", collection, styles['table'], dist_factor=7)
     if np.random.randint(0, 2) == 1:
@@ -719,34 +754,21 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i % 5 != 0:
-                continue
-            rand_num = np.random.randint(1, 1000)
-            # rand_num = i
-            if rand_num % 2 == 0:
-                WIDTH = 960
-                HEIGTH = 600
-            else:
-                WIDTH = 600
-                HEIGTH = 960
-            if rand_num % 11 == 0:
-                ADD_BOARD = False
-                ADD_PIECES = False
-            elif rand_num % 23 == 0:
-                ADD_BOARD = True
-                ADD_PIECES = False
-            else:
-                ADD_BOARD = True
-                ADD_PIECES = True
-
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
-            if ADD_BOARD and ADD_PIECES:
-                mode = "board_and_pieces"
+
+            set_configs()
+            if ADD_TABLE and ADD_BOARD and ADD_PIECES:
+                mode = "table_board_pieces"
+            elif ADD_TABLE and ADD_BOARD:
+                mode = "table_board"
+            elif ADD_BOARD and ADD_PIECES:
+                mode = "board_pieces"
             elif ADD_BOARD:
-                mode = "board_only"
+                mode = "board"
             else:
-                mode = "background_only"
+                mode = "background"
+
             filename = Path("renders") / mode / f"{i:05d}.png"
             position = chess.Board("".join(fen))
             captured_pieces = get_missing_pieces(fen)
