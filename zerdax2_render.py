@@ -35,12 +35,12 @@ table_stuff = []
 
 
 def console_print(*args, **kwargs):
-    for a in bpy.context.screen.areas:
-        if a.type == 'CONSOLE':
+    for area in bpy.context.screen.areas:
+        if area.type == 'CONSOLE':
             with bpy.context.temp_override(window=bpy.context.window,
-                                           area=a,
-                                           region=a.regions[-1],
-                                           space_data=a.spaces.active,
+                                           area=area,
+                                           region=area.regions[-1],
+                                           space_data=area.spaces.active,
                                            screen=bpy.context.screen):
                 s = " ".join([str(arg) for arg in args])
                 for line in s.split("\n"):
@@ -62,13 +62,13 @@ def print(*args, **kwargs):
 def point_to(obj, focus, roll=0):
     debug_print(f"point_to(obj={obj.name}, focus={focus}, roll={roll})")
     # Based on https://blender.stackexchange.com/a/127440
-    loc = obj.location
-    direction = focus - loc
+    location = obj.location
+    direction = focus - location
     quat = direction.to_track_quat("-Z", "Y").to_matrix().to_4x4()
     roll_matrix = mathutils.Matrix.Rotation(roll, 4, "Z")
-    loc = loc.to_tuple()
+    location = location.to_tuple()
     obj.matrix_world = quat @ roll_matrix
-    obj.location = loc
+    obj.location = location
     return
 
 
@@ -104,19 +104,19 @@ def setup_camera(board_style):
     else:
         perspective = "right" if y <= 0 else "left"
 
-    rx = np.random.uniform(-0.01, -0.05)
-    ry = np.random.uniform(-0.02, +0.02)
-    rz = np.random.uniform(-0.02, +0.02)
+    rot_x = np.random.uniform(-0.01, -0.05)
+    rot_y = np.random.uniform(-0.02, +0.02)
+    rot_z = np.random.uniform(-0.02, +0.02)
 
     bpy.context.view_layer.update()
-    camera.rotation_euler[0] += rx
-    camera.rotation_euler[1] += ry
-    camera.rotation_euler[2] += rz
+    camera.rotation_euler[0] += rot_x
+    camera.rotation_euler[1] += rot_y
+    camera.rotation_euler[2] += rot_z
 
     bpy.context.view_layer.update()
     data = {
         "perspective": perspective,
-        "angle_variation": (rx, ry, rz),
+        "angle_variation": (rot_x, rot_y, rot_z),
         "location": (x, y, z),
     }
     return data
@@ -282,9 +282,9 @@ def add_piece(piece, square, collection, piece_style):
     location = mathutils.Vector((file, rank, 0)) * SQUARE_LENGTH
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
 
-    src_obj = bpy.data.objects[name]
-    obj = src_obj.copy()
-    obj.data = src_obj.data.copy()
+    source_obj = bpy.data.objects[name]
+    obj = source_obj.copy()
+    obj.data = source_obj.data.copy()
     obj.animation_data_clear()
     obj.location = location
     obj.rotation_euler = rotation
@@ -453,9 +453,9 @@ def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
                 break
 
     if i < 20:
-        src_obj = bpy.data.objects[name]
-        obj = src_obj.copy()
-        obj.data = src_obj.data.copy()
+        source_obj = bpy.data.objects[name]
+        obj = source_obj.copy()
+        obj.data = source_obj.data.copy()
         obj.animation_data_clear()
         obj.location = (x, y, z)
         obj.rotation_euler = rotation
@@ -636,15 +636,15 @@ def get_bounding_box(scene, obj):
         the box coordinates in the form (x, y, width, height)
     """
     # adapted from https://blender.stackexchange.com/a/158236
-    cam_ob = scene.camera
-    mat = cam_ob.matrix_world.normalized().inverted()
+    camera_obj = scene.camera
+    mat = camera_obj.matrix_world.normalized().inverted()
     depsgraph = bpy.context.evaluated_depsgraph_get()
     mesh_eval = obj.evaluated_get(depsgraph)
     me = mesh_eval.to_mesh()
     me.transform(obj.matrix_world)
     me.transform(mat)
 
-    camera = cam_ob.data
+    camera = camera_obj.data
 
     def _get_coords_bounding_box():
         debug_print("_get_coords_bounding_box()")
