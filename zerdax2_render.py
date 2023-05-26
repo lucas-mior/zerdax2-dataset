@@ -23,7 +23,7 @@ from zerdax2_misc import CLASSES
 
 
 DO_DEBUG = False
-DO_RENDER = True
+DO_RENDER = False
 
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934  # m
@@ -784,4 +784,5 @@ if __name__ == "__main__":
             if i % 100 == 0:
                 gc.collect()
                 bpy.ops.outliner.orphans_purge()
+            break
     print("="*60)
