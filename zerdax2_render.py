@@ -144,7 +144,6 @@ def setup_camera(board_style):
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 60 or angle <= 40:
-        print(f"continuing because {angle=}");
         z = np.random.normal(13*SQUARE_LENGTH, 2*SQUARE_LENGTH)
         z = np.clip(z, 10*SQUARE_LENGTH, 15*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
@@ -164,7 +163,6 @@ def setup_camera(board_style):
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
         print(f"Camera to table angle: {angle:.2f}")
-    print("======================")
 
     rot_x = np.random.uniform(-0.01, -0.05)
     rot_y = np.random.uniform(-0.02, +0.02)
@@ -198,25 +196,27 @@ def setup_spotlight(light):
     return
 
 
-def setup_table(styles):
-    table_style = styles["table"]
-    board_style = styles["board"]
-    print(f"setup_table(style={table_style}, board_style={board_style})")
+def setup_table(table_style, board, collection):
+    print(f"setup_table(style={table_style}")
     for i in range(0, TABLE_STYLES):
-        obj = bpy.data.objects[f"Table{i}"]
+        source_obj = bpy.data.objects[f"Table{i}"]
         if i == table_style and ADD_TABLE:
+            obj = source_obj.copy()
+            obj.data = source_obj.data.copy()
+            obj.animation_data_clear()
             obj.hide_render = False
             obj.hide_viewport = False
             obj.hide_set(False)
+            obj.location[0] = 0
+            obj.location[1] = 0
+            collection.objects.link(obj)
         else:
-            obj.hide_render = True
-            obj.hide_viewport = True
-            obj.hide_set(True)
-    table = bpy.data.objects[f'Table{table_style}']
-    board = bpy.data.objects[f'Board{board_style}']
-    board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
-    table.location[2] = min(board_zs)
+            source_obj.hide_render = True
+            source_obj.hide_viewport = True
+            source_obj.hide_set(True)
 
+    board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
+    obj.location[2] = min(board_zs)
     bpy.context.view_layer.update()
     return
 
@@ -225,16 +225,20 @@ def setup_board(board_style, collection):
     print(f"setup_board(board_style={board_style})")
     for i in range(0, BOARD_STYLES):
         source_obj = bpy.data.objects[f"Board{i}"]
-        obj = source_obj.copy()
-        obj.data = source_obj.data.copy()
-        obj.animation_data_clear()
-        obj.location = (0, 0, 0)
-        collection.objects.link(obj)
         if i == board_style and ADD_BOARD:
+            obj = source_obj.copy()
+            obj.data = source_obj.data.copy()
+            obj.animation_data_clear()
             obj.hide_render = False
             obj.hide_viewport = False
             obj.hide_set(False)
-            obj.location = (0, 0, 0)
+            obj.location[0] = 0
+            obj.location[1] = 0
+            collection.objects.link(obj)
+        else:
+            source_obj.hide_render = True
+            source_obj.hide_viewport = True
+            source_obj.hide_set(True)
 
     bpy.context.view_layer.update()
     return obj
@@ -586,6 +590,7 @@ def setup_shot(position, output_file, captured_pieces):
     collection = bpy.data.collections[COLLECTION_NAME]
 
     board = setup_board(styles['board'], collection)
+    setup_table(styles['table'], board, collection)
 
     corner_coords = None
     while not corner_coords:
@@ -594,7 +599,6 @@ def setup_shot(position, output_file, captured_pieces):
 
     setup_world()
     setup_lighting()
-    setup_table(styles)
 
     corner_coords = sorted(corner_coords, key=lambda x: x[0])
 
