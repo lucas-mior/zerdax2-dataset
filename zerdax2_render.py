@@ -29,9 +29,9 @@ MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934
 COLLECTION_NAME = "ChessPosition"
 
-TABLE_STYLES = 5
-BOARD_STYLES = 8
-PIECE_STYLES = 8
+TABLE_STYLES = 2
+BOARD_STYLES = 7
+PIECE_STYLES = 7
 
 WIDTH = 960
 HEIGHT = 600
@@ -200,7 +200,7 @@ def setup_table(styles):
     table_style = styles["table"]
     board_style = styles["board"]
     print(f"setup_table(style={table_style}, board_style={board_style})")
-    for i in range(1, TABLE_STYLES):
+    for i in range(0, TABLE_STYLES):
         obj = bpy.data.objects[f"Table{i}"]
         if i == table_style and ADD_TABLE:
             obj.hide_render = False
@@ -221,7 +221,7 @@ def setup_table(styles):
 
 def setup_board(board_style):
     print(f"setup_board(board_style={board_style})")
-    for i in range(1, BOARD_STYLES):
+    for i in range(0, BOARD_STYLES):
         obj = bpy.data.objects[f"Board{i}"]
         if i == board_style and ADD_BOARD:
             obj.hide_render = False
@@ -570,9 +570,9 @@ def setup_shot(position, output_file, captured_pieces):
     scene.render.resolution_y = HEIGHT
 
     styles = {
-        "table": np.random.randint(1, TABLE_STYLES),
-        "board": np.random.randint(1, BOARD_STYLES),
-        "piece": np.random.randint(1, PIECE_STYLES),
+        "table": np.random.randint(0, TABLE_STYLES),
+        "board": np.random.randint(0, BOARD_STYLES),
+        "piece": np.random.randint(0, PIECE_STYLES),
     }
 
     corner_coords = None
