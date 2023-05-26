@@ -26,7 +26,7 @@ DO_DEBUG = False
 DO_RENDER = True
 
 MIN_BOARD_CORNER_PADDING = 30  # pixels
-SQUARE_LENGTH = 0.039934
+SQUARE_LENGTH = 3.9934  # cm
 COLLECTION_NAME = "ChessPosition"
 
 TABLE_STYLES = 2
@@ -117,8 +117,8 @@ def setup_world():
     if bpy.context.scene.world.use_nodes:
         world = bpy.context.scene.world
         world.node_tree.nodes.clear()
-        for image in bpy.data.images:
-            bpy.data.images.remove(image)
+        # for image in bpy.data.images:
+        #     bpy.data.images.remove(image)
 
     hdr_files = [f for f in os.listdir("backgrounds/") if f.endswith(".hdr")]
 
@@ -144,6 +144,7 @@ def setup_camera(board_style):
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 60 or angle <= 40:
+        print(f"continuing because {angle=}");
         z = np.random.normal(13*SQUARE_LENGTH, 2*SQUARE_LENGTH)
         z = np.clip(z, 10*SQUARE_LENGTH, 15*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
@@ -163,6 +164,7 @@ def setup_camera(board_style):
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
         print(f"Camera to table angle: {angle:.2f}")
+    print("======================")
 
     rot_x = np.random.uniform(-0.01, -0.05)
     rot_y = np.random.uniform(-0.02, +0.02)
@@ -219,18 +221,20 @@ def setup_table(styles):
     return
 
 
-def setup_board(board_style):
+def setup_board(board_style, collection):
     print(f"setup_board(board_style={board_style})")
     for i in range(0, BOARD_STYLES):
-        obj = bpy.data.objects[f"Board{i}"]
+        source_obj = bpy.data.objects[f"Board{i}"]
+        obj = source_obj.copy()
+        obj.data = source_obj.data.copy()
+        obj.animation_data_clear()
+        obj.location = (0, 0, 0)
+        collection.objects.link(obj)
         if i == board_style and ADD_BOARD:
             obj.hide_render = False
             obj.hide_viewport = False
             obj.hide_set(False)
-        else:
-            obj.hide_render = True
-            obj.hide_viewport = True
-            obj.hide_set(True)
+            obj.location = (0, 0, 0)
 
     bpy.context.view_layer.update()
     return obj
@@ -575,6 +579,14 @@ def setup_shot(position, output_file, captured_pieces):
         "piece": np.random.randint(0, PIECE_STYLES),
     }
 
+    # Create a collection to store the position
+    if COLLECTION_NAME not in bpy.data.collections:
+        collection = bpy.data.collections.new(COLLECTION_NAME)
+        scene.collection.children.link(collection)
+    collection = bpy.data.collections[COLLECTION_NAME]
+
+    board = setup_board(styles['board'], collection)
+
     corner_coords = None
     while not corner_coords:
         setup_camera(styles['board'])
@@ -582,16 +594,9 @@ def setup_shot(position, output_file, captured_pieces):
 
     setup_world()
     setup_lighting()
-    board = setup_board(styles['board'])
     setup_table(styles)
 
     corner_coords = sorted(corner_coords, key=lambda x: x[0])
-
-    # Create a collection to store the position
-    if COLLECTION_NAME not in bpy.data.collections:
-        collection = bpy.data.collections.new(COLLECTION_NAME)
-        scene.collection.children.link(collection)
-    collection = bpy.data.collections[COLLECTION_NAME]
 
     for obj in bpy.data.objects:
         obj.select_set(False)
