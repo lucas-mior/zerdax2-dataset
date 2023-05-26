@@ -139,8 +139,8 @@ def setup_world():
     return
 
 
-def setup_camera(board_style):
-    print(f"setup_camera(board_style={board_style})")
+def setup_camera(board):
+    print(f"setup_camera()")
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 60 or angle <= 40:
@@ -154,8 +154,10 @@ def setup_camera(board_style):
             y = -y
 
         camera.location = (x, y, z)
-        board = bpy.data.objects[f"Board{board_style}"]
-        point_to(camera, board.location)
+        if board is not None:
+            point_to(camera, board.location)
+        else:
+            point_to(camera, (0, 0, 0))
 
         v = np.array([x, y, z])
         w = np.array([0, 0, 1])
@@ -215,8 +217,11 @@ def setup_table(table_style, board, collection):
             source_obj.hide_viewport = True
             source_obj.hide_set(True)
 
-    board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
-    obj.location[2] = min(board_zs)
+    if board:
+        board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
+        obj.location[2] = min(board_zs)
+    else:
+        obj.location[2] = 0
     bpy.context.view_layer.update()
     return
 
@@ -240,6 +245,8 @@ def setup_board(board_style, collection):
             source_obj.hide_viewport = True
             source_obj.hide_set(True)
 
+    if not ADD_BOARD:
+        obj = None
     bpy.context.view_layer.update()
     return obj
 
@@ -594,8 +601,10 @@ def setup_shot(position, output_file, captured_pieces):
 
     corner_coords = None
     while not corner_coords:
-        setup_camera(styles['board'])
+        setup_camera(board)
+        break
         corner_coords = get_corner_coordinates(scene)
+    return
 
     setup_world()
     setup_lighting()
