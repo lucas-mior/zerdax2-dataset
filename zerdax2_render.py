@@ -36,6 +36,7 @@ HEIGHT = 600
 ADD_TABLE = True
 ADD_BOARD = True
 ADD_PIECES = True
+ADD_CAPTURED = True
 
 
 def console_print(*args, **kwargs):
@@ -64,7 +65,7 @@ def print(*args, **kwargs):
 
 
 def set_configs():
-    global WIDTH, HEIGHT, ADD_TABLE, ADD_BOARD, ADD_PIECES
+    global WIDTH, HEIGHT, ADD_TABLE, ADD_BOARD, ADD_PIECES, ADD_CAPTURED
 
     if np.random.rand() < 0.5:
         WIDTH = 960
@@ -89,6 +90,12 @@ def set_configs():
     else:
         ADD_BOARD = True
         ADD_PIECES = True
+
+    rand_num = np.random.rand()
+    if rand_num < 0.5 and ADD_PIECES:
+        ADD_CAPTURED = True
+    else:
+        ADD_CAPTURED = False
     return
 
 
@@ -408,7 +415,6 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
 
 def place_captured(captured_pieces, styles, collection):
     piece_style = styles["piece"]
-    board_style = styles["board"]
     table_style = styles["table"]
     print(f"place_captured(captured_pieces={captured_pieces},",
           f"piece_style={piece_style}, collection={collection.name},",
@@ -417,18 +423,16 @@ def place_captured(captured_pieces, styles, collection):
     captured_white = [c for c in captured_pieces if c.isupper()]
     table = bpy.data.objects[f'Table{table_style}']
 
-    xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
-    yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
-    xmin = min(xvertices) + SQUARE_LENGTH/2
-    xmax = max(xvertices) - SQUARE_LENGTH/2
-    yminblack = min(yvertices) + SQUARE_LENGTH/2
+    vertices = table.data.vertices
+    x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
+    y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
+    xmin = min(x_vertices) + SQUARE_LENGTH/2
+    xmax = max(x_vertices) - SQUARE_LENGTH/2
+    yminblack = min(y_vertices) + SQUARE_LENGTH/2
     ymaxblack = -2*SQUARE_LENGTH
     yminwhite = +2*SQUARE_LENGTH
-    ymaxwhite = max(yvertices) - SQUARE_LENGTH/2
-    if board_style == 3:
-        dist_factor = 7
-    else:
-        dist_factor = 6
+    ymaxwhite = max(y_vertices) - SQUARE_LENGTH/2
+    dist_factor = 6
 
     bcenter, captured_black_loc = place_group(captured_black,
                                               xmin, xmax,
@@ -613,7 +617,7 @@ def setup_shot(position, output_file, captured_pieces):
             })
             piece_amount += 1
 
-    if np.random.randint(0, 2) == 1:
+    if ADD_CAPTURED:
         place_captured(captured_pieces, styles, collection)
     if np.random.randint(0, 2) == 1:
         add_to_table("RedCup", collection, styles['table'], dist_factor=7)
