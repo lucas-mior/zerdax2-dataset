@@ -113,7 +113,7 @@ def setup_camera(board):
         dy = np.random.normal(9*SQUARE_LENGTH, SQUARE_LENGTH)
         dy = np.clip(dy, 8.5*SQUARE_LENGTH, 9.5*SQUARE_LENGTH)
         y = 0.7*abs(x) + 0.1*abs(z) + dy
-        if np.random.rand < 0.5:
+        if np.random.rand() < 0.5:
             y = -y
 
         camera.location = (x, y, z)
@@ -221,7 +221,7 @@ def setup_sun():
 
 
 def setup_lighting():
-    flash = bpy.data.objects["LightCameraFlashLight"]
+    flash = bpy.data.objects["LightCameraFlash"]
     spot0 = bpy.data.objects["LightSpot0"]
     spot1 = bpy.data.objects["LightSpot1"]
     sun = bpy.data.objects["LightSun"]
@@ -247,7 +247,6 @@ def setup_lighting():
         obj.hide_render = not visibility
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
-
     return
 
 
@@ -434,7 +433,9 @@ def board_box(corners):
     return box
 
 
-def setup_shot(position, output_file, captured_pieces):
+def setup_shot(position, output_file):
+    position = chess.Board("".join(fen))
+    captured_pieces = get_missing_pieces(fen)
     scene = bpy.context.scene
 
     # Setup rendering
@@ -572,9 +573,7 @@ if __name__ == "__main__":
             set_configs()
 
             filename = Path("renders") / f"{i:05d}.png"
-            position = chess.Board("".join(fen))
-            captured_pieces = get_missing_pieces(fen)
-            objects = setup_shot(position, filename, captured_pieces)
+            objects = setup_shot(fen, filename)
             if DO_RENDER:
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
