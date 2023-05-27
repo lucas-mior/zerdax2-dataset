@@ -118,8 +118,9 @@ def setup_world():
     if bpy.context.scene.world.use_nodes:
         world = bpy.context.scene.world
         world.node_tree.nodes.clear()
-        # for image in bpy.data.images:
-        #     bpy.data.images.remove(image)
+        for image in bpy.data.images:
+            if image.name.endswith(".hdr"):
+                bpy.data.images.remove(image)
 
     hdr_files = [f for f in os.listdir("backgrounds/") if f.endswith(".hdr")]
 
