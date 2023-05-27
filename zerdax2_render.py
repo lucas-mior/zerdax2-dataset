@@ -276,7 +276,7 @@ def dump_yolo_txt(txtpath, objects):
     return
 
 
-def add_piece(piece, collection, piece_style):
+def add_piece(piece, collection, piece_style, scale_pieces):
     piece_name = PIECES[piece["name"]]
     name = piece_name + str(piece_style)
 
@@ -293,6 +293,8 @@ def add_piece(piece, collection, piece_style):
 
     location = mathutils.Vector((file, rank, 0)) * SQUARE_LENGTH
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
+    scale = mathutils.Vector(scale_pieces[1])
+    scale *= scale_pieces[0]
 
     source_obj = bpy.data.objects[name]
     obj = source_obj.copy()
@@ -300,6 +302,7 @@ def add_piece(piece, collection, piece_style):
     obj.animation_data_clear()
     obj.location = location
     obj.rotation_euler = rotation
+    obj.scale = scale
     collection.objects.link(obj)
     return obj
 
@@ -471,9 +474,17 @@ def setup_shot(position, output_file):
 
     pieces = parse_position(fen)
     captured_pieces = get_missing_pieces(fen)
+    scale_pieces = (
+            np.random.uniform(0.8, 1.2),
+            (
+                np.random.uniform(0.95, 1.05),
+                np.random.uniform(0.95, 1.05),
+                np.random.uniform(0.95, 1.05),
+            )
+    )
     if ADD_PIECES:
         for piece in pieces:
-            obj = add_piece(piece, collection, styles['piece'])
+            obj = add_piece(piece, collection, styles['piece'], scale_pieces)
             objects.append({
                 "piece": piece["name"],
                 "box": util.get_bounding_box(scene, obj)
@@ -574,6 +585,8 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
+            if i != 6000:
+                continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
