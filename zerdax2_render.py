@@ -335,6 +335,8 @@ def add_extra(source_obj, collection, table, scale):
             d = util.min_distance_point(other, (x, y, z))
             if d < distance:
                 distance = d
+            if distance <= SQUARE_LENGTH:
+                break
         if distance > SQUARE_LENGTH:
             break
         i += 1
