@@ -357,7 +357,7 @@ def add_piece(piece, square, collection, piece_style):
     return obj
 
 
-def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
+def place_group(group, xmin, xmax, ymin, ymax, distance_factor=6):
     print(f"place_group(group={group},",
           f"xmin={xmin/SQUARE_LENGTH:.2f}, xmax={xmax/SQUARE_LENGTH:.2f},",
           f"ymin={ymin/SQUARE_LENGTH:.2f}, ymax={ymax/SQUARE_LENGTH:.2f})")
@@ -365,7 +365,7 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
     xc = np.random.uniform(xmin, xmax)
     yc = np.random.uniform(ymin, ymax)
     print(f"center = ({xc/SQUARE_LENGTH}, {yc/SQUARE_LENGTH})")
-    limit = dist_factor*SQUARE_LENGTH
+    limit = distance_factor*SQUARE_LENGTH
     while abs(xc) < limit and abs(yc) < limit:
         xc = np.random.uniform(xmin, xmax)
         yc = np.random.uniform(ymin, ymax)
@@ -376,7 +376,7 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
         dist = 0
         i = 0
         if abs(xc) > abs(yc):
-            limit = dist_factor*SQUARE_LENGTH
+            limit = distance_factor*SQUARE_LENGTH
             while abs(x) < limit and abs(y) < limit or dist < SQUARE_LENGTH/2:
                 dist = 1000
                 x = np.random.normal(xc, 2*SQUARE_LENGTH)
@@ -384,14 +384,14 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
                 x = np.clip(x, xmin, xmax)
                 y = np.clip(y, ymin, ymax)
                 for p in pieces_loc:
-                    d = dist_point((x, y, 0), (p[1][0], p[1][1], 0))
+                    d = distance_point((x, y, 0), (p[1][0], p[1][1], 0))
                     if d < dist:
                         dist = d
                 i += 1
                 if i >= 20:
                     break
         else:
-            limit = dist_factor*SQUARE_LENGTH
+            limit = distance_factor*SQUARE_LENGTH
             while abs(x) < limit and abs(y) < limit or dist < SQUARE_LENGTH/2:
                 dist = 1000
                 x = np.random.normal(xc, 4*SQUARE_LENGTH)
@@ -399,7 +399,7 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
                 x = np.clip(x, xmin, xmax)
                 y = np.clip(y, ymin, ymax)
                 for p in pieces_loc:
-                    d = dist_point((x, y, 0), (p[1][0], p[1][1], 0))
+                    d = distance_point((x, y, 0), (p[1][0], p[1][1], 0))
                     if d < dist:
                         dist = d
                 i += 1
@@ -423,19 +423,19 @@ def place_captured(captured_pieces, table, piece_style, collection):
     ymaxblack = -2*SQUARE_LENGTH
     yminwhite = +2*SQUARE_LENGTH
     ymaxwhite = max(y_vertices) - SQUARE_LENGTH/2
-    dist_factor = 6
+    distance_factor = 6
 
     bcenter, captured_black_loc = place_group(captured_black,
                                               xmin, xmax,
                                               yminblack, ymaxblack,
-                                              dist_factor)
+                                              distance_factor)
 
     while True:
         wcenter, captured_white_loc = place_group(captured_white,
                                                   xmin, xmax,
                                                   yminwhite, ymaxwhite,
-                                                  dist_factor)
-        if dist_point(wcenter, bcenter) > 6*SQUARE_LENGTH:
+                                                  distance_factor)
+        if distance_point(wcenter, bcenter) > 6*SQUARE_LENGTH:
             break
 
     for piece in captured_black_loc:
@@ -447,7 +447,7 @@ def place_captured(captured_pieces, table, piece_style, collection):
     return
 
 
-def add_to_table(name, collection, table, dist_factor=6, x=0, y=0):
+def add_to_table(name, collection, table, distance_factor=6, x=0, y=0):
 
     vertices = table.data.vertices
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
@@ -466,7 +466,7 @@ def add_to_table(name, collection, table, dist_factor=6, x=0, y=0):
             x = np.random.uniform(xmin, xmax)
             y = np.random.uniform(ymin, ymax)
             j = 0
-            limit = dist_factor*SQUARE_LENGTH
+            limit = distance_factor*SQUARE_LENGTH
             while abs(x) < limit and abs(y) < limit:
                 x = np.random.uniform(xmin, xmax)
                 y = np.random.uniform(ymin, ymax)
@@ -478,7 +478,7 @@ def add_to_table(name, collection, table, dist_factor=6, x=0, y=0):
                 break
 
             for obj in collection.objects:
-                d = dist_point(obj.location, (x, y, z))
+                d = distance_point(obj.location, (x, y, z))
                 if d < dist:
                     dist = d
             if dist > SQUARE_LENGTH:
@@ -504,14 +504,14 @@ def add_to_table(name, collection, table, dist_factor=6, x=0, y=0):
     return
 
 
-def dist_obj(obj1, obj2):
+def distance_obj(obj1, obj2):
     a = obj1.location
     b = obj2.location
 
     return (a - b).length
 
 
-def dist_point(P1, P2):
+def distance_point(P1, P2):
     a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
     return np.sqrt(a)
 
