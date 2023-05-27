@@ -69,6 +69,7 @@ def print(*args, **kwargs):
 
 def set_configs():
     global WIDTH, HEIGHT, ADD_TABLE, ADD_BOARD, ADD_PIECES
+
     if np.random.rand() < 0.5:
         WIDTH = 960
         HEIGHT = 600
@@ -77,24 +78,19 @@ def set_configs():
         HEIGHT = 960
 
     rand_num = np.random.rand()
-    if rand_num < 0.05:
+    if rand_num < 0.5:
+        ADD_TABLE = True
+    else:
         ADD_TABLE = False
+
+    rand_num = np.random.rand()
+    if rand_num < 0.05:
         ADD_BOARD = False
         ADD_PIECES = False
     elif rand_num < 0.1:
-        ADD_TABLE = False
         ADD_BOARD = True
         ADD_PIECES = False
-    elif rand_num < 0.15:
-        ADD_TABLE = True
-        ADD_BOARD = True
-        ADD_PIECES = False
-    elif rand_num < 0.20:
-        ADD_TABLE = False
-        ADD_BOARD = True
-        ADD_PIECES = True
     else:
-        ADD_TABLE = True
         ADD_BOARD = True
         ADD_PIECES = True
     return
@@ -219,10 +215,12 @@ def setup_table(table_style, board, collection):
 
     if ADD_TABLE:
         if board is not None:
-            board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
+            vertices = board.data.vertices
+            board_zs = [(board.matrix_world @ v.co).z for v in vertices]
             obj.location[2] = min(board_zs)
         else:
             obj.location[2] = 0
+
     bpy.context.view_layer.update()
     return
 
