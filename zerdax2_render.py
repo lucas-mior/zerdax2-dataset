@@ -307,50 +307,7 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     return obj
 
 
-def choose_centers(xmin, xmax, ymin, ymax, distance_factor=6):
-    xc = np.random.uniform(xmin, xmax)
-    yc = np.random.uniform(ymin, ymax)
-
-    limit = distance_factor*SQUARE_LENGTH
-    while abs(xc) < limit and abs(yc) < limit:
-        xc = np.random.uniform(xmin, xmax)
-        yc = np.random.uniform(ymin, ymax)
-
-    return xc, yc, 0
-
-
-def place_captured(objects, captured_pieces, table, piece_style, collection):
-    captured_black = [c for c in captured_pieces if c.islower()]
-    captured_white = [c for c in captured_pieces if c.isupper()]
-
-    vertices = table.data.vertices
-    x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
-    y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
-    xmin = min(x_vertices) + SQUARE_LENGTH/2
-    xmax = max(x_vertices) - SQUARE_LENGTH/2
-    yminblack = min(y_vertices) + SQUARE_LENGTH/2
-    ymaxblack = -2*SQUARE_LENGTH
-    yminwhite = +2*SQUARE_LENGTH
-    ymaxwhite = max(y_vertices) - SQUARE_LENGTH/2
-    distance_factor = 6
-
-    bcenter = choose_centers(captured_black,
-                             xmin, xmax,
-                             yminblack, ymaxblack,
-                             distance_factor)
-
-    while True:
-        wcenter = choose_centers(captured_white,
-                                 xmin, xmax,
-                                 yminwhite, ymaxwhite,
-                                 distance_factor)
-        if util.distance_points(wcenter, bcenter) > 5*SQUARE_LENGTH:
-            break
-
-    return objects
-
-
-def add_extra(source_obj, collection, table, distance_factor=6):
+def add_extra(source_obj, collection, table, scale):
     vertices = table.data.vertices
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
     x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
@@ -362,6 +319,7 @@ def add_extra(source_obj, collection, table, distance_factor=6):
     ymax = max(y_vertices) - SQUARE_LENGTH/2
 
     distance = 10000
+    distance_factor = 6
     i = 0
     while True:
         x = np.random.uniform(xmin, xmax)
@@ -397,7 +355,10 @@ def add_extra(source_obj, collection, table, distance_factor=6):
         obj.animation_data_clear()
         obj.location = (x, y, z)
         rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
+        nscale = mathutils.Vector(scale[1])
+        nscale *= scale[0]
         obj.rotation_euler = rotation
+        obj.scale = nscale
         collection.objects.link(obj)
 
         obj.hide_render = False
@@ -474,14 +435,7 @@ def setup_shot(position, output_file):
 
     pieces = parse_position(fen)
     captured_pieces = get_missing_pieces(fen)
-    scale_pieces = (
-            np.random.uniform(0.8, 1.2),
-            (
-                np.random.uniform(0.95, 1.05),
-                np.random.uniform(0.95, 1.05),
-                np.random.uniform(0.95, 1.05),
-            )
-    )
+    scale_pieces = util.create_scale()
     if ADD_PIECES:
         for piece in pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
@@ -495,7 +449,7 @@ def setup_shot(position, output_file):
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
                 source_obj = bpy.data.objects[name]
-                obj = add_extra(source_obj, collection, table)
+                obj = add_extra(source_obj, collection, table, scale_pieces)
                 # if obj is not None:
                 #     box = util.get_bounding_box(scene, obj)
                 #     if box is not None:
@@ -504,11 +458,13 @@ def setup_shot(position, output_file):
                 #             "box": box,
                 #         })
         if np.random.rand() < 0.5:
+            scale = util.create_scale()
             source_obj = bpy.data.objects["RedCup"]
-            add_extra(source_obj, collection, table)
+            add_extra(source_obj, collection, table, scale)
         if np.random.rand() < 0.5:
+            scale = util.create_scale()
             source_obj = bpy.data.objects["CoffeCup"]
-            add_extra(source_obj, collection, table)
+            add_extra(source_obj, collection, table, scale)
 
     return objects
 
