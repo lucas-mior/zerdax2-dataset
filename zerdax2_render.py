@@ -497,8 +497,10 @@ def distance_obj(obj1, obj2):
 
 
 def distance_point(P1, P2):
-    a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
-    return np.sqrt(a)
+    dx = P1[0] - P2[0]
+    dy = P1[1] - P2[1]
+    dz = P1[2] - P2[2]
+    return np.sqrt(dx*dx + dy*dy + dz*dz)
 
 
 def board_box(corners):
