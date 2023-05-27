@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import random
 import gc
-import chess
 import mathutils
 
 d = os.path.dirname(bpy.data.filepath)
