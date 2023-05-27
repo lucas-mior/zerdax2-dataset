@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 import numpy as np
 import random
-import builtins as __builtin__
 import gc
 import chess
 import mathutils
@@ -18,6 +17,8 @@ d = os.path.dirname(bpy.data.filepath)
 if d not in sys.path:
     sys.path.append(d)
 from zerdax2_misc import CLASSES, PIECES
+import util
+from util import print
 
 
 DO_RENDER = False
@@ -35,28 +36,6 @@ ADD_TABLE = True
 ADD_BOARD = True
 ADD_PIECES = True
 ADD_CAPTURED = True
-
-
-def console_print(*args, **kwargs):
-    for area in bpy.context.screen.areas:
-        if area.type != 'CONSOLE':
-            continue
-
-        with bpy.context.temp_override(window=bpy.context.window,
-                                       area=area,
-                                       region=area.regions[-1],
-                                       space_data=area.spaces.active,
-                                       screen=bpy.context.screen):
-            s = " ".join([str(arg) for arg in args])
-            for line in s.split("\n"):
-                bpy.ops.console.scrollback_append(text=line)
-    return
-
-
-def print(*args, **kwargs):
-    console_print(*args, **kwargs)
-    __builtin__.print(*args, **kwargs)
-    return
 
 
 def set_configs():
@@ -91,18 +70,6 @@ def set_configs():
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
-    return
-
-
-def point_to(obj, focus, roll=0):
-    # Based on https://blender.stackexchange.com/a/127440
-    location = obj.location
-    direction = focus - location
-    quat = direction.to_track_quat("-Z", "Y").to_matrix().to_4x4()
-    roll_matrix = mathutils.Matrix.Rotation(roll, 4, "Z")
-    location = location.to_tuple()
-    obj.matrix_world = quat @ roll_matrix
-    obj.location = location
     return
 
 
@@ -147,9 +114,9 @@ def setup_camera(board):
 
         camera.location = (x, y, z)
         if board is not None:
-            point_to(camera, board.location)
+            util.point_to(camera, board.location)
         else:
-            point_to(camera, mathutils.Vector((0, 0, 0)))
+            util.point_to(camera, mathutils.Vector((0, 0, 0)))
 
         v = np.array([x, y, z])
         w = np.array([0, 0, 1])
@@ -183,7 +150,7 @@ def setup_spotlight(light):
     x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     focus = mathutils.Vector((x, y, z))
-    point_to(light, focus)
+    util.point_to(light, focus)
     return
 
 
@@ -346,56 +313,19 @@ def add_piece(piece, square, collection, piece_style):
     return obj
 
 
-def place_group(group, xmin, xmax, ymin, ymax, distance_factor=6):
-    pieces_loc = []
+def choose_centers(xmin, xmax, ymin, ymax, distance_factor=6):
     xc = np.random.uniform(xmin, xmax)
     yc = np.random.uniform(ymin, ymax)
+
     limit = distance_factor*SQUARE_LENGTH
     while abs(xc) < limit and abs(yc) < limit:
         xc = np.random.uniform(xmin, xmax)
         yc = np.random.uniform(ymin, ymax)
 
-    for piece in group:
-        x = 1000
-        y = 1000
-        dist = 0
-        i = 0
-        if abs(xc) > abs(yc):
-            limit = distance_factor*SQUARE_LENGTH
-            while abs(x) < limit and abs(y) < limit or dist < SQUARE_LENGTH/2:
-                dist = 1000
-                x = np.random.normal(xc, 2*SQUARE_LENGTH)
-                y = np.random.normal(yc, 4*SQUARE_LENGTH)
-                x = np.clip(x, xmin, xmax)
-                y = np.clip(y, ymin, ymax)
-                for p in pieces_loc:
-                    d = distance_point((x, y, 0), (p[1][0], p[1][1], 0))
-                    if d < dist:
-                        dist = d
-                i += 1
-                if i >= 20:
-                    break
-        else:
-            limit = distance_factor*SQUARE_LENGTH
-            while abs(x) < limit and abs(y) < limit or dist < SQUARE_LENGTH/2:
-                dist = 1000
-                x = np.random.normal(xc, 4*SQUARE_LENGTH)
-                y = np.random.normal(yc, 2*SQUARE_LENGTH)
-                x = np.clip(x, xmin, xmax)
-                y = np.clip(y, ymin, ymax)
-                for p in pieces_loc:
-                    d = distance_point((x, y, 0), (p[1][0], p[1][1], 0))
-                    if d < dist:
-                        dist = d
-                i += 1
-                if i >= 20:
-                    break
-        if i < 20:
-            pieces_loc.append((piece, (x, y)))
-    return (xc, yc, 0), pieces_loc
+    return xc, yc, 0
 
 
-def place_captured(captured_pieces, table, piece_style, collection):
+def place_captured(objects, captured_pieces, table, piece_style, collection):
     captured_black = [c for c in captured_pieces if c.islower()]
     captured_white = [c for c in captured_pieces if c.isupper()]
 
@@ -410,30 +340,23 @@ def place_captured(captured_pieces, table, piece_style, collection):
     ymaxwhite = max(y_vertices) - SQUARE_LENGTH/2
     distance_factor = 6
 
-    bcenter, captured_black_loc = place_group(captured_black,
-                                              xmin, xmax,
-                                              yminblack, ymaxblack,
-                                              distance_factor)
+    bcenter = choose_centers(captured_black,
+                             xmin, xmax,
+                             yminblack, ymaxblack,
+                             distance_factor)
 
     while True:
-        wcenter, captured_white_loc = place_group(captured_white,
-                                                  xmin, xmax,
-                                                  yminwhite, ymaxwhite,
-                                                  distance_factor)
-        if distance_point(wcenter, bcenter) > 6*SQUARE_LENGTH:
+        wcenter = choose_centers(captured_white,
+                                 xmin, xmax,
+                                 yminwhite, ymaxwhite,
+                                 distance_factor)
+        if util.distance_point(wcenter, bcenter) > 5*SQUARE_LENGTH:
             break
 
-    for piece in captured_black_loc:
-        name = PIECES[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table, x=piece[1][0], y=piece[1][1])
-    for piece in captured_white_loc:
-        name = PIECES[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table, x=piece[1][0], y=piece[1][1])
-    return
+    return objects
 
 
-def add_to_table(name, collection, table, distance_factor=6, x=0, y=0):
-
+def add_to_table(objects, source_obj, collection, table, distance_factor=6):
     vertices = table.data.vertices
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
     x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
@@ -444,36 +367,34 @@ def add_to_table(name, collection, table, distance_factor=6, x=0, y=0):
     ymin = min(y_vertices) + SQUARE_LENGTH/2
     ymax = max(y_vertices) - SQUARE_LENGTH/2
 
-    dist = 1000*SQUARE_LENGTH
+    distance = float('inf')
     i = 0
-    if x == 0 and y == 0:
-        while True:
+    while True:
+        x = np.random.uniform(xmin, xmax)
+        y = np.random.uniform(ymin, ymax)
+        j = 0
+        limit = distance_factor*SQUARE_LENGTH
+        while abs(x) < limit and abs(y) < limit:
             x = np.random.uniform(xmin, xmax)
             y = np.random.uniform(ymin, ymax)
-            j = 0
-            limit = distance_factor*SQUARE_LENGTH
-            while abs(x) < limit and abs(y) < limit:
-                x = np.random.uniform(xmin, xmax)
-                y = np.random.uniform(ymin, ymax)
-                j += 1
-                if j >= 20:
-                    break
+            j += 1
             if j >= 20:
-                i = 20
                 break
+        if j >= 20:
+            i = 20
+            break
 
-            for obj in collection.objects:
-                d = distance_point(obj.location, (x, y, z))
-                if d < dist:
-                    dist = d
-            if dist > SQUARE_LENGTH:
-                break
-            i += 1
-            if i >= 20:
-                break
+        for obj in collection.objects:
+            d = util.distance_point(obj.location, (x, y, z))
+            if d < distance:
+                distance = d
+        if distance > SQUARE_LENGTH:
+            break
+        i += 1
+        if i >= 20:
+            break
 
     if i < 20:
-        source_obj = bpy.data.objects[name]
         obj = source_obj.copy()
         obj.data = source_obj.data.copy()
         obj.animation_data_clear()
@@ -486,20 +407,7 @@ def add_to_table(name, collection, table, distance_factor=6, x=0, y=0):
         obj.hide_set(False)
         obj.hide_viewport = False
 
-    return
-
-
-def distance_obj(obj1, obj2):
-    a = obj1.location
-    b = obj2.location
-    return (a - b).length
-
-
-def distance_point(P1, P2):
-    dx = P1[0] - P2[0]
-    dy = P1[1] - P2[1]
-    dz = P1[2] - P2[2]
-    return np.sqrt(dx*dx + dy*dy + dz*dz)
+    return objects
 
 
 def board_box(corners):
@@ -575,16 +483,20 @@ def setup_shot(position, output_file, captured_pieces):
             obj = add_piece(piece, square, collection, styles['piece'])
             objects.append({
                 "piece": piece.symbol(),
-                "box": get_bounding_box(scene, obj)
+                "box": util.get_bounding_box(scene, obj)
             })
 
     if ADD_TABLE:
         if ADD_CAPTURED:
-            place_captured(captured_pieces, table, styles['piece'], collection)
+            for piece in captured_pieces:
+                obj = bpy.data.objects[PIECES[piece] + str(styles['piece'])]
+                objects = add_to_table(objects, obj, collection, table)
         if np.random.rand() < 0.5:
-            add_to_table("RedCup", collection, table)
+            obj = bpy.data.objects["RedCup"]
+            objects = add_to_table(objects, obj, collection, table)
         if np.random.rand() < 0.5:
-            add_to_table("CoffeCup", collection, table)
+            obj = bpy.data.objects["CoffeCup"]
+            objects = add_to_table(objects, obj, collection, table)
 
     return objects
 
@@ -619,71 +531,6 @@ def get_corner_coordinates(scene):
         return list(_get_coords_corners())
     except ValueError:
         return None
-
-
-def get_bounding_box(scene, obj):
-    """Obtain the bounding box of an object.
-    Args:
-        scene: the scene
-        obj: the object
-    Returns:
-        the box coordinates in the form (x, y, width, height)
-    """
-    # adapted from https://blender.stackexchange.com/a/158236
-    camera_obj = scene.camera
-    mat = camera_obj.matrix_world.normalized().inverted()
-    depsgraph = bpy.context.evaluated_depsgraph_get()
-    mesh_eval = obj.evaluated_get(depsgraph)
-    me = mesh_eval.to_mesh()
-    me.transform(obj.matrix_world)
-    me.transform(mat)
-
-    camera = camera_obj.data
-
-    def _get_coords_bounding_box():
-        frame = [-v for v in camera.view_frame(scene=scene)[:3]]
-        for v in me.vertices:
-            co_local = v.co
-            z = -co_local.z
-
-            if z <= 0.0:
-                print("===========", z, obj, file=sys.stderr)
-                continue
-            else:
-                frame = [(v / (v.z / z)) for v in frame]
-
-            min_x, max_x = frame[1].x, frame[2].x
-            min_y, max_y = frame[0].y, frame[1].y
-
-            x = (co_local.x - min_x) / (max_x - min_x)
-            y = (co_local.y - min_y) / (max_y - min_y)
-
-            yield x, y
-
-    xs, ys = np.array(list(_get_coords_bounding_box())).T
-
-    min_x = np.clip(min(xs), 0.0, 1.0)
-    max_x = np.clip(max(xs), 0.0, 1.0)
-    min_y = np.clip(min(ys), 0.0, 1.0)
-    max_y = np.clip(max(ys), 0.0, 1.0)
-
-    mesh_eval.to_mesh_clear()
-
-    r = scene.render
-    fac = r.resolution_percentage * 0.01
-    dim_x = r.resolution_x * fac
-    dim_y = r.resolution_y * fac
-
-    assert round((max_x - min_x) *
-                 dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
-
-    corners = (
-        round(min_x * dim_x),
-        round(dim_y - max_y * dim_y),
-        round((max_x - min_x) * dim_x),
-        round((max_y - min_y) * dim_y)
-    )
-    return corners
 
 
 def get_missing_pieces(fen):
