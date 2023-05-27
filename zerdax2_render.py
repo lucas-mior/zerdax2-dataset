@@ -140,7 +140,7 @@ def setup_world():
 
 
 def setup_camera(board):
-    print(f"setup_camera()")
+    print(f"setup_camera({board})")
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 60 or angle <= 40:
@@ -157,7 +157,7 @@ def setup_camera(board):
         if board is not None:
             point_to(camera, board.location)
         else:
-            point_to(camera, (0, 0, 0))
+            point_to(camera, mathutils.Vector((0, 0, 0)))
 
         v = np.array([x, y, z])
         w = np.array([0, 0, 1])
@@ -183,7 +183,7 @@ def setup_spotlight(light):
     print(f"setup_spotlight(light={light.name})")
     z = np.random.normal(16*SQUARE_LENGTH, 2*SQUARE_LENGTH)
     z = np.clip(z, 13*SQUARE_LENGTH, 22*SQUARE_LENGTH)
-    if light.name == "Spot1":
+    if light.name == "Spot0":
         x = np.random.uniform(-18*SQUARE_LENGTH, 0)
     else:
         x = np.random.uniform(0, 18*SQUARE_LENGTH)
@@ -213,15 +213,16 @@ def setup_table(table_style, board, collection):
             obj.location[1] = 0
             collection.objects.link(obj)
         else:
-            source_obj.hide_render = True
-            source_obj.hide_viewport = True
-            source_obj.hide_set(True)
+            source_obj.hide_render = False
+            source_obj.hide_viewport = False
+            source_obj.hide_set(False)
 
-    if board:
-        board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
-        obj.location[2] = min(board_zs)
-    else:
-        obj.location[2] = 0
+    if ADD_TABLE:
+        if board is not None:
+            board_zs = [(board.matrix_world @ v.co).z for v in board.data.vertices]
+            obj.location[2] = min(board_zs)
+        else:
+            obj.location[2] = 0
     bpy.context.view_layer.update()
     return
 
@@ -241,9 +242,9 @@ def setup_board(board_style, collection):
             obj.location[1] = 0
             collection.objects.link(obj)
         else:
-            source_obj.hide_render = True
-            source_obj.hide_viewport = True
-            source_obj.hide_set(True)
+            source_obj.hide_render = False
+            source_obj.hide_viewport = False
+            source_obj.hide_set(False)
 
     if not ADD_BOARD:
         obj = None
@@ -261,21 +262,21 @@ def setup_sun():
 def setup_lighting():
     print("setup_lighting()")
     flash = bpy.data.objects["CameraFlashLight"]
+    spot0 = bpy.data.objects["Spot0"]
     spot1 = bpy.data.objects["Spot1"]
-    spot2 = bpy.data.objects["Spot2"]
     sun = bpy.data.objects["Sun"]
 
     modes = {
         "flash": {
             flash: True,
+            spot0: False,
             spot1: False,
-            spot2: False,
             sun: True,
         },
         "spotlights": {
             flash: False,
+            spot0: True,
             spot1: True,
-            spot2: True,
             sun: True,
         }
     }
@@ -596,21 +597,6 @@ def setup_shot(position, output_file, captured_pieces):
         scene.collection.children.link(collection)
     collection = bpy.data.collections[COLLECTION_NAME]
 
-    board = setup_board(styles['board'], collection)
-    setup_table(styles['table'], board, collection)
-
-    corner_coords = None
-    while not corner_coords:
-        setup_camera(board)
-        break
-        corner_coords = get_corner_coordinates(scene)
-    return
-
-    setup_world()
-    setup_lighting()
-
-    corner_coords = sorted(corner_coords, key=lambda x: x[0])
-
     for obj in bpy.data.objects:
         obj.select_set(False)
 
@@ -618,12 +604,27 @@ def setup_shot(position, output_file, captured_pieces):
         obj.select_set(True)
         bpy.ops.object.delete()
 
-    piece_data = []
+    board = setup_board(styles['board'], collection)
+    setup_table(styles['table'], board, collection)
+
+    corner_coords = None
+    while not corner_coords:
+        setup_camera(board)
+        if ADD_BOARD:
+            corner_coords = get_corner_coordinates(scene)
+        else:
+            break
+
+    corner_coords = sorted(corner_coords, key=lambda x: x[0])
+    setup_world()
+    setup_lighting()
+
+    objects = []
 
     if ADD_BOARD:
-        piece_data.append({
+        objects.append({
             "piece": "Board",
-            "box": get_bounding_box(scene, board)
+            "box": board_box(corner_coords),
         })
 
     table_stuff.clear()
@@ -631,7 +632,7 @@ def setup_shot(position, output_file, captured_pieces):
     if ADD_PIECES:
         for square, piece in position.piece_map().items():
             obj = add_piece(piece, square, collection, styles['piece'])
-            piece_data.append({
+            objects.append({
                 "piece": piece.symbol(),
                 "box": get_bounding_box(scene, obj)
             })
@@ -644,7 +645,7 @@ def setup_shot(position, output_file, captured_pieces):
     if np.random.randint(0, 2) == 1:
         add_to_table("CoffeCup", collection, styles['table'], dist_factor=8)
 
-    return piece_data
+    return objects
 
 
 def get_corner_coordinates(scene):
