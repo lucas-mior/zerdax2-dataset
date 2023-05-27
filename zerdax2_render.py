@@ -221,10 +221,10 @@ def setup_sun():
 
 
 def setup_lighting():
-    flash = bpy.data.objects["CameraFlashLight"]
-    spot0 = bpy.data.objects["Spot0"]
-    spot1 = bpy.data.objects["Spot1"]
-    sun = bpy.data.objects["Sun"]
+    flash = bpy.data.objects["LightCameraFlashLight"]
+    spot0 = bpy.data.objects["LightSpot0"]
+    spot1 = bpy.data.objects["LightSpot1"]
+    sun = bpy.data.objects["LightSun"]
 
     modes = {
         "flash": {
