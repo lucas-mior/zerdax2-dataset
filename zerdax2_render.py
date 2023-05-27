@@ -287,8 +287,8 @@ def add_piece(piece, collection, piece_style):
     rank = piece["square"][1] + rank_offset
     file = piece["square"][0] + file_offset
 
-    # Translate to coordinate system where the origin is in the middle of the
-    # board
+    # Translate to coordinate system
+    # where the origin is in the middle of the board
     rank -= 4
     file -= 4
 
@@ -504,10 +504,8 @@ def setup_shot(position, output_file):
 
 
 def get_corner_coordinates(scene):
-    corner_points = np.array([[-1., -1],
-                              [-1, 1],
-                              [1, 1],
-                              [1, -1]]) * 4 * SQUARE_LENGTH
+    corner_points = np.array([[-1., -1], [-1, 1], [1, 1], [1, -1]])
+    corner_points *= 4*SQUARE_LENGTH
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
     render = scene.render
 
