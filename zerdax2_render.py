@@ -492,7 +492,6 @@ def add_to_table(name, collection, table, distance_factor=6, x=0, y=0):
 def distance_obj(obj1, obj2):
     a = obj1.location
     b = obj2.location
-
     return (a - b).length
 
 
