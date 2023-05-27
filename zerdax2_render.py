@@ -22,8 +22,8 @@ if d not in sys.path:
 from zerdax2_misc import CLASSES
 
 
-DO_DEBUG = False
-DO_RENDER = False
+DO_DEBUG = True
+DO_RENDER = True
 
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934  # m
@@ -560,15 +560,12 @@ def board_box(corners):
     cornersy = sorted(y)
 
     x0, x1 = cornersx[0], cornersx[3]
-    xc = round((x0+x1)/2)
     dx = x1 - x0
 
     y0, y1 = cornersy[0], cornersy[3]
-    yc = round((y0+y1)/2)
     dy = y1 - y0
 
-    print(f"0 {xc} {yc} {dx} {dy}")
-    box = [xc, dx, yc, dy]
+    box = [x0, y0, dx, dy]
     return box
 
 
