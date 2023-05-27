@@ -41,15 +41,17 @@ ADD_CAPTURED = True
 
 def console_print(*args, **kwargs):
     for area in bpy.context.screen.areas:
-        if area.type == 'CONSOLE':
-            with bpy.context.temp_override(window=bpy.context.window,
-                                           area=area,
-                                           region=area.regions[-1],
-                                           space_data=area.spaces.active,
-                                           screen=bpy.context.screen):
-                s = " ".join([str(arg) for arg in args])
-                for line in s.split("\n"):
-                    bpy.ops.console.scrollback_append(text=line)
+        if area.type != 'CONSOLE':
+            continue
+
+        with bpy.context.temp_override(window=bpy.context.window,
+                                       area=area,
+                                       region=area.regions[-1],
+                                       space_data=area.spaces.active,
+                                       screen=bpy.context.screen):
+            s = " ".join([str(arg) for arg in args])
+            for line in s.split("\n"):
+                bpy.ops.console.scrollback_append(text=line)
     return
 
 
