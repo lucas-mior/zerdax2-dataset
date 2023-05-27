@@ -607,7 +607,6 @@ def setup_shot(position, output_file, captured_pieces):
             "box": board_box(corner_coords),
         })
 
-    piece_amount = 0
     if ADD_PIECES:
         for square, piece in position.piece_map().items():
             obj = add_piece(piece, square, collection, styles['piece'])
@@ -615,7 +614,6 @@ def setup_shot(position, output_file, captured_pieces):
                 "piece": piece.symbol(),
                 "box": get_bounding_box(scene, obj)
             })
-            piece_amount += 1
 
     if ADD_CAPTURED:
         place_captured(captured_pieces, styles, collection)
