@@ -11,15 +11,15 @@ import numpy as np
 import random
 import builtins as __builtin__
 import gc
+import chess
 
 sys.path.append("/home/lucas/.local/lib/python3.10/site-packages")
 import mathutils
-import chess
 
 d = os.path.dirname(bpy.data.filepath)
 if d not in sys.path:
     sys.path.append(d)
-from zerdax2_misc import CLASSES
+from zerdax2_misc import CLASSES, PIECES
 
 
 DO_DEBUG = True
@@ -38,8 +38,6 @@ HEIGHT = 600
 ADD_TABLE = True
 ADD_BOARD = True
 ADD_PIECES = True
-
-table_stuff = []
 
 
 def console_print(*args, **kwargs):
@@ -417,20 +415,6 @@ def place_captured(captured_pieces, styles, collection):
     print(f"place_captured(captured_pieces={captured_pieces},",
           f"piece_style={piece_style}, collection={collection.name},",
           f"table_style={table_style})")
-    piece_names = {
-        "K": "WhiteKing",
-        "Q": "WhiteQueen",
-        "B": "WhiteBishop",
-        "N": "WhiteKnight",
-        "R": "WhiteRook",
-        "P": "WhitePawn",
-        "k": "BlackKing",
-        "q": "BlackQueen",
-        "b": "BlackBishop",
-        "n": "BlackKnight",
-        "r": "BlackRook",
-        "p": "BlackPawn",
-    }
     captured_black = [c for c in captured_pieces if c.islower()]
     captured_white = [c for c in captured_pieces if c.isupper()]
     table = bpy.data.objects[f'Table{table_style}']
@@ -462,11 +446,11 @@ def place_captured(captured_pieces, styles, collection):
             break
 
     for piece in captured_black_loc:
-        name = piece_names[piece[0]] + str(piece_style)
+        name = PIECES[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style,
                      dist_factor=7, x=piece[1][0], y=piece[1][1])
     for piece in captured_white_loc:
-        name = piece_names[piece[0]] + str(piece_style)
+        name = PIECES[piece[0]] + str(piece_style)
         add_to_table(name, collection, table_style,
                      dist_factor=7, x=piece[1][0], y=piece[1][1])
     return
@@ -476,18 +460,17 @@ def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
     debug_print(f"add_to_table({name=}, collection={collection.name},",
                 f"{table_style=}, {dist_factor=}, x={x:.2f}, y={y:.2f})")
 
-    rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-
     table = bpy.data.objects[f'Table{table_style}']
 
-    zvertices = [(table.matrix_world @ v.co).z for v in table.data.vertices]
-    xvertices = [(table.matrix_world @ v.co).x for v in table.data.vertices]
-    yvertices = [(table.matrix_world @ v.co).y for v in table.data.vertices]
-    z = max(zvertices)
-    xmin = min(xvertices) + SQUARE_LENGTH/2
-    xmax = max(xvertices) - SQUARE_LENGTH/2
-    ymin = min(yvertices) + SQUARE_LENGTH/2
-    ymax = max(yvertices) - SQUARE_LENGTH/2
+    vertices = table.data.vertices
+    z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
+    x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
+    y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
+    z = max(z_vertices)
+    xmin = min(x_vertices) + SQUARE_LENGTH/2
+    xmax = max(x_vertices) - SQUARE_LENGTH/2
+    ymin = min(y_vertices) + SQUARE_LENGTH/2
+    ymax = max(y_vertices) - SQUARE_LENGTH/2
 
     dist = 1000*SQUARE_LENGTH
     i = 0
@@ -507,8 +490,8 @@ def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
                 i = 20
                 break
 
-            for obj_name in table_stuff:
-                d = dist_point(bpy.data.objects[obj_name].location, (x, y, z))
+            for obj in collection:
+                d = dist_point(obj.location, (x, y, z))
                 if d < dist:
                     dist = d
             if dist > SQUARE_LENGTH:
@@ -523,6 +506,7 @@ def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
         obj.data = source_obj.data.copy()
         obj.animation_data_clear()
         obj.location = (x, y, z)
+        rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
         obj.rotation_euler = rotation
         collection.objects.link(obj)
 
@@ -530,7 +514,6 @@ def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
         obj.hide_set(False)
         obj.hide_viewport = False
 
-        table_stuff.append(obj.name)
     return
 
 
@@ -622,7 +605,6 @@ def setup_shot(position, output_file, captured_pieces):
             "box": board_box(corner_coords),
         })
 
-    table_stuff.clear()
     piece_amount = 0
     if ADD_PIECES:
         for square, piece in position.piece_map().items():
@@ -759,13 +741,6 @@ def get_missing_pieces(fen):
 if __name__ == "__main__":
     argv = sys.argv
     print("="*30, f"{argv[0]}.py", "="*30)
-    if "--" in argv:
-        argv = argv[argv.index("--") + 1:]
-        begin = int(argv[0])
-        increment = int(argv[1])
-    else:
-        begin = 0
-        increment = 1
 
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
