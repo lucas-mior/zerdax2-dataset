@@ -180,10 +180,10 @@ def setup_table(table_style, board, collection):
             table.location[2] = min(board_zs)
         else:
             table.location[2] = 0
+        bpy.context.view_layer.update()
     else:
         table = None
 
-    bpy.context.view_layer.update()
     return table
 
 
@@ -199,16 +199,17 @@ def setup_board(board_style, collection):
         board.location[0] = 0
         board.location[1] = 0
         collection.objects.link(board)
+        bpy.context.view_layer.update()
     else:
         board = None
 
-    bpy.context.view_layer.update()
     return board
 
 
 def setup_sun():
     strength = np.random.uniform(0.4, 0.5)
     bpy.data.lights['Sun'].energy = strength
+    bpy.context.view_layer.update()
     return
 
 
@@ -239,6 +240,8 @@ def setup_lighting():
         obj.hide_render = not visibility
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
+
+    bpy.context.view_layer.update()
     return
 
 
