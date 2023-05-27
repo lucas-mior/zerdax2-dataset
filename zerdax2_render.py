@@ -174,8 +174,7 @@ def setup_camera(board):
 
 
 def setup_spotlight(light):
-    z = np.random.normal(16*SQUARE_LENGTH, 2*SQUARE_LENGTH)
-    z = np.clip(z, 13*SQUARE_LENGTH, 22*SQUARE_LENGTH)
+    z = np.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     if light.name == "Spot0":
         x = np.random.uniform(-18*SQUARE_LENGTH, 0)
     else:
