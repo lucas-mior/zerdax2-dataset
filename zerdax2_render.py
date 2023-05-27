@@ -445,12 +445,6 @@ def setup_shot(position, output_file):
     scene.render.resolution_x = WIDTH
     scene.render.resolution_y = HEIGHT
 
-    styles = {
-        "table": np.random.randint(0, TABLE_STYLES),
-        "board": np.random.randint(0, BOARD_STYLES),
-        "piece": np.random.randint(0, PIECE_STYLES),
-    }
-
     if COLLECTION_NAME not in bpy.data.collections:
         collection = bpy.data.collections.new(COLLECTION_NAME)
         scene.collection.children.link(collection)
@@ -458,11 +452,15 @@ def setup_shot(position, output_file):
 
     for obj in bpy.data.objects:
         obj.select_set(False)
-
     for obj in collection.objects:
         obj.select_set(True)
         bpy.ops.object.delete()
 
+    styles = {
+        "table": np.random.randint(0, TABLE_STYLES),
+        "board": np.random.randint(0, BOARD_STYLES),
+        "piece": np.random.randint(0, PIECE_STYLES),
+    }
     board = setup_board(styles['board'], collection)
     table = setup_table(styles['table'], board, collection)
 
