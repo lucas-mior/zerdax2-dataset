@@ -442,7 +442,6 @@ def setup_shot(position, output_file, captured_pieces):
         "piece": np.random.randint(0, PIECE_STYLES),
     }
 
-    # Create a collection to store the position
     if COLLECTION_NAME not in bpy.data.collections:
         collection = bpy.data.collections.new(COLLECTION_NAME)
         scene.collection.children.link(collection)
