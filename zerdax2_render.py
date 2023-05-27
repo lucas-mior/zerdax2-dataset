@@ -223,9 +223,11 @@ def setup_table(table_style, board, collection):
             obj.location[2] = min(board_zs)
         else:
             obj.location[2] = 0
+    else:
+        obj = None
 
     bpy.context.view_layer.update()
-    return
+    return obj
 
 
 def setup_board(board_style, collection):
@@ -413,15 +415,9 @@ def place_group(group, xmin, xmax, ymin, ymax, dist_factor=6):
     return (xc, yc, 0), pieces_loc
 
 
-def place_captured(captured_pieces, styles, collection):
-    piece_style = styles["piece"]
-    table_style = styles["table"]
-    print(f"place_captured(captured_pieces={captured_pieces},",
-          f"piece_style={piece_style}, collection={collection.name},",
-          f"table_style={table_style})")
+def place_captured(captured_pieces, table, piece_style, collection):
     captured_black = [c for c in captured_pieces if c.islower()]
     captured_white = [c for c in captured_pieces if c.isupper()]
-    table = bpy.data.objects[f'Table{table_style}']
 
     vertices = table.data.vertices
     x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
@@ -449,20 +445,16 @@ def place_captured(captured_pieces, styles, collection):
 
     for piece in captured_black_loc:
         name = PIECES[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table_style,
+        add_to_table(name, collection, table,
                      dist_factor=7, x=piece[1][0], y=piece[1][1])
     for piece in captured_white_loc:
         name = PIECES[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table_style,
+        add_to_table(name, collection, table,
                      dist_factor=7, x=piece[1][0], y=piece[1][1])
     return
 
 
-def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
-    debug_print(f"add_to_table({name=}, collection={collection.name},",
-                f"{table_style=}, {dist_factor=}, x={x:.2f}, y={y:.2f})")
-
-    table = bpy.data.objects[f'Table{table_style}']
+def add_to_table(name, collection, table, dist_factor=6, x=0, y=0):
 
     vertices = table.data.vertices
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
@@ -585,7 +577,7 @@ def setup_shot(position, output_file, captured_pieces):
         bpy.ops.object.delete()
 
     board = setup_board(styles['board'], collection)
-    setup_table(styles['table'], board, collection)
+    table = setup_table(styles['table'], board, collection)
 
     corner_coords = None
     while not corner_coords:
@@ -615,12 +607,13 @@ def setup_shot(position, output_file, captured_pieces):
                 "box": get_bounding_box(scene, obj)
             })
 
-    if ADD_CAPTURED:
-        place_captured(captured_pieces, styles, collection)
-    if np.random.randint(0, 2) == 1:
-        add_to_table("RedCup", collection, styles['table'], dist_factor=7)
-    if np.random.randint(0, 2) == 1:
-        add_to_table("CoffeCup", collection, styles['table'], dist_factor=8)
+    if ADD_TABLE:
+        if ADD_CAPTURED:
+            place_captured(captured_pieces, table, styles['piece'], collection)
+        if np.random.randint(0, 2) == 1:
+            add_to_table("RedCup", collection, table, dist_factor=7)
+        if np.random.randint(0, 2) == 1:
+            add_to_table("CoffeCup", collection, table, dist_factor=8)
 
     return objects
 
