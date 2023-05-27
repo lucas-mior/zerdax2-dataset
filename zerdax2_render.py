@@ -158,25 +158,26 @@ def setup_spotlight(light):
 
 
 def setup_table(table_style, board, collection):
+    table = None
     for i in range(0, TABLE_STYLES):
         source_obj = bpy.data.objects[f"Table{i}"]
         if i == table_style and ADD_TABLE:
-            obj = source_obj.copy()
-            obj.data = source_obj.data.copy()
-            obj.animation_data_clear()
-            obj.hide_render = False
-            obj.hide_viewport = False
-            obj.hide_set(False)
-            obj.location[0] = 0
-            obj.location[1] = 0
+            table = source_obj.copy()
+            table.data = source_obj.data.copy()
+            table.animation_data_clear()
+            table.hide_render = False
+            table.hide_viewport = False
+            table.hide_set(False)
+            table.location[0] = 0
+            table.location[1] = 0
 
             s = (0.9, 1.4)
             scale = util.create_scale(x=s, y=s, z=(1, 1))
             nscale = mathutils.Vector(scale[1])
             nscale *= scale[0]
-            obj.scale = nscale
+            table.scale = nscale
 
-            collection.objects.link(obj)
+            collection.objects.link(table)
         else:
             source_obj.hide_render = False
             source_obj.hide_viewport = False
@@ -186,38 +187,35 @@ def setup_table(table_style, board, collection):
         if board is not None:
             vertices = board.data.vertices
             board_zs = [(board.matrix_world @ v.co).z for v in vertices]
-            obj.location[2] = min(board_zs)
+            table.location[2] = min(board_zs)
         else:
-            obj.location[2] = 0
-    else:
-        obj = None
+            table.location[2] = 0
 
     bpy.context.view_layer.update()
-    return obj
+    return table
 
 
 def setup_board(board_style, collection):
+    board = None
     for i in range(0, BOARD_STYLES):
         source_obj = bpy.data.objects[f"Board{i}"]
         if i == board_style and ADD_BOARD:
-            obj = source_obj.copy()
-            obj.data = source_obj.data.copy()
-            obj.animation_data_clear()
-            obj.hide_render = False
-            obj.hide_viewport = False
-            obj.hide_set(False)
-            obj.location[0] = 0
-            obj.location[1] = 0
-            collection.objects.link(obj)
+            board = source_obj.copy()
+            board.data = source_obj.data.copy()
+            board.animation_data_clear()
+            board.hide_render = False
+            board.hide_viewport = False
+            board.hide_set(False)
+            board.location[0] = 0
+            board.location[1] = 0
+            collection.objects.link(board)
         else:
             source_obj.hide_render = False
             source_obj.hide_viewport = False
             source_obj.hide_set(False)
 
-    if not ADD_BOARD:
-        obj = None
     bpy.context.view_layer.update()
-    return obj
+    return board
 
 
 def setup_sun():
