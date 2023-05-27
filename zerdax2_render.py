@@ -20,9 +20,7 @@ if d not in sys.path:
 from zerdax2_misc import CLASSES, PIECES
 
 
-DO_DEBUG = True
 DO_RENDER = False
-
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934  # m
 COLLECTION_NAME = "ChessPosition"
