@@ -70,6 +70,10 @@ def set_configs():
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
+    ADD_TABLE = True
+    ADD_PIECES = True
+    ADD_BOARD = True
+    ADD_CAPTURED = True
     return
 
 
@@ -356,7 +360,7 @@ def place_captured(objects, captured_pieces, table, piece_style, collection):
     return objects
 
 
-def add_extra(objects, source_obj, collection, table, distance_factor=6):
+def add_extra(source_obj, collection, table, distance_factor=6):
     vertices = table.data.vertices
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
     x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
@@ -396,6 +400,7 @@ def add_extra(objects, source_obj, collection, table, distance_factor=6):
         if i >= 20:
             break
 
+    obj = None
     if i < 20:
         obj = source_obj.copy()
         obj.data = source_obj.data.copy()
@@ -409,7 +414,7 @@ def add_extra(objects, source_obj, collection, table, distance_factor=6):
         obj.hide_set(False)
         obj.hide_viewport = False
 
-    return objects
+    return obj
 
 
 def board_box(corners):
@@ -492,13 +497,20 @@ def setup_shot(position, output_file, captured_pieces):
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
                 source_obj = bpy.data.objects[name]
-                objects = add_extra(objects, source_obj, collection, table)
+                obj = add_extra(source_obj, collection, table)
+                # if obj is not None:
+                #     box = util.get_bounding_box(scene, obj)
+                #     if box is not None:
+                #         objects.append({
+                #             "piece": piece,
+                #             "box": box,
+                #         })
         if np.random.rand() < 0.5:
             source_obj = bpy.data.objects["RedCup"]
-            objects = add_extra(objects, source_obj, collection, table)
+            add_extra(source_obj, collection, table)
         if np.random.rand() < 0.5:
             source_obj = bpy.data.objects["CoffeCup"]
-            objects = add_extra(objects, source_obj, collection, table)
+            add_extra(source_obj, collection, table)
 
     return objects
 
@@ -570,7 +582,7 @@ if __name__ == "__main__":
                     dump_yolo_txt(txtpath, objects)
 
             if i % 100 == 0:
-                gc.collect()
                 bpy.ops.outliner.orphans_purge()
+                gc.collect()
             break
     print("="*60)

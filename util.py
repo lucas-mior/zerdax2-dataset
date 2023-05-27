@@ -133,6 +133,10 @@ def get_bounding_box(scene, obj):
 
     xs, ys = np.array(list(_get_coords_bounding_box())).T
 
+    if min(xs) < 0 or max(xs) > 1:
+        return None
+    if min(ys) < 0 or max(ys) > 1:
+        return None
     min_x = np.clip(min(xs), 0.0, 1.0)
     max_x = np.clip(max(xs), 0.0, 1.0)
     min_y = np.clip(min(ys), 0.0, 1.0)
