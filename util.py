@@ -161,13 +161,13 @@ def get_bounding_box(scene, obj):
     return corners
 
 
-def create_scale():
+def create_scale(x=(0.95, 1.05), y=(0.95, 1.05), z=(0.95, 1.05)):
     scale = (
         np.random.uniform(0.8, 1.2),
         (
-            np.random.uniform(0.95, 1.05),
-            np.random.uniform(0.95, 1.05),
-            np.random.uniform(0.95, 1.05),
+            np.random.uniform(x[0], x[1]),
+            np.random.uniform(y[0], y[1]),
+            np.random.uniform(z[0], z[1]),
         )
     )
     return scale

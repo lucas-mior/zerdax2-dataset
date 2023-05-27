@@ -169,6 +169,13 @@ def setup_table(table_style, board, collection):
             obj.hide_set(False)
             obj.location[0] = 0
             obj.location[1] = 0
+
+            s = (0.9, 1.4)
+            scale = util.create_scale(x=s, y=s, z=(1, 1))
+            nscale = mathutils.Vector(scale[1])
+            nscale *= scale[0]
+            obj.scale = nscale
+
             collection.objects.link(obj)
         else:
             source_obj.hide_render = False
