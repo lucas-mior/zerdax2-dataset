@@ -613,9 +613,9 @@ def setup_shot(position, output_file, captured_pieces):
     if ADD_TABLE:
         if ADD_CAPTURED:
             place_captured(captured_pieces, table, styles['piece'], collection)
-        if np.random.randint(0, 2) == 1:
+        if np.random.rand() < 0.5:
             add_to_table("RedCup", collection, table, dist_factor=7)
-        if np.random.randint(0, 2) == 1:
+        if np.random.rand() < 0.5:
             add_to_table("CoffeCup", collection, table, dist_factor=8)
 
     return objects
