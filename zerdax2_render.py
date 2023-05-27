@@ -489,7 +489,8 @@ def setup_shot(position, output_file, captured_pieces):
     if ADD_TABLE:
         if ADD_CAPTURED:
             for piece in captured_pieces:
-                obj = bpy.data.objects[PIECES[piece] + str(styles['piece'])]
+                name = PIECES[piece] + str(styles['piece'])
+                obj = bpy.data.objects[name]
                 objects = add_to_table(objects, obj, collection, table)
         if np.random.rand() < 0.5:
             obj = bpy.data.objects["RedCup"]
