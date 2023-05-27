@@ -12,8 +12,6 @@ import random
 import builtins as __builtin__
 import gc
 import chess
-
-sys.path.append("/home/lucas/.local/lib/python3.10/site-packages")
 import mathutils
 
 d = os.path.dirname(bpy.data.filepath)
@@ -490,7 +488,7 @@ def add_to_table(name, collection, table_style, dist_factor=6, x=0, y=0):
                 i = 20
                 break
 
-            for obj in collection:
+            for obj in collection.objects:
                 d = dist_point(obj.location, (x, y, z))
                 if d < dist:
                     dist = d
