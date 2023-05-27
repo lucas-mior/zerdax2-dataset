@@ -113,7 +113,7 @@ def setup_camera(board):
         dy = np.random.normal(9*SQUARE_LENGTH, SQUARE_LENGTH)
         dy = np.clip(dy, 8.5*SQUARE_LENGTH, 9.5*SQUARE_LENGTH)
         y = 0.7*abs(x) + 0.1*abs(z) + dy
-        if np.random.randint(0, 2) == 1:
+        if np.random.rand < 0.5:
             y = -y
 
         camera.location = (x, y, z)
@@ -240,7 +240,8 @@ def setup_lighting():
             sun: True,
         }
     }
-    mode, visibilities = list(modes.items())[np.random.randint(len(modes))]
+    which = np.random.randint(len(modes))
+    mode, visibilities = list(modes.items())[which]
 
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
