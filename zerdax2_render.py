@@ -350,13 +350,13 @@ def place_captured(objects, captured_pieces, table, piece_style, collection):
                                  xmin, xmax,
                                  yminwhite, ymaxwhite,
                                  distance_factor)
-        if util.distance_point(wcenter, bcenter) > 5*SQUARE_LENGTH:
+        if util.distance_points(wcenter, bcenter) > 5*SQUARE_LENGTH:
             break
 
     return objects
 
 
-def add_to_table(objects, source_obj, collection, table, distance_factor=6):
+def add_extra(objects, source_obj, collection, table, distance_factor=6):
     vertices = table.data.vertices
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
     x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
@@ -385,7 +385,7 @@ def add_to_table(objects, source_obj, collection, table, distance_factor=6):
             break
 
         for obj in collection.objects:
-            d = util.distance_point(obj.location, (x, y, z))
+            d = util.distance_points(obj.location, (x, y, z))
             if d < distance:
                 distance = d
         if distance > SQUARE_LENGTH:
@@ -490,13 +490,13 @@ def setup_shot(position, output_file, captured_pieces):
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
                 obj = bpy.data.objects[name]
-                objects = add_to_table(objects, obj, collection, table)
+                objects = add_extra(objects, obj, collection, table)
         if np.random.rand() < 0.5:
             obj = bpy.data.objects["RedCup"]
-            objects = add_to_table(objects, obj, collection, table)
+            objects = add_extra(objects, obj, collection, table)
         if np.random.rand() < 0.5:
             obj = bpy.data.objects["CoffeCup"]
-            objects = add_to_table(objects, obj, collection, table)
+            objects = add_extra(objects, obj, collection, table)
 
     return objects
 
