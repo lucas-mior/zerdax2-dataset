@@ -434,8 +434,6 @@ def board_box(corners):
 
 
 def setup_shot(position, output_file):
-    position = chess.Board("".join(fen))
-    captured_pieces = get_missing_pieces(fen)
     scene = bpy.context.scene
 
     # Setup rendering
@@ -484,6 +482,8 @@ def setup_shot(position, output_file):
             "box": board_box(corner_coords),
         })
 
+    position = chess.Board("".join(fen))
+    captured_pieces = get_missing_pieces(fen)
     if ADD_PIECES:
         for square, piece in position.piece_map().items():
             obj = add_piece(piece, square, collection, styles['piece'])
