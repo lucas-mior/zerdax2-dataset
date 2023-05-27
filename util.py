@@ -44,22 +44,17 @@ def point_to(obj, focus, roll=0):
     return
 
 
-def min_distance_point(obj_name, point):
-    # Get reference to the object
-    obj = bpy.data.objects.get(obj_name)
+def min_distance_point(obj, point):
+    min_distance = 10000
 
     if obj is None:
-        print("Object not found.")
-        return float('inf')
-
-    # Get the mesh data of the object
+        return min_distance
     mesh = obj.data
 
     # Transform the vertices of the object into global coordinates
     obj_vertices = [obj.matrix_world @ Vector(v.co) for v in mesh.vertices]
 
     # Calculate the minimum distance
-    min_distance = float('inf')
     point = Vector(point)
     for v in obj_vertices:
         distance = (v - point).length
@@ -70,22 +65,17 @@ def min_distance_point(obj_name, point):
 
 
 def min_distance_object(obj1, obj2):
-    # Get references to the objects
-
     if obj1 is None or obj2 is None:
         print("One or both objects dont exist.")
-        return float('inf')
+        return 10000
 
-    # Get the mesh data of the objects
     mesh1 = obj1.data
     mesh2 = obj2.data
 
-    # Transform the vertices of the objects into global coordinates
     obj1_vertices = [obj1.matrix_world @ Vector(v.co) for v in mesh1.vertices]
     obj2_vertices = [obj2.matrix_world @ Vector(v.co) for v in mesh2.vertices]
 
-    # Calculate the minimum distance
-    min_distance = float('inf')
+    min_distance = 10000
     for v1 in obj1_vertices:
         for v2 in obj2_vertices:
             distance = (v1 - v2).length

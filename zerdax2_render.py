@@ -367,7 +367,7 @@ def add_extra(objects, source_obj, collection, table, distance_factor=6):
     ymin = min(y_vertices) + SQUARE_LENGTH/2
     ymax = max(y_vertices) - SQUARE_LENGTH/2
 
-    distance = float('inf')
+    distance = 10000
     i = 0
     while True:
         x = np.random.uniform(xmin, xmax)
@@ -384,8 +384,10 @@ def add_extra(objects, source_obj, collection, table, distance_factor=6):
             i = 20
             break
 
-        for obj in collection.objects:
-            d = util.distance_points(obj.location, (x, y, z))
+        for other in collection.objects:
+            if "Table" in other.name:
+                continue
+            d = util.min_distance_point(other, (x, y, z))
             if d < distance:
                 distance = d
         if distance > SQUARE_LENGTH:
@@ -489,14 +491,14 @@ def setup_shot(position, output_file, captured_pieces):
         if ADD_CAPTURED:
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
-                obj = bpy.data.objects[name]
-                objects = add_extra(objects, obj, collection, table)
+                source_obj = bpy.data.objects[name]
+                objects = add_extra(objects, source_obj, collection, table)
         if np.random.rand() < 0.5:
-            obj = bpy.data.objects["RedCup"]
-            objects = add_extra(objects, obj, collection, table)
+            source_obj = bpy.data.objects["RedCup"]
+            objects = add_extra(objects, source_obj, collection, table)
         if np.random.rand() < 0.5:
-            obj = bpy.data.objects["CoffeCup"]
-            objects = add_extra(objects, obj, collection, table)
+            source_obj = bpy.data.objects["CoffeCup"]
+            objects = add_extra(objects, source_obj, collection, table)
 
     return objects
 
