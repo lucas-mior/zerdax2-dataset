@@ -1,7 +1,4 @@
 #!/usr/bin/python
-"""Blender script used to generate the synthetic dataset.
-"""
-
 import bpy
 import numpy as np
 import builtins as __builtin__
