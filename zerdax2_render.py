@@ -3,7 +3,7 @@
 """
 
 import bpy
-import bpy_extras.object_utils
+import bpy_extras
 import os
 import sys
 from pathlib import Path
