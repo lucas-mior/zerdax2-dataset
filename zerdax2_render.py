@@ -77,8 +77,8 @@ def set_configs():
 
 
 def setup_world():
-    if bpy.context.scene.world.use_nodes:
-        world = bpy.context.scene.world
+    world = bpy.context.scene.world
+    if world.use_nodes:
         world.node_tree.nodes.clear()
         for image in bpy.data.images:
             if image.name.endswith(".hdr"):
@@ -87,10 +87,7 @@ def setup_world():
     hdr_files = [f for f in os.listdir("backgrounds/") if f.endswith(".hdr")]
 
     hdr_file = "backgrounds/" + random.choice(hdr_files)
-    bpy.context.scene.world.use_nodes = True
-
-    world = bpy.context.scene.world
-
+    world.use_nodes = True
     world.node_tree.nodes.clear()
 
     env_tex_node = world.node_tree.nodes.new('ShaderNodeTexEnvironment')
