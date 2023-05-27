@@ -280,7 +280,6 @@ def add_piece(piece, collection, piece_style):
     piece_name = PIECES[piece["name"]]
     name = piece_name + str(piece_style)
 
-    # Position the piece in the middle of the square
     offsets = np.random.normal((.5,)*2, (.1,)*2)
     offsets = np.clip(offsets, .32, .68)
     rank_offset, file_offset = offsets
