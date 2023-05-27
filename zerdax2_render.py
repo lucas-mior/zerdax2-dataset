@@ -136,7 +136,6 @@ def setup_world():
 
 
 def setup_camera(board):
-    print(f"setup_camera({board})")
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 60 or angle <= 40:
@@ -160,7 +159,6 @@ def setup_camera(board):
         dot = np.dot(v, w)
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
-        print(f"Camera to table angle: {angle:.2f}")
 
     rot_x = np.random.uniform(-0.01, -0.05)
     rot_y = np.random.uniform(-0.02, +0.02)
@@ -176,7 +174,6 @@ def setup_camera(board):
 
 
 def setup_spotlight(light):
-    print(f"setup_spotlight(light={light.name})")
     z = np.random.normal(16*SQUARE_LENGTH, 2*SQUARE_LENGTH)
     z = np.clip(z, 13*SQUARE_LENGTH, 22*SQUARE_LENGTH)
     if light.name == "Spot0":
@@ -195,7 +192,6 @@ def setup_spotlight(light):
 
 
 def setup_table(table_style, board, collection):
-    print(f"setup_table(style={table_style}")
     for i in range(0, TABLE_STYLES):
         source_obj = bpy.data.objects[f"Table{i}"]
         if i == table_style and ADD_TABLE:
@@ -228,7 +224,6 @@ def setup_table(table_style, board, collection):
 
 
 def setup_board(board_style, collection):
-    print(f"setup_board(board_style={board_style})")
     for i in range(0, BOARD_STYLES):
         source_obj = bpy.data.objects[f"Board{i}"]
         if i == board_style and ADD_BOARD:
@@ -253,14 +248,12 @@ def setup_board(board_style, collection):
 
 
 def setup_sun():
-    print("setup_sun()")
     strength = np.random.uniform(0.4, 0.5)
     bpy.data.lights['Sun'].energy = strength
     return
 
 
 def setup_lighting():
-    print("setup_lighting()")
     flash = bpy.data.objects["CameraFlashLight"]
     spot0 = bpy.data.objects["Spot0"]
     spot1 = bpy.data.objects["Spot1"]
@@ -358,13 +351,9 @@ def add_piece(piece, square, collection, piece_style):
 
 
 def place_group(group, xmin, xmax, ymin, ymax, distance_factor=6):
-    print(f"place_group(group={group},",
-          f"xmin={xmin/SQUARE_LENGTH:.2f}, xmax={xmax/SQUARE_LENGTH:.2f},",
-          f"ymin={ymin/SQUARE_LENGTH:.2f}, ymax={ymax/SQUARE_LENGTH:.2f})")
     pieces_loc = []
     xc = np.random.uniform(xmin, xmax)
     yc = np.random.uniform(ymin, ymax)
-    print(f"center = ({xc/SQUARE_LENGTH}, {yc/SQUARE_LENGTH})")
     limit = distance_factor*SQUARE_LENGTH
     while abs(xc) < limit and abs(yc) < limit:
         xc = np.random.uniform(xmin, xmax)
@@ -517,7 +506,6 @@ def distance_point(P1, P2):
 
 
 def board_box(corners):
-    print(f"corners = {corners}")
     x = [c[0] for c in corners]
     y = [c[1] for c in corners]
     cornersx = sorted(x)
@@ -534,9 +522,6 @@ def board_box(corners):
 
 
 def setup_shot(position, output_file, captured_pieces):
-    print(f"setup_shot(position={position.board_fen()},\n",
-          f"output_file={output_file},\n",
-          f"captured_pieces={captured_pieces})")
     scene = bpy.context.scene
 
     # Setup rendering
@@ -705,7 +690,6 @@ def get_bounding_box(scene, obj):
 
 
 def get_missing_pieces(fen):
-    print(f"get_missing_pieces(fen={fen})")
     pieces = list("KkQqBbBbNnNnRrRrPPPPPPPPpppppppp")
     board = list(''.join(filter(str.isalpha, fen)))
     for piece in board:
