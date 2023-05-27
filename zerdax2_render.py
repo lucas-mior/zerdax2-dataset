@@ -398,6 +398,9 @@ def setup_shot(position, output_file):
         obj.select_set(True)
         bpy.ops.object.delete()
 
+    setup_world()
+    setup_lighting()
+
     styles = {
         "table": np.random.randint(0, TABLE_STYLES),
         "board": np.random.randint(0, BOARD_STYLES),
@@ -413,9 +416,6 @@ def setup_shot(position, output_file):
             corner_coords = get_corner_coordinates(scene)
         else:
             break
-
-    setup_world()
-    setup_lighting()
 
     objects = []
 
