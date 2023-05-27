@@ -448,12 +448,10 @@ def place_captured(captured_pieces, table, piece_style, collection):
 
     for piece in captured_black_loc:
         name = PIECES[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table,
-                     dist_factor=7, x=piece[1][0], y=piece[1][1])
+        add_to_table(name, collection, table, x=piece[1][0], y=piece[1][1])
     for piece in captured_white_loc:
         name = PIECES[piece[0]] + str(piece_style)
-        add_to_table(name, collection, table,
-                     dist_factor=7, x=piece[1][0], y=piece[1][1])
+        add_to_table(name, collection, table, x=piece[1][0], y=piece[1][1])
     return
 
 
@@ -614,9 +612,9 @@ def setup_shot(position, output_file, captured_pieces):
         if ADD_CAPTURED:
             place_captured(captured_pieces, table, styles['piece'], collection)
         if np.random.rand() < 0.5:
-            add_to_table("RedCup", collection, table, dist_factor=7)
+            add_to_table("RedCup", collection, table)
         if np.random.rand() < 0.5:
-            add_to_table("CoffeCup", collection, table, dist_factor=8)
+            add_to_table("CoffeCup", collection, table)
 
     return objects
 
