@@ -521,7 +521,7 @@ def get_corner_coordinates(scene):
                               [1, 1],
                               [1, -1]]) * 4 * SQUARE_LENGTH
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
-    sr = bpy.context.scene.render
+    render = scene.render
 
     def _surpass_padding(resolution, p):
         dp = resolution - MIN_BOARD_CORNER_PADDING
@@ -532,12 +532,12 @@ def get_corner_coordinates(scene):
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
                 scene, scene.camera, mathutils.Vector(corner)).to_tuple()
             y = 1. - y
-            x *= sr.resolution_x * sr.resolution_percentage * .01
-            y *= sr.resolution_y * sr.resolution_percentage * .01
+            x *= render.resolution_x * render.resolution_percentage * .01
+            y *= render.resolution_y * render.resolution_percentage * .01
             x, y = round(x), round(y)
 
-            if _surpass_padding(sr.resolution_x, x) or \
-               _surpass_padding(sr.resolution_y, y):
+            if _surpass_padding(render.resolution_x, x) or \
+               _surpass_padding(render.resolution_y, y):
                 raise ValueError
 
             yield x, y
