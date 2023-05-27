@@ -55,11 +55,6 @@ def console_print(*args, **kwargs):
     return
 
 
-def debug_print(*args, **kwargs):
-    if DO_DEBUG:
-        print(*args, **kwargs)
-
-
 def print(*args, **kwargs):
     console_print(*args, **kwargs)
     __builtin__.print(*args, **kwargs)
@@ -102,7 +97,6 @@ def set_configs():
 
 
 def point_to(obj, focus, roll=0):
-    debug_print(f"point_to(obj={obj.name}, focus={focus}, roll={roll})")
     # Based on https://blender.stackexchange.com/a/127440
     location = obj.location
     direction = focus - location
@@ -324,8 +318,6 @@ def dump_yolo_txt(txtpath, objects):
 
 
 def add_piece(piece, square, collection, piece_style):
-    debug_print(f"add_piece(piece={piece}, square={square},",
-                f"collection={collection.name}, piece_style={piece_style})")
     color = {
         chess.WHITE: "White",
         chess.BLACK: "Black"
@@ -513,7 +505,6 @@ def add_to_table(name, collection, table, dist_factor=6, x=0, y=0):
 
 
 def dist_obj(obj1, obj2):
-    debug_print(f"dist_obj({obj1.name}, {obj2.name})")
     a = obj1.location
     b = obj2.location
 
@@ -521,9 +512,6 @@ def dist_obj(obj1, obj2):
 
 
 def dist_point(P1, P2):
-    debug_print("dist_point(", end=' ')
-    debug_print(f"({P1[0]:.2f}, {P1[1]:.2f}, {P1[2]:.2f}), ",
-                f"({P2[0]:.2f}, {P2[1]:.2f}, {P1[2]:.2f}))", sep='')
     a = (P1[0] - P2[0])**2 + (P1[1] - P2[1])**2 + (P1[2] - P2[2])**2
     return np.sqrt(a)
 
@@ -620,7 +608,6 @@ def setup_shot(position, output_file, captured_pieces):
 
 
 def get_corner_coordinates(scene):
-    debug_print("get_corner_coordinates(scene)")
     corner_points = np.array([[-1., -1],
                               [-1, 1],
                               [1, 1],
@@ -633,7 +620,6 @@ def get_corner_coordinates(scene):
         return not (MIN_BOARD_CORNER_PADDING <= p <= dp)
 
     def _get_coords_corners():
-        debug_print("_get_coords_corners()")
         for corner in corner_points:
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
                 scene, scene.camera, mathutils.Vector(corner)).to_tuple()
@@ -654,7 +640,6 @@ def get_corner_coordinates(scene):
 
 
 def get_bounding_box(scene, obj):
-    debug_print(f"get_bounding_box({scene.name}, {obj.name})")
     """Obtain the bounding box of an object.
     Args:
         scene: the scene
@@ -674,7 +659,6 @@ def get_bounding_box(scene, obj):
     camera = camera_obj.data
 
     def _get_coords_bounding_box():
-        debug_print("_get_coords_bounding_box()")
         frame = [-v for v in camera.view_frame(scene=scene)[:3]]
         for v in me.vertices:
             co_local = v.co
