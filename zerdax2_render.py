@@ -21,7 +21,7 @@ from zerdax2_misc import CLASSES, PIECES
 
 
 DO_DEBUG = True
-DO_RENDER = True
+DO_RENDER = False
 
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934  # m
@@ -92,7 +92,7 @@ def set_configs():
         ADD_PIECES = True
 
     rand_num = np.random.rand()
-    if rand_num < 0.5 and ADD_PIECES:
+    if rand_num < 0.5 and ADD_PIECES and ADD_TABLE:
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
@@ -595,13 +595,13 @@ def setup_shot(position, output_file, captured_pieces):
         else:
             break
 
-    corner_coords = sorted(corner_coords, key=lambda x: x[0])
     setup_world()
     setup_lighting()
 
     objects = []
 
     if ADD_BOARD:
+        corner_coords = sorted(corner_coords, key=lambda x: x[0])
         objects.append({
             "piece": "Board",
             "box": board_box(corner_coords),
