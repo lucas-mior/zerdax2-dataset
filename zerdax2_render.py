@@ -277,27 +277,16 @@ def dump_yolo_txt(txtpath, objects):
     return
 
 
-def add_piece(piece, square, collection, piece_style):
-    color = {
-        chess.WHITE: "White",
-        chess.BLACK: "Black"
-    }[piece.color]
-    piece = {
-        chess.PAWN: "Pawn",
-        chess.KNIGHT: "Knight",
-        chess.BISHOP: "Bishop",
-        chess.ROOK: "Rook",
-        chess.QUEEN: "Queen",
-        chess.KING: "King"
-    }[piece.piece_type]
-    name = color + piece + str(piece_style)
+def add_piece(piece, collection, piece_style):
+    piece_name = PIECES[piece["name"]]
+    name = piece_name + str(piece_style)
 
     # Position the piece in the middle of the square
     offsets = np.random.normal((.5,)*2, (.1,)*2)
     offsets = np.clip(offsets, .32, .68)
     rank_offset, file_offset = offsets
-    rank = chess.square_rank(square) + rank_offset
-    file = chess.square_file(square) + file_offset
+    rank = piece["square"][1] + rank_offset
+    file = piece["square"][0] + file_offset
 
     # Translate to coordinate system where the origin is in the middle of the
     # board
@@ -482,13 +471,13 @@ def setup_shot(position, output_file):
             "box": board_box(corner_coords),
         })
 
-    position = chess.Board("".join(fen))
+    pieces = parse_position(fen)
     captured_pieces = get_missing_pieces(fen)
     if ADD_PIECES:
-        for square, piece in position.piece_map().items():
-            obj = add_piece(piece, square, collection, styles['piece'])
+        for piece in pieces:
+            obj = add_piece(piece, collection, styles['piece'])
             objects.append({
-                "piece": piece.symbol(),
+                "piece": piece["name"],
                 "box": util.get_bounding_box(scene, obj)
             })
 
@@ -555,6 +544,30 @@ def get_missing_pieces(fen):
             pieces.remove(piece)
         except ValueError:
             pass
+    return pieces
+
+
+def parse_position(fen):
+    pieces = []
+
+    fen_parts = fen.split(' ')
+    piece_positions = fen_parts[0]
+
+    ranks = piece_positions.split('/')
+
+    for rank_idx, rank in enumerate(ranks):
+        file_idx = 0
+
+        for char in rank:
+            if char.isdigit():
+                file_idx += int(char)
+            else:
+                piece_name = char
+                square = (file_idx, 7 - rank_idx)  # (column, row)
+                piece = {'name': piece_name, 'square': square}
+                pieces.append(piece)
+                file_idx += 1
+
     return pieces
 
 
