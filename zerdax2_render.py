@@ -67,10 +67,6 @@ def set_configs():
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
-    ADD_TABLE = True
-    ADD_PIECES = True
-    ADD_BOARD = True
-    ADD_CAPTURED = True
     return
 
 
