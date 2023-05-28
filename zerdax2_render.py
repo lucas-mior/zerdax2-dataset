@@ -320,22 +320,10 @@ def add_extra(source_obj, collection, table, scale_obj):
     ymax = max(y_vertices) - SQUARE_LENGTH/2
 
     distance = 10000
-    distance_factor = 6
     i = 0
     while True:
         x = np.random.uniform(xmin, xmax)
         y = np.random.uniform(ymin, ymax)
-        j = 0
-        limit = distance_factor*SQUARE_LENGTH
-        while abs(x) < limit and abs(y) < limit:
-            x = np.random.uniform(xmin, xmax)
-            y = np.random.uniform(ymin, ymax)
-            j += 1
-            if j >= 20:
-                break
-        if j >= 20:
-            i = 20
-            break
 
         for other in collection.objects:
             if "Table" in other.name:
@@ -357,6 +345,7 @@ def add_extra(source_obj, collection, table, scale_obj):
         rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
         scale = mathutils.Vector(scale_obj["coords"])
         scale *= scale_obj["global"]
+
         obj = object_copy(source_obj.name, location, rotation, scale)
         collection.objects.link(obj)
     return obj
