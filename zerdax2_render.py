@@ -130,24 +130,6 @@ def setup_camera(board):
     return camera
 
 
-def setup_spotlight(spotlight):
-    if spotlight.name == "Spot0":
-        x = np.random.uniform(-18*SQUARE_LENGTH, 0)
-    else:
-        x = np.random.uniform(0, 18*SQUARE_LENGTH)
-
-    y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
-    z = np.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
-    spotlight.location = mathutils.Vector((x, y, z))
-
-    z = 0.0
-    x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
-    y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
-    focus = mathutils.Vector((x, y, z))
-    util.point_to(spotlight, focus)
-    return
-
-
 def object_copy(name, location=(0, 0, 0), rotation=(0, 0, 0), scale=(1, 1, 1)):
     source_obj = bpy.data.objects[name]
     obj = source_obj.copy()
@@ -205,6 +187,24 @@ def setup_sun():
     return
 
 
+def setup_spotlight(spotlight):
+    if spotlight.name == "Spot0":
+        x = np.random.uniform(-18*SQUARE_LENGTH, 0)
+    else:
+        x = np.random.uniform(0, 18*SQUARE_LENGTH)
+
+    y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
+    z = np.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
+    spotlight.location = mathutils.Vector((x, y, z))
+
+    z = 0.0
+    x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
+    y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
+    focus = mathutils.Vector((x, y, z))
+    util.point_to(spotlight, focus)
+    return
+
+
 def setup_lighting():
     flash = bpy.data.objects["LightCameraFlash"]
     spot0 = bpy.data.objects["LightSpot0"]
@@ -233,6 +233,9 @@ def setup_lighting():
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
 
+    setup_sun()
+    setup_spotlight(spot0)
+    setup_spotlight(spot1)
     bpy.context.view_layer.update()
     return
 
