@@ -139,7 +139,8 @@ def setup_camera(board):
     return camera
 
 
-def object_copy(name, location=(0, 0, 0), rotation=(0, 0, 0), scale=(1, 1, 1)):
+def object_copy(collection, name,
+                location=(0, 0, 0), rotation=(0, 0, 0), scale=(1, 1, 1)):
     source_obj = bpy.data.objects[name]
     obj = source_obj.copy()
     obj.data = source_obj.data.copy()
@@ -152,6 +153,7 @@ def object_copy(name, location=(0, 0, 0), rotation=(0, 0, 0), scale=(1, 1, 1)):
     obj.location = location
     obj.rotation_euler = rotation
     obj.scale = scale
+    collection.objects.link(obj)
     return obj
 
 
@@ -162,8 +164,7 @@ def setup_table(table_style, board, collection):
         scale = Vector(scale_table["coords"])
         scale *= scale_table["global"]
 
-        table = object_copy(f"Table{table_style}", scale=scale)
-        collection.objects.link(table)
+        table = object_copy(collection, f"Table{table_style}", scale=scale)
 
         if board is not None:
             vertices = board.data.vertices
@@ -180,8 +181,7 @@ def setup_table(table_style, board, collection):
 
 def setup_board(board_style, collection):
     if ADD_BOARD:
-        board = object_copy(f"Board{board_style}")
-        collection.objects.link(board)
+        board = object_copy(collection, f"Board{board_style}")
         update_view()
     else:
         board = None
@@ -296,8 +296,7 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     scale = Vector(scale_pieces["coords"])
     scale *= scale_pieces["global"]
 
-    piece = object_copy(name, location, rotation, scale)
-    collection.objects.link(piece)
+    piece = object_copy(collection, name, location, rotation, scale)
     return piece
 
 
@@ -353,8 +352,7 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     scale = Vector(scale_obj["coords"])
     scale *= scale_obj["global"]
 
-    obj = object_copy(source_name, location, rotation, scale)
-    collection.objects.link(obj)
+    obj = object_copy(collection, source_name, location, rotation, scale)
     return obj
 
 
