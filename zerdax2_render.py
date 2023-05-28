@@ -20,7 +20,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934  # m
 COLLECTION_NAME = "ChessPosition"
@@ -255,7 +255,7 @@ def board_box(corners):
     y0, y1 = cornersy[0], cornersy[3]
     dy = y1 - y0
 
-    box = [x0, y0, dx, dy]
+    box = [x0/WIDTH, y0/HEIGHT, dx/WIDTH, dy/HEIGHT]
     return box
 
 
@@ -273,11 +273,8 @@ def dump_yolo_txt(txtpath, objects):
 
             right = left + dx
             bottom = top + dy
-            xc = round((left + right)/2)
-            yc = round((top + bottom)/2)
-
-            xc, dx = xc/WIDTH, dx/WIDTH
-            yc, dy = yc/HEIGHT, dy/HEIGHT
+            xc = (left + right)/2
+            yc = (top + bottom)/2
 
             yolo = f"{number} {xc} {yc} {dx} {dy}\n"
             print(yolo, end="")

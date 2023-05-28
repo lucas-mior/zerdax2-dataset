@@ -141,21 +141,7 @@ def get_bounding_box(scene, obj):
 
     mesh_eval.to_mesh_clear()
 
-    render = scene.render
-    fac = render.resolution_percentage * 0.01
-    dim_x = render.resolution_x * fac
-    dim_y = render.resolution_y * fac
-
-    assert round((max_x - min_x) *
-                 dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
-
-    corners = (
-        round(min_x * dim_x),
-        round(dim_y - max_y * dim_y),
-        round((max_x - min_x) * dim_x),
-        round((max_y - min_y) * dim_y)
-    )
-    return corners
+    return min_x, 1 - max_y, max_x - min_x, max_y - min_y
 
 
 def create_scale(x=(0.95, 1.05), y=(0.95, 1.05), z=(0.95, 1.05)):
