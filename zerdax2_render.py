@@ -194,8 +194,7 @@ def setup_table(table_style, board, collection):
 
 def setup_board(board_style, collection):
     if ADD_BOARD:
-        location = (0, 0, 0)
-        board = object_copy(f"Board{board_style}", location)
+        board = object_copy(f"Board{board_style}")
         collection.objects.link(board)
         bpy.context.view_layer.update()
     else:
