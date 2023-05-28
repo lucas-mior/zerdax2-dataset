@@ -6,7 +6,6 @@ import os
 import sys
 from pathlib import Path
 import numpy as np
-import random
 import gc
 import mathutils
 from mathutils import Vector
