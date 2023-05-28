@@ -548,7 +548,7 @@ if __name__ == "__main__":
                     txtpath = filename.parent / (filename.stem + ".txt")
                     dump_yolo_txt(txtpath, objects)
 
-            if i % 20 == 0:
+            if i % 50 == 0:
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
             break
