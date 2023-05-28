@@ -121,7 +121,7 @@ def setup_camera(board):
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
 
-    rot_x = np.random.uniform(-0.01, -0.05)
+    rot_x = np.random.uniform(-0.02, -0.02)
     rot_y = np.random.uniform(-0.02, +0.02)
     rot_z = np.random.uniform(-0.02, +0.02)
 
@@ -308,6 +308,16 @@ def add_piece(piece, collection, piece_style, scale_pieces):
 
 def add_extra(source_obj, collection, xlim, ylim, z, table, scale_obj):
     distance_factor = 6
+    distance = 10000
+    black_piece = "Black" in source_obj.name
+    white_piece = "White" in source_obj.name
+    not_piece = not (black_piece or white_piece)
+    if not_piece:
+        tolerance = 4*SQUARE_LENGTH
+    else:
+        tolerance = 1*SQUARE_LENGTH
+    if not_piece:
+        distance_factor += 2
     rand_num = np.random.rand()
     if rand_num < 0.25:
         xmin = xlim[0] + SQUARE_LENGTH
@@ -330,16 +340,6 @@ def add_extra(source_obj, collection, xlim, ylim, z, table, scale_obj):
         xmin = xlim[0] + SQUARE_LENGTH
         xmax = xlim[1] - SQUARE_LENGTH
 
-    distance = 10000
-    black_piece = "Black" in source_obj.name
-    white_piece = "White" in source_obj.name
-    not_piece = not (black_piece or white_piece)
-    if not_piece:
-        distance_factor += 2
-    if not_piece:
-        tolerance = 4*SQUARE_LENGTH
-    else:
-        tolerance = 1*SQUARE_LENGTH
     i = 0
     while True:
 
@@ -348,7 +348,7 @@ def add_extra(source_obj, collection, xlim, ylim, z, table, scale_obj):
         if "Table1" in table.name:
             elipsis = table.dimensions / 2
             j = 0
-            while (x / elipsis[0])**2 + (y / elipsis[1])**2 >= 1:
+            while (x / elipsis[0])**2 + (y / elipsis[1])**2 >= 0.95:
                 x = np.random.uniform(xmin, xmax)
                 y = np.random.uniform(ymin, ymax)
                 j += 1
@@ -452,21 +452,37 @@ def setup_shot(position, output_file):
         xlim = [min(x_vertices), max(x_vertices)]
         ylim = [min(y_vertices), max(y_vertices)]
         z = max(z_vertices)
-        if np.random.rand() < 0.5:
-            scale = util.create_scale()
-            source_obj = bpy.data.objects["RedCup"]
-            add_extra(source_obj, collection, xlim, ylim, z, table, scale)
-        if np.random.rand() < 0.5:
-            scale = util.create_scale()
-            source_obj = bpy.data.objects["CoffeCup"]
-            add_extra(source_obj, collection, xlim, ylim, z, table, scale)
+        misc = ["RedCup", "CoffeCup"]
+        for name in misc:
+            if np.random.rand() < 0.5:
+                scale = util.create_scale()
+                source_obj = bpy.data.objects[name]
+                add_extra(source_obj, collection, xlim, ylim, z, table, scale)
         if ADD_PIECES and ADD_CAPTURED:
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
                 source_obj = bpy.data.objects[name]
                 obj = add_extra(source_obj, collection,
                                 xlim, ylim, z, table, scale_pieces)
+                if obj is None:
+                    continue
+                if is_object_hiding(obj):
+                    print("Hiding!")
+                    return None
     return objects
+
+
+def is_object_hiding(obj):
+    scene = bpy.context.scene
+    camera = scene.camera
+
+    ray_origin = camera.location
+    ray_direction = obj.location - camera.location
+    ray_direction.normalize()
+
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    ray = scene.ray_cast(depsgraph, ray_origin, ray_direction)
+    return ray[0] and ray[4] != obj
 
 
 def get_corner_coordinates(scene):
