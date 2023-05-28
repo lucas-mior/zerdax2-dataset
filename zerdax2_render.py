@@ -376,7 +376,7 @@ def setup_shot(position, output_file):
 
     # Setup rendering
     scene.render.engine = "CYCLES"
-    scene.render.image_settings.file_format = "JPEG"
+    scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(output_file)
     scene.render.resolution_x = WIDTH
     scene.render.resolution_y = HEIGHT
