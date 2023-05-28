@@ -460,15 +460,14 @@ def setup_shot(position, output_file):
                 source_obj = bpy.data.objects[name]
                 obj = add_extra(source_obj, collection,
                                 xlim, ylim, z, table, scale_pieces)
-                if obj is None:
-                    continue
                 if is_object_hiding(obj):
                     print("Hiding!")
-                    return None
     return objects
 
 
 def is_object_hiding(obj):
+    if obj is None:
+        return False
     scene = bpy.context.scene
     camera = scene.camera
 
