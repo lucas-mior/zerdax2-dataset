@@ -420,11 +420,11 @@ def setup_shot(position, output_file):
             "box": board_box(corner_coords),
         })
 
-    pieces = parse_position(fen)
+    position_pieces = parse_position(fen)
     captured_pieces = get_missing_pieces(fen)
     scale_pieces = util.create_scale()
     if ADD_PIECES:
-        for piece in pieces:
+        for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
             objects.append({
                 "piece": piece["name"],
