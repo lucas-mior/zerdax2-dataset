@@ -545,11 +545,10 @@ if __name__ == "__main__":
     argv = sys.argv
     print("="*30, f"{argv[0]}.py", "="*30)
 
+    gc.disable()
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i != 6000:
-                continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
@@ -566,8 +565,7 @@ if __name__ == "__main__":
                     txtpath = filename.parent / (filename.stem + ".txt")
                     dump_yolo_txt(txtpath, objects)
 
-            if i % 100 == 0:
+            if i % 20 == 0:
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
-            break
     print("="*60)
