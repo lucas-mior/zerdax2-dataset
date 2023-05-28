@@ -307,14 +307,14 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     not_piece = "Black" not in source_name and "White" not in source_name
     if not_piece:
         tolerance = 4*SQUARE_LENGTH
-        distance_factor = 8
+        absolute = 8*SQUARE_LENGTH
     else:
         tolerance = 1*SQUARE_LENGTH
-        distance_factor = 6
+        absolute = 6*SQUARE_LENGTH
 
-    limits = [xlim[0], xlim[1], ylim[0], ylim[1]]
+    limits = [xlim[0]-SQUARE_LENGTH, xlim[1]+SQUARE_LENGTH,
+              ylim[0]-SQUARE_LENGTH, ylim[1]+SQUARE_LENGTH]
     choice = np.random.randint(4)
-    absolute = distance_factor*SQUARE_LENGTH
     limits[choice] = absolute if choice % 2 == 0 else -absolute
     xlim = limits[0:2]
     ylim = limits[2:4]
