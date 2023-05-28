@@ -102,10 +102,9 @@ def setup_camera(board):
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 60 or angle <= 40:
-        z = np.random.uniform(10*SQUARE_LENGTH, 15*SQUARE_LENGTH)
+        z = np.random.uniform(11*SQUARE_LENGTH, 14*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
-        dy = np.random.normal(9*SQUARE_LENGTH, SQUARE_LENGTH)
-        dy = np.clip(dy, 8.5*SQUARE_LENGTH, 9.5*SQUARE_LENGTH)
+        dy = np.random.uniform(8.5*SQUARE_LENGTH, 9.5*SQUARE_LENGTH)
         y = 0.7*abs(x) + 0.1*abs(z) + dy
         if np.random.rand() < 0.5:
             y = -y
@@ -317,7 +316,10 @@ def add_extra(source_obj, collection, table, scale_obj):
 
     distance = 10000
     distance_factor = 6
-    if "White" not in source_obj.name and "Black" not in source_obj.name:
+    black_piece = "Black" in source_obj.name
+    white_piece = "White" in source_obj.name
+    not_piece = not (black_piece or white_piece)
+    if not_piece:
         distance_factor += 2
     tolerance = 4*SQUARE_LENGTH
     i = 0
@@ -363,10 +365,10 @@ def add_extra(source_obj, collection, table, scale_obj):
             d = util.min_distance_point(other, (x, y, z))
             if d < distance:
                 distance = d
-            if "Black" in other.name or "White" in other.name:
-                tolerance = 1*SQUARE_LENGTH
-            else:
+            if not_piece:
                 tolerance = 4*SQUARE_LENGTH
+            else:
+                tolerance = 1*SQUARE_LENGTH
             if distance <= tolerance:
                 break
         if distance > tolerance:
@@ -440,9 +442,13 @@ def setup_shot(position, output_file):
         scale_pieces = util.create_scale()
         for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
+            box = util.get_bounding_box(scene, obj)
+            if box is None:
+                print("Bounding box error. Check the camera view.")
+                return None
             objects.append({
                 "piece": piece["name"],
-                "box": util.get_bounding_box(scene, obj)
+                "box": box
             })
 
     if ADD_TABLE:
@@ -551,6 +557,8 @@ if __name__ == "__main__":
 
             filename = Path("renders") / f"{i:05d}.png"
             objects = setup_shot(fen, filename)
+            if objects is None:
+                break
             if DO_RENDER:
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
