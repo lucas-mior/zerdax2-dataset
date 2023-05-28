@@ -47,8 +47,7 @@ def set_configs():
         WIDTH = 600
         HEIGHT = 960
 
-    rand_num = np.random.rand()
-    if rand_num < 0.5:
+    if np.random.rand() < 0.5:
         ADD_TABLE = True
     else:
         ADD_TABLE = False
@@ -64,8 +63,7 @@ def set_configs():
         ADD_BOARD = True
         ADD_PIECES = True
 
-    rand_num = np.random.rand()
-    if rand_num < 0.5 and ADD_PIECES and ADD_TABLE:
+    if np.random.rand() < 0.5 and ADD_PIECES and ADD_TABLE:
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
@@ -137,20 +135,21 @@ def setup_camera(board):
     return
 
 
-def setup_spotlight(light):
-    z = np.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
-    if light.name == "Spot0":
+def setup_spotlight(spotlight):
+    if spotlight.name == "Spot0":
         x = np.random.uniform(-18*SQUARE_LENGTH, 0)
     else:
         x = np.random.uniform(0, 18*SQUARE_LENGTH)
+
     y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
-    location = mathutils.Vector((x, y, z))
-    light.location = location
+    z = np.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
+    spotlight.location = mathutils.Vector((x, y, z))
+
     z = 0.0
     x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     focus = mathutils.Vector((x, y, z))
-    util.point_to(light, focus)
+    util.point_to(spotlight, focus)
     return
 
 
@@ -168,8 +167,8 @@ def setup_table(table_style, board, collection):
 
         s = (0.9, 1.4)
         scale = util.create_scale(x=s, y=s, z=(1, 1))
-        nscale = mathutils.Vector(scale[1])
-        nscale *= scale[0]
+        nscale = mathutils.Vector(scale["coords"])
+        nscale *= scale["global"]
         table.scale = nscale
 
         collection.objects.link(table)
@@ -245,6 +244,22 @@ def setup_lighting():
     return
 
 
+def board_box(corners):
+    x = [c[0] for c in corners]
+    y = [c[1] for c in corners]
+    cornersx = sorted(x)
+    cornersy = sorted(y)
+
+    x0, x1 = cornersx[0], cornersx[3]
+    dx = x1 - x0
+
+    y0, y1 = cornersy[0], cornersy[3]
+    dy = y1 - y0
+
+    box = [x0, y0, dx, dy]
+    return box
+
+
 def dump_yolo_txt(txtpath, objects):
     print(f"dumping txt {txtpath}...")
     with txtpath.open("w") as txt:
@@ -289,8 +304,8 @@ def add_piece(piece, collection, piece_style, scale_pieces):
 
     location = mathutils.Vector((file, rank, 0)) * SQUARE_LENGTH
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-    scale = mathutils.Vector(scale_pieces[1])
-    scale *= scale_pieces[0]
+    scale = mathutils.Vector(scale_pieces["coords"])
+    scale *= scale_pieces["global"]
 
     source_obj = bpy.data.objects[name]
     obj = source_obj.copy()
@@ -308,6 +323,7 @@ def add_extra(source_obj, collection, table, scale):
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
     x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
     y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
+
     z = max(z_vertices)
     xmin = min(x_vertices) + SQUARE_LENGTH/2
     xmax = max(x_vertices) - SQUARE_LENGTH/2
@@ -353,8 +369,8 @@ def add_extra(source_obj, collection, table, scale):
         obj.animation_data_clear()
         obj.location = (x, y, z)
         rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-        nscale = mathutils.Vector(scale[1])
-        nscale *= scale[0]
+        nscale = mathutils.Vector(scale["coords"])
+        nscale *= scale["global"]
         obj.rotation_euler = rotation
         obj.scale = nscale
         collection.objects.link(obj)
@@ -364,22 +380,6 @@ def add_extra(source_obj, collection, table, scale):
         obj.hide_viewport = False
 
     return obj
-
-
-def board_box(corners):
-    x = [c[0] for c in corners]
-    y = [c[1] for c in corners]
-    cornersx = sorted(x)
-    cornersy = sorted(y)
-
-    x0, x1 = cornersx[0], cornersx[3]
-    dx = x1 - x0
-
-    y0, y1 = cornersy[0], cornersy[3]
-    dy = y1 - y0
-
-    box = [x0, y0, dx, dy]
-    return box
 
 
 def setup_shot(position, output_file):
@@ -524,7 +524,7 @@ def parse_position(fen):
                 file_idx += int(char)
             else:
                 piece_name = char
-                square = (file_idx, 7 - rank_idx)  # (column, row)
+                square = (file_idx, 7 - rank_idx)
                 piece = {'name': piece_name, 'square': square}
                 pieces.append(piece)
                 file_idx += 1
