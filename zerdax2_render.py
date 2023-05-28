@@ -430,9 +430,8 @@ def setup_shot(position, output_file):
         z = max(z_vertices)
         misc = ["RedCup", "CoffeCup"]
         for source_name in misc:
-            if np.random.rand() < 0.5:
-                scale = util.create_scale()
-                add_extra(source_name, collection, xlim, ylim, z, table, scale)
+            scale = util.create_scale()
+            add_extra(source_name, collection, xlim, ylim, z, table, scale)
         if ADD_PIECES and ADD_CAPTURED:
             for piece in captured_pieces:
                 source_name = PIECES[piece] + str(styles['piece'])
