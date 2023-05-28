@@ -439,7 +439,7 @@ def setup_shot(position, output_file):
                 obj = add_extra(source_name, collection,
                                 xlim, ylim, z, table, scale_pieces)
                 if is_object_hiding(obj):
-                    print("Hiding!")
+                    print(f"{obj.name} is hiding!")
     return objects
 
 
