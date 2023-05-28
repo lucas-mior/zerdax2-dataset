@@ -33,8 +33,10 @@ def point_to(obj, focus, roll=0):
     # Based on https://blender.stackexchange.com/a/127440
     location = obj.location
     direction = focus - location
+
     quat = direction.to_track_quat("-Z", "Y").to_matrix().to_4x4()
     roll_matrix = mathutils.Matrix.Rotation(roll, 4, "Z")
+
     location = location.to_tuple()
     obj.matrix_world = quat @ roll_matrix
     obj.location = location
@@ -48,10 +50,8 @@ def min_distance_point(obj, point):
         return min_distance
     mesh = obj.data
 
-    # Transform the vertices of the object into global coordinates
     obj_vertices = [obj.matrix_world @ Vector(v.co) for v in mesh.vertices]
 
-    # Calculate the minimum distance
     point = Vector(point)
     for v in obj_vertices:
         distance = (v - point).length
