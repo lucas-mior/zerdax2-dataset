@@ -8,7 +8,6 @@ from mathutils import Vector
 
 
 def console_print(*args, **kwargs):
-    bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
     for area in bpy.context.screen.areas:
         if area.type != 'CONSOLE':
             continue
@@ -23,7 +22,8 @@ def console_print(*args, **kwargs):
                 bpy.ops.console.scrollback_append(text=line)
         # area.tag_redraw()
         # bpy.ops.wm.save_mainfile()
-    bpy.ops.wm.redraw_timer()
+        # bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        # bpy.ops.wm.redraw_timer()
     return
 
 
