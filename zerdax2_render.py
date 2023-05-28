@@ -194,7 +194,7 @@ def setup_spotlight(spotlight):
         x = np.random.uniform(0, 18*SQUARE_LENGTH)
 
     y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
-    z = np.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
+    z = np.random.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
     spotlight.location = mathutils.Vector((x, y, z))
 
     z = 0.0
