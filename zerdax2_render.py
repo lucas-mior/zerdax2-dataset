@@ -420,10 +420,10 @@ def setup_shot(position, output_file):
             "box": board_box(corner_coords),
         })
 
-    position_pieces = parse_position(fen)
-    captured_pieces = get_missing_pieces(fen)
-    scale_pieces = util.create_scale()
     if ADD_PIECES:
+        position_pieces = parse_position(fen)
+        captured_pieces = get_missing_pieces(fen)
+        scale_pieces = util.create_scale()
         for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
             objects.append({
@@ -432,7 +432,7 @@ def setup_shot(position, output_file):
             })
 
     if ADD_TABLE:
-        if ADD_CAPTURED:
+        if ADD_PIECES and ADD_CAPTURED:
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
                 source_obj = bpy.data.objects[name]
