@@ -127,7 +127,7 @@ def setup_camera(board):
     camera.rotation_euler[2] += rot_z
 
     bpy.context.view_layer.update()
-    return
+    return camera
 
 
 def setup_spotlight(spotlight):
@@ -391,21 +391,18 @@ def setup_shot(position, output_file):
     board = setup_board(styles['board'], collection)
     table = setup_table(styles['table'], board, collection)
 
-    corner_coords = None
-    while not corner_coords:
-        setup_camera(board)
-        if ADD_BOARD:
-            corner_coords = get_corner_coordinates(scene)
-        else:
-            break
+    corners = None
+    while not corners:
+        camera = setup_camera(board)
+        corners = get_corner_coordinates(scene, camera)
 
     objects = []
 
     if ADD_BOARD:
-        corner_coords = sorted(corner_coords, key=lambda x: x[0])
+        corners = sorted(corners, key=lambda x: x[0])
         objects.append({
             "piece": "Board",
-            "box": board_box(corner_coords),
+            "box": board_box(corners),
         })
 
     if ADD_PIECES:
@@ -461,7 +458,7 @@ def is_object_hiding(obj):
     return ray[0] and ray[4] != obj
 
 
-def get_corner_coordinates(scene):
+def get_corner_coordinates(scene, camera):
     corner_points = np.array([[-1., -1], [-1, 1], [1, 1], [1, -1]])
     corner_points *= 4*SQUARE_LENGTH
     corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
@@ -474,7 +471,7 @@ def get_corner_coordinates(scene):
     def _get_coords_corners():
         for corner in corner_points:
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
-                scene, scene.camera, mathutils.Vector(corner)).to_tuple()
+                scene, camera, mathutils.Vector(corner)).to_tuple()
             y = 1. - y
             x *= render.resolution_x * render.resolution_percentage * .01
             y *= render.resolution_y * render.resolution_percentage * .01
