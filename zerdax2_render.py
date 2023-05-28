@@ -306,35 +306,29 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     return piece
 
 
-def add_extra(source_obj, collection, table, scale_obj):
-    vertices = table.data.vertices
-    z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
-    x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
-    y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
-
-    z = max(z_vertices)
+def add_extra(source_obj, collection, xlim, ylim, z, table, scale_obj):
     distance_factor = 6
     rand_num = np.random.rand()
     if rand_num < 0.25:
-        xmin = min(x_vertices) + SQUARE_LENGTH
+        xmin = xlim[0] + SQUARE_LENGTH
         xmax = -distance_factor*SQUARE_LENGTH
-        ymin = min(y_vertices) + SQUARE_LENGTH
-        ymax = max(y_vertices) - SQUARE_LENGTH
+        ymin = ylim[0] + SQUARE_LENGTH
+        ymax = ylim[1] - SQUARE_LENGTH
     elif rand_num < 0.5:
         xmin = +distance_factor*SQUARE_LENGTH
-        xmax = max(x_vertices) - SQUARE_LENGTH
-        ymin = min(y_vertices) + SQUARE_LENGTH
-        ymax = max(y_vertices) - SQUARE_LENGTH
+        xmax = xlim[1] - SQUARE_LENGTH
+        ymin = ylim[0] + SQUARE_LENGTH
+        ymax = ylim[1] - SQUARE_LENGTH
     elif rand_num < 0.75:
-        ymin = min(y_vertices) + SQUARE_LENGTH
+        ymin = ylim[0] + SQUARE_LENGTH
         ymax = -distance_factor*SQUARE_LENGTH
-        xmin = min(x_vertices) + SQUARE_LENGTH
-        xmax = max(x_vertices) - SQUARE_LENGTH
+        xmin = xlim[0] + SQUARE_LENGTH
+        xmax = xlim[1] - SQUARE_LENGTH
     else:
         ymin = +distance_factor*SQUARE_LENGTH
-        ymax = max(y_vertices) - SQUARE_LENGTH
-        xmin = min(x_vertices) + SQUARE_LENGTH
-        xmax = max(x_vertices) - SQUARE_LENGTH
+        ymax = ylim[1] - SQUARE_LENGTH
+        xmin = xlim[0] + SQUARE_LENGTH
+        xmax = xlim[1] - SQUARE_LENGTH
 
     distance = 10000
     black_piece = "Black" in source_obj.name
@@ -451,19 +445,27 @@ def setup_shot(position, output_file):
             })
 
     if ADD_TABLE:
+        vertices = table.data.vertices
+        z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
+        x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
+        y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
+        xlim = [min(x_vertices), max(x_vertices)]
+        ylim = [min(y_vertices), max(y_vertices)]
+        z = max(z_vertices)
         if np.random.rand() < 0.5:
             scale = util.create_scale()
             source_obj = bpy.data.objects["RedCup"]
-            add_extra(source_obj, collection, table, scale)
+            add_extra(source_obj, collection, xlim, ylim, z, table, scale)
         if np.random.rand() < 0.5:
             scale = util.create_scale()
             source_obj = bpy.data.objects["CoffeCup"]
-            add_extra(source_obj, collection, table, scale)
+            add_extra(source_obj, collection, xlim, ylim, z, table, scale)
         if ADD_PIECES and ADD_CAPTURED:
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
                 source_obj = bpy.data.objects[name]
-                obj = add_extra(source_obj, collection, table, scale_pieces)
+                obj = add_extra(source_obj, collection,
+                                xlim, ylim, z, table, scale_pieces)
     return objects
 
 
