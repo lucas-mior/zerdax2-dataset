@@ -355,7 +355,7 @@ def add_extra(source_obj, collection, table, scale_obj):
                 x = np.random.uniform(xmin, xmax)
                 y = np.random.uniform(ymin, ymax)
                 j += 1
-                if j >= 20:
+                if j >= 10:
                     return None
 
         for other in collection.objects:
@@ -374,7 +374,7 @@ def add_extra(source_obj, collection, table, scale_obj):
         if distance > tolerance:
             break
         i += 1
-        if i >= 20:
+        if i >= 10:
             return None
 
     location = (x, y, z)
