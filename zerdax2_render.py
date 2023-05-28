@@ -312,8 +312,8 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
         tolerance = 1*SQUARE_LENGTH
         absolute = 6*SQUARE_LENGTH
 
-    limits = [xlim[0]-SQUARE_LENGTH, xlim[1]+SQUARE_LENGTH,
-              ylim[0]-SQUARE_LENGTH, ylim[1]+SQUARE_LENGTH]
+    limits = [xlim[0]+SQUARE_LENGTH, xlim[1]-SQUARE_LENGTH,
+              ylim[0]+SQUARE_LENGTH, ylim[1]-SQUARE_LENGTH]
     choice = np.random.randint(4)
     limits[choice] = absolute if choice % 2 == 0 else -absolute
     xlim = limits[0:2]
