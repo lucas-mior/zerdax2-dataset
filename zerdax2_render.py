@@ -70,7 +70,7 @@ def set_configs():
     return
 
 
-def setup_world():
+def setup_world(light_strength=0.5):
     world = bpy.context.scene.world
     if world.use_nodes:
         world.node_tree.nodes.clear()
@@ -87,11 +87,16 @@ def setup_world():
     env_tex_node = world.node_tree.nodes.new('ShaderNodeTexEnvironment')
     env_tex_node.image = bpy.data.images.load(hdr_file)
 
+    # Adjust the background light strength
+    background_light_node = world.node_tree.nodes.new('ShaderNodeBackground')
+    background_light_node.inputs['Strength'].default_value = light_strength
+
     output_node = world.node_tree.nodes.new('ShaderNodeOutputWorld')
 
     world.node_tree.links.new(env_tex_node.outputs['Color'],
+                              background_light_node.inputs['Color'])
+    world.node_tree.links.new(background_light_node.outputs['Background'],
                               output_node.inputs['Surface'])
-    return
 
 
 def setup_camera(board):
@@ -180,13 +185,6 @@ def setup_board(board_style, collection):
     return board
 
 
-def setup_sun():
-    strength = np.random.uniform(0.1, 0.9)
-    bpy.data.lights['Sun'].energy = strength
-    bpy.context.view_layer.update()
-    return
-
-
 def setup_spotlight(spotlight):
     if spotlight.name == "Spot0":
         x = np.random.uniform(-18*SQUARE_LENGTH, 0)
@@ -209,33 +207,29 @@ def setup_lighting():
     flash = bpy.data.objects["LightCameraFlash"]
     spot0 = bpy.data.objects["LightSpot0"]
     spot1 = bpy.data.objects["LightSpot1"]
-    sun = bpy.data.objects["LightSun"]
 
     modes = {
         "flash": {
             flash: True,
             spot0: False,
             spot1: False,
-            sun: True,
         },
         "spotlights": {
             flash: False,
             spot0: True,
             spot1: True,
-            sun: True,
         }
     }
     which = np.random.randint(len(modes))
     mode, visibilities = list(modes.items())[which]
 
+    setup_spotlight(spot0)
+    setup_spotlight(spot1)
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
 
-    setup_sun()
-    setup_spotlight(spot0)
-    setup_spotlight(spot1)
     bpy.context.view_layer.update()
     return
 
