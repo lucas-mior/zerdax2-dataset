@@ -362,7 +362,7 @@ def add_extra(source_obj, collection, table, scale_obj):
             if "Table" in other.name or "Board" in other.name:
                 continue
             print(f"Checking {other.name}")
-            d = util.min_distance_point(other, (x, y, z))
+            d = util.distance_points(other.location, (x, y, z))
             if d < distance:
                 distance = d
             if not_piece:
@@ -452,6 +452,14 @@ def setup_shot(position, output_file):
             })
 
     if ADD_TABLE:
+        if np.random.rand() < 0.5:
+            scale = util.create_scale()
+            source_obj = bpy.data.objects["RedCup"]
+            add_extra(source_obj, collection, table, scale)
+        if np.random.rand() < 0.5:
+            scale = util.create_scale()
+            source_obj = bpy.data.objects["CoffeCup"]
+            add_extra(source_obj, collection, table, scale)
         if ADD_PIECES and ADD_CAPTURED:
             for piece in captured_pieces:
                 name = PIECES[piece] + str(styles['piece'])
@@ -464,14 +472,6 @@ def setup_shot(position, output_file):
                 #             "piece": piece,
                 #             "box": box,
                 #         })
-        if np.random.rand() < 0.5:
-            scale = util.create_scale()
-            source_obj = bpy.data.objects["RedCup"]
-            add_extra(source_obj, collection, table, scale)
-        if np.random.rand() < 0.5:
-            scale = util.create_scale()
-            source_obj = bpy.data.objects["CoffeCup"]
-            add_extra(source_obj, collection, table, scale)
 
     return objects
 
@@ -549,6 +549,8 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
+            if i != 6000:
+                continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
@@ -568,4 +570,5 @@ if __name__ == "__main__":
             if i % 20 == 0:
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
+            break
     print("="*60)
