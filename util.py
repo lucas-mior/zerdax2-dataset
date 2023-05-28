@@ -98,18 +98,16 @@ def get_bounding_box(scene, obj):
         the box coordinates in the form (x, y, width, height)
     """
     # adapted from https://blender.stackexchange.com/a/158236
-    camera_obj = scene.camera
-    mat = camera_obj.matrix_world.normalized().inverted()
+    camera = scene.camera
+    mat = camera.matrix_world.normalized().inverted()
     depsgraph = bpy.context.evaluated_depsgraph_get()
     mesh_eval = obj.evaluated_get(depsgraph)
     me = mesh_eval.to_mesh()
     me.transform(obj.matrix_world)
     me.transform(mat)
 
-    camera = camera_obj.data
-
     def _get_coords_bounding_box():
-        frame = [-v for v in camera.view_frame(scene=scene)[:3]]
+        frame = [-v for v in camera.data.view_frame(scene=scene)[:3]]
         for v in me.vertices:
             co_local = v.co
             z = -co_local.z
