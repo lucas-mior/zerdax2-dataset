@@ -21,7 +21,7 @@ from util import print
 
 DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
-SQUARE_LENGTH = 0.039934  # m
+SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
 
 TABLE_STYLES = 2
@@ -34,6 +34,12 @@ ADD_TABLE = True
 ADD_BOARD = True
 ADD_PIECES = True
 ADD_CAPTURED = True
+
+
+def update_view():
+    if not DO_RENDER:
+        bpy.context.view_layer.update()
+    return
 
 
 def set_configs():
@@ -81,14 +87,13 @@ def setup_world(light_strength=0.5):
 
     hdr_files = [f for f in os.listdir("backgrounds/") if f.endswith(".hdr")]
 
-    hdr_file = "backgrounds/" + random.choice(hdr_files)
+    hdr_file = "backgrounds/" + np.random.choice(hdr_files)
     world.use_nodes = True
     world.node_tree.nodes.clear()
 
     env_tex_node = world.node_tree.nodes.new('ShaderNodeTexEnvironment')
     env_tex_node.image = bpy.data.images.load(hdr_file)
 
-    # Adjust the background light strength
     background_light_node = world.node_tree.nodes.new('ShaderNodeBackground')
     background_light_node.inputs['Strength'].default_value = light_strength
 
@@ -127,12 +132,11 @@ def setup_camera(board):
     rot_y = np.random.uniform(-0.02, +0.02)
     rot_z = np.random.uniform(-0.02, +0.02)
 
-    bpy.context.view_layer.update()
     camera.rotation_euler[0] += rot_x
     camera.rotation_euler[1] += rot_y
     camera.rotation_euler[2] += rot_z
 
-    bpy.context.view_layer.update()
+    update_view()
     return camera
 
 
@@ -168,7 +172,7 @@ def setup_table(table_style, board, collection):
             table.location[2] = min(board_zs)
         else:
             table.location[2] = 0
-        bpy.context.view_layer.update()
+        update_view()
     else:
         table = None
 
@@ -179,7 +183,7 @@ def setup_board(board_style, collection):
     if ADD_BOARD:
         board = object_copy(f"Board{board_style}")
         collection.objects.link(board)
-        bpy.context.view_layer.update()
+        update_view()
     else:
         board = None
 
@@ -231,7 +235,7 @@ def setup_lighting():
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
 
-    bpy.context.view_layer.update()
+    update_view()
     return
 
 
@@ -285,8 +289,6 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     rank = piece["square"][1] + rank_offset
     file = piece["square"][0] + file_offset
 
-    # Translate to coordinate system
-    # where the origin is in the middle of the board
     rank -= 4
     file -= 4
 
@@ -360,7 +362,6 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
 def setup_shot(position, output_file):
     scene = bpy.context.scene
 
-    # Setup rendering
     scene.render.engine = "CYCLES"
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(output_file)
