@@ -203,7 +203,7 @@ def setup_board(board_style, collection):
 
 
 def setup_sun():
-    strength = np.random.uniform(0.4, 0.5)
+    strength = np.random.uniform(0.1, 0.9)
     bpy.data.lights['Sun'].energy = strength
     bpy.context.view_layer.update()
     return
