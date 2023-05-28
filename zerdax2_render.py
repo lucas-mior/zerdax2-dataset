@@ -12,9 +12,9 @@ import random
 import gc
 import mathutils
 
-d = os.path.dirname(bpy.data.filepath)
-if d not in sys.path:
-    sys.path.append(d)
+pwd = os.path.dirname(bpy.data.filepath)
+if pwd not in sys.path:
+    sys.path.append(pwd)
 from zerdax2_misc import CLASSES, PIECES
 import util
 from util import print
