@@ -153,29 +153,30 @@ def setup_spotlight(spotlight):
     return
 
 
-def object_copy(name):
+def object_copy(name, location=(0, 0, 0), rotation=(0, 0, 0), scale=(1, 1, 1)):
     source_obj = bpy.data.objects[name]
     obj = source_obj.copy()
     obj.data = source_obj.data.copy()
     obj.animation_data_clear()
+
     obj.hide_render = False
     obj.hide_viewport = False
     obj.hide_set(False)
+
+    obj.location = location
+    obj.rotation_euler = rotation
+    obj.scale = scale
     return obj
 
 
 def setup_table(table_style, board, collection):
     if ADD_TABLE:
-        table = object_copy(f"Table{table_style}")
-        table.location[0] = 0
-        table.location[1] = 0
-
         s = (0.9, 1.4)
-        scale = util.create_scale(x=s, y=s, z=(1, 1))
-        nscale = mathutils.Vector(scale["coords"])
-        nscale *= scale["global"]
-        table.scale = nscale
+        scale_table = util.create_scale(x=s, y=s, z=(1, 1))
+        scale = mathutils.Vector(scale_table["coords"])
+        scale *= scale_table["global"]
 
+        table = object_copy(f"Table{table_style}", scale=scale)
         collection.objects.link(table)
 
         if board is not None:
@@ -193,9 +194,8 @@ def setup_table(table_style, board, collection):
 
 def setup_board(board_style, collection):
     if ADD_BOARD:
-        board = object_copy(f"Board{board_style}")
-        board.location[0] = 0
-        board.location[1] = 0
+        location = (0, 0, 0)
+        board = object_copy(f"Board{board_style}", location)
         collection.objects.link(board)
         bpy.context.view_layer.update()
     else:
@@ -303,15 +303,12 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     scale = mathutils.Vector(scale_pieces["coords"])
     scale *= scale_pieces["global"]
 
-    piece = object_copy(name)
-    piece.location = location
-    piece.rotation_euler = rotation
-    piece.scale = scale
+    piece = object_copy(name, location, rotation, scale)
     collection.objects.link(piece)
     return piece
 
 
-def add_extra(source_obj, collection, table, scale):
+def add_extra(source_obj, collection, table, scale_obj):
     vertices = table.data.vertices
     z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
     x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
@@ -357,13 +354,11 @@ def add_extra(source_obj, collection, table, scale):
 
     obj = None
     if i < 20:
-        obj = object_copy(source_obj.name)
-        obj.location = (x, y, z)
+        location = (x, y, z)
         rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-        nscale = mathutils.Vector(scale["coords"])
-        nscale *= scale["global"]
-        obj.rotation_euler = rotation
-        obj.scale = nscale
+        scale = mathutils.Vector(scale_obj["coords"])
+        scale *= scale_obj["global"]
+        obj = object_copy(source_obj.name, location, rotation, scale)
         collection.objects.link(obj)
     return obj
 
