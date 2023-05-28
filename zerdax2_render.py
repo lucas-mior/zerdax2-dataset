@@ -20,7 +20,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934  # m
 COLLECTION_NAME = "ChessPosition"
@@ -314,40 +314,74 @@ def add_extra(source_obj, collection, table, scale_obj):
     y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
 
     z = max(z_vertices)
-    xmin = min(x_vertices) + SQUARE_LENGTH/2
-    xmax = max(x_vertices) - SQUARE_LENGTH/2
-    ymin = min(y_vertices) + SQUARE_LENGTH/2
-    ymax = max(y_vertices) - SQUARE_LENGTH/2
 
     distance = 10000
+    distance_factor = 6
+    if "White" not in source_obj.name and "Black" not in source_obj.name:
+        distance_factor += 2
+    tolerance = 4*SQUARE_LENGTH
     i = 0
     while True:
+        rand_num = np.random.rand()
+        if rand_num < 0.25:
+            xmin = min(x_vertices) + SQUARE_LENGTH
+            xmax = -distance_factor*SQUARE_LENGTH
+            ymin = min(y_vertices) + SQUARE_LENGTH
+            ymax = max(y_vertices) - SQUARE_LENGTH
+        elif rand_num < 0.5:
+            xmin = +distance_factor*SQUARE_LENGTH
+            xmax = max(x_vertices) - SQUARE_LENGTH
+            ymin = min(y_vertices) + SQUARE_LENGTH
+            ymax = max(y_vertices) - SQUARE_LENGTH
+        elif rand_num < 0.75:
+            ymin = min(y_vertices) + SQUARE_LENGTH
+            ymax = -distance_factor*SQUARE_LENGTH
+            xmin = min(x_vertices) + SQUARE_LENGTH
+            xmax = max(x_vertices) - SQUARE_LENGTH
+        else:
+            ymin = +distance_factor*SQUARE_LENGTH
+            ymax = max(y_vertices) - SQUARE_LENGTH
+            xmin = min(x_vertices) + SQUARE_LENGTH
+            xmax = max(x_vertices) - SQUARE_LENGTH
+
         x = np.random.uniform(xmin, xmax)
         y = np.random.uniform(ymin, ymax)
+        if "Table1" in table.name:
+            elipsis = table.dimensions / 2
+            j = 0
+            while (x / elipsis[0])**2 + (y / elipsis[1])**2 >= 1:
+                x = np.random.uniform(xmin, xmax)
+                y = np.random.uniform(ymin, ymax)
+                j += 1
+                if j >= 20:
+                    return None
 
         for other in collection.objects:
-            if "Table" in other.name:
+            if "Table" in other.name or "Board" in other.name:
                 continue
+            print(f"Checking {other.name}")
             d = util.min_distance_point(other, (x, y, z))
             if d < distance:
                 distance = d
-            if distance <= SQUARE_LENGTH:
+            if "Black" in other.name or "White" in other.name:
+                tolerance = 1*SQUARE_LENGTH
+            else:
+                tolerance = 4*SQUARE_LENGTH
+            if distance <= tolerance:
                 break
-        if distance > SQUARE_LENGTH:
+        if distance > tolerance:
             break
         i += 1
         if i >= 20:
-            break
+            return None
 
-    obj = None
-    if i < 20:
-        location = (x, y, z)
-        rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-        scale = mathutils.Vector(scale_obj["coords"])
-        scale *= scale_obj["global"]
+    location = (x, y, z)
+    rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
+    scale = mathutils.Vector(scale_obj["coords"])
+    scale *= scale_obj["global"]
 
-        obj = object_copy(source_obj.name, location, rotation, scale)
-        collection.objects.link(obj)
+    obj = object_copy(source_obj.name, location, rotation, scale)
+    collection.objects.link(obj)
     return obj
 
 
