@@ -9,6 +9,7 @@ import numpy as np
 import random
 import gc
 import mathutils
+from mathutils import Vector
 
 pwd = os.path.dirname(bpy.data.filepath)
 if pwd not in sys.path:
@@ -114,7 +115,7 @@ def setup_camera(board):
         if board is not None:
             util.point_to(camera, board.location)
         else:
-            util.point_to(camera, mathutils.Vector((0, 0, 0)))
+            util.point_to(camera, Vector((0, 0, 0)))
 
         v = np.array([x, y, z])
         w = np.array([0, 0, 1])
@@ -155,7 +156,7 @@ def setup_table(table_style, board, collection):
     if ADD_TABLE:
         s = (0.9, 1.4)
         scale_table = util.create_scale(x=s, y=s, z=(1, 1))
-        scale = mathutils.Vector(scale_table["coords"])
+        scale = Vector(scale_table["coords"])
         scale *= scale_table["global"]
 
         table = object_copy(f"Table{table_style}", scale=scale)
@@ -193,12 +194,12 @@ def setup_spotlight(spotlight):
 
     y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
     z = np.random.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
-    spotlight.location = mathutils.Vector((x, y, z))
+    spotlight.location = Vector((x, y, z))
 
     z = 0.0
     x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
-    focus = mathutils.Vector((x, y, z))
+    focus = Vector((x, y, z))
     util.point_to(spotlight, focus)
     return
 
@@ -289,9 +290,9 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     rank -= 4
     file -= 4
 
-    location = mathutils.Vector((file, rank, 0)) * SQUARE_LENGTH
+    location = Vector((file, rank, 0)) * SQUARE_LENGTH
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-    scale = mathutils.Vector(scale_pieces["coords"])
+    scale = Vector(scale_pieces["coords"])
     scale *= scale_pieces["global"]
 
     piece = object_copy(name, location, rotation, scale)
@@ -348,7 +349,7 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
 
     location = (x, y, z)
     rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
-    scale = mathutils.Vector(scale_obj["coords"])
+    scale = Vector(scale_obj["coords"])
     scale *= scale_obj["global"]
 
     obj = object_copy(source_name, location, rotation, scale)
@@ -467,7 +468,7 @@ def get_corner_coordinates(scene, camera):
     def _get_coords_corners():
         for corner in corner_points:
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
-                scene, camera, mathutils.Vector(corner)).to_tuple()
+                scene, camera, Vector(corner)).to_tuple()
             y = 1. - y
             x *= render.resolution_x * render.resolution_percentage * .01
             y *= render.resolution_y * render.resolution_percentage * .01

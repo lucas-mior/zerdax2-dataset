@@ -2,9 +2,8 @@
 import bpy
 import numpy as np
 import builtins as __builtin__
-import mathutils
 import sys
-from mathutils import Vector
+from mathutils import Vector, Matrix
 
 
 def console_print(*args, **kwargs):
@@ -39,7 +38,7 @@ def point_to(obj, focus, roll=0):
     direction = focus - location
 
     quat = direction.to_track_quat("-Z", "Y").to_matrix().to_4x4()
-    roll_matrix = mathutils.Matrix.Rotation(roll, 4, "Z")
+    roll_matrix = Matrix.Rotation(roll, 4, "Z")
 
     location = location.to_tuple()
     obj.matrix_world = quat @ roll_matrix
