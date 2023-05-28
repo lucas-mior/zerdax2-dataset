@@ -153,15 +153,20 @@ def setup_spotlight(spotlight):
     return
 
 
+def object_copy(name):
+    source_obj = bpy.data.objects[name]
+    obj = source_obj.copy()
+    obj.data = source_obj.data.copy()
+    obj.animation_data_clear()
+    obj.hide_render = False
+    obj.hide_viewport = False
+    obj.hide_set(False)
+    return obj
+
+
 def setup_table(table_style, board, collection):
     if ADD_TABLE:
-        source_obj = bpy.data.objects[f"Table{table_style}"]
-        table = source_obj.copy()
-        table.data = source_obj.data.copy()
-        table.animation_data_clear()
-        table.hide_render = False
-        table.hide_viewport = False
-        table.hide_set(False)
+        table = object_copy(f"Table{table_style}")
         table.location[0] = 0
         table.location[1] = 0
 
@@ -188,13 +193,7 @@ def setup_table(table_style, board, collection):
 
 def setup_board(board_style, collection):
     if ADD_BOARD:
-        source_obj = bpy.data.objects[f"Board{board_style}"]
-        board = source_obj.copy()
-        board.data = source_obj.data.copy()
-        board.animation_data_clear()
-        board.hide_render = False
-        board.hide_viewport = False
-        board.hide_set(False)
+        board = object_copy(f"Board{board_style}")
         board.location[0] = 0
         board.location[1] = 0
         collection.objects.link(board)
@@ -307,15 +306,12 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     scale = mathutils.Vector(scale_pieces["coords"])
     scale *= scale_pieces["global"]
 
-    source_obj = bpy.data.objects[name]
-    obj = source_obj.copy()
-    obj.data = source_obj.data.copy()
-    obj.animation_data_clear()
-    obj.location = location
-    obj.rotation_euler = rotation
-    obj.scale = scale
-    collection.objects.link(obj)
-    return obj
+    piece = object_copy(name)
+    piece.location = location
+    piece.rotation_euler = rotation
+    piece.scale = scale
+    collection.objects.link(piece)
+    return piece
 
 
 def add_extra(source_obj, collection, table, scale):
@@ -364,9 +360,7 @@ def add_extra(source_obj, collection, table, scale):
 
     obj = None
     if i < 20:
-        obj = source_obj.copy()
-        obj.data = source_obj.data.copy()
-        obj.animation_data_clear()
+        obj = object_copy(source_obj.name)
         obj.location = (x, y, z)
         rotation = mathutils.Euler((0., 0., np.random.uniform(0., 360.)))
         nscale = mathutils.Vector(scale["coords"])
@@ -374,11 +368,6 @@ def add_extra(source_obj, collection, table, scale):
         obj.rotation_euler = rotation
         obj.scale = nscale
         collection.objects.link(obj)
-
-        obj.hide_render = False
-        obj.hide_set(False)
-        obj.hide_viewport = False
-
     return obj
 
 
