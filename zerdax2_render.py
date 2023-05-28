@@ -313,38 +313,41 @@ def add_extra(source_obj, collection, table, scale_obj):
     y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
 
     z = max(z_vertices)
+    distance_factor = 6
+    rand_num = np.random.rand()
+    if rand_num < 0.25:
+        xmin = min(x_vertices) + SQUARE_LENGTH
+        xmax = -distance_factor*SQUARE_LENGTH
+        ymin = min(y_vertices) + SQUARE_LENGTH
+        ymax = max(y_vertices) - SQUARE_LENGTH
+    elif rand_num < 0.5:
+        xmin = +distance_factor*SQUARE_LENGTH
+        xmax = max(x_vertices) - SQUARE_LENGTH
+        ymin = min(y_vertices) + SQUARE_LENGTH
+        ymax = max(y_vertices) - SQUARE_LENGTH
+    elif rand_num < 0.75:
+        ymin = min(y_vertices) + SQUARE_LENGTH
+        ymax = -distance_factor*SQUARE_LENGTH
+        xmin = min(x_vertices) + SQUARE_LENGTH
+        xmax = max(x_vertices) - SQUARE_LENGTH
+    else:
+        ymin = +distance_factor*SQUARE_LENGTH
+        ymax = max(y_vertices) - SQUARE_LENGTH
+        xmin = min(x_vertices) + SQUARE_LENGTH
+        xmax = max(x_vertices) - SQUARE_LENGTH
 
     distance = 10000
-    distance_factor = 6
     black_piece = "Black" in source_obj.name
     white_piece = "White" in source_obj.name
     not_piece = not (black_piece or white_piece)
     if not_piece:
         distance_factor += 2
-    tolerance = 4*SQUARE_LENGTH
+    if not_piece:
+        tolerance = 4*SQUARE_LENGTH
+    else:
+        tolerance = 1*SQUARE_LENGTH
     i = 0
     while True:
-        rand_num = np.random.rand()
-        if rand_num < 0.25:
-            xmin = min(x_vertices) + SQUARE_LENGTH
-            xmax = -distance_factor*SQUARE_LENGTH
-            ymin = min(y_vertices) + SQUARE_LENGTH
-            ymax = max(y_vertices) - SQUARE_LENGTH
-        elif rand_num < 0.5:
-            xmin = +distance_factor*SQUARE_LENGTH
-            xmax = max(x_vertices) - SQUARE_LENGTH
-            ymin = min(y_vertices) + SQUARE_LENGTH
-            ymax = max(y_vertices) - SQUARE_LENGTH
-        elif rand_num < 0.75:
-            ymin = min(y_vertices) + SQUARE_LENGTH
-            ymax = -distance_factor*SQUARE_LENGTH
-            xmin = min(x_vertices) + SQUARE_LENGTH
-            xmax = max(x_vertices) - SQUARE_LENGTH
-        else:
-            ymin = +distance_factor*SQUARE_LENGTH
-            ymax = max(y_vertices) - SQUARE_LENGTH
-            xmin = min(x_vertices) + SQUARE_LENGTH
-            xmax = max(x_vertices) - SQUARE_LENGTH
 
         x = np.random.uniform(xmin, xmax)
         y = np.random.uniform(ymin, ymax)
@@ -365,10 +368,6 @@ def add_extra(source_obj, collection, table, scale_obj):
             d = util.distance_points(other.location, (x, y, z))
             if d < distance:
                 distance = d
-            if not_piece:
-                tolerance = 4*SQUARE_LENGTH
-            else:
-                tolerance = 1*SQUARE_LENGTH
             if distance <= tolerance:
                 break
         if distance > tolerance:
@@ -465,14 +464,6 @@ def setup_shot(position, output_file):
                 name = PIECES[piece] + str(styles['piece'])
                 source_obj = bpy.data.objects[name]
                 obj = add_extra(source_obj, collection, table, scale_pieces)
-                # if obj is not None:
-                #     box = util.get_bounding_box(scene, obj)
-                #     if box is not None:
-                #         objects.append({
-                #             "piece": piece,
-                #             "box": box,
-                #         })
-
     return objects
 
 
