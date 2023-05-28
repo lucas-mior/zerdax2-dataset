@@ -141,10 +141,10 @@ def get_bounding_box(scene, obj):
 
     mesh_eval.to_mesh_clear()
 
-    r = scene.render
-    fac = r.resolution_percentage * 0.01
-    dim_x = r.resolution_x * fac
-    dim_y = r.resolution_y * fac
+    render = scene.render
+    fac = render.resolution_percentage * 0.01
+    dim_x = render.resolution_x * fac
+    dim_y = render.resolution_y * fac
 
     assert round((max_x - min_x) *
                  dim_x) != 0 and round((max_y - min_y) * dim_y) != 0
