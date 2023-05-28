@@ -76,7 +76,7 @@ def set_configs():
     return
 
 
-def setup_world(light_strength=0.5):
+def setup_world():
     world = bpy.context.scene.world
     if world.use_nodes:
         world.node_tree.nodes.clear()
@@ -94,7 +94,8 @@ def setup_world(light_strength=0.5):
     env_tex_node.image = bpy.data.images.load(hdr_file)
 
     background_light_node = world.node_tree.nodes.new('ShaderNodeBackground')
-    background_light_node.inputs['Strength'].default_value = light_strength
+    strength = np.random.uniform(0.3, 0.7)
+    background_light_node.inputs['Strength'].default_value = strength
 
     output_node = world.node_tree.nodes.new('ShaderNodeOutputWorld')
 
@@ -335,7 +336,6 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
         for other in collection.objects:
             if "Table" in other.name or "Board" in other.name:
                 continue
-            print(f"Checking {other.name}")
             d = util.distance_points(other.location, (x, y, z))
             if d < distance:
                 distance = d
