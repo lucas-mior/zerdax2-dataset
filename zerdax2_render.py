@@ -1,6 +1,4 @@
 #!/usr/bin/python
-"""Blender script used to generate the synthetic dataset.
-"""
 
 import bpy
 import bpy_extras
@@ -67,6 +65,8 @@ def set_configs():
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
+    ADD_TABLE = True
+    ADD_CAPTURED = True
     return
 
 
@@ -302,51 +302,34 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     return piece
 
 
-def add_extra(source_obj, collection, xlim, ylim, z, table, scale_obj):
-    distance_factor = 6
+def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     distance = 10000
-    black_piece = "Black" in source_obj.name
-    white_piece = "White" in source_obj.name
-    not_piece = not (black_piece or white_piece)
+    not_piece = "Black" not in source_name and "White" not in source_name
     if not_piece:
         tolerance = 4*SQUARE_LENGTH
+        distance_factor = 8
     else:
         tolerance = 1*SQUARE_LENGTH
-    if not_piece:
-        distance_factor += 2
-    rand_num = np.random.rand()
-    if rand_num < 0.25:
-        xmin = xlim[0] + SQUARE_LENGTH
-        xmax = -distance_factor*SQUARE_LENGTH
-        ymin = ylim[0] + SQUARE_LENGTH
-        ymax = ylim[1] - SQUARE_LENGTH
-    elif rand_num < 0.5:
-        xmin = +distance_factor*SQUARE_LENGTH
-        xmax = xlim[1] - SQUARE_LENGTH
-        ymin = ylim[0] + SQUARE_LENGTH
-        ymax = ylim[1] - SQUARE_LENGTH
-    elif rand_num < 0.75:
-        ymin = ylim[0] + SQUARE_LENGTH
-        ymax = -distance_factor*SQUARE_LENGTH
-        xmin = xlim[0] + SQUARE_LENGTH
-        xmax = xlim[1] - SQUARE_LENGTH
-    else:
-        ymin = +distance_factor*SQUARE_LENGTH
-        ymax = ylim[1] - SQUARE_LENGTH
-        xmin = xlim[0] + SQUARE_LENGTH
-        xmax = xlim[1] - SQUARE_LENGTH
+        distance_factor = 6
+
+    limits = [xlim[0], xlim[1], ylim[0], ylim[1]]
+    choice = np.random.randint(4)
+    absolute = distance_factor*SQUARE_LENGTH
+    limits[choice] = absolute if choice % 2 == 0 else -absolute
+    xlim = limits[0:2]
+    ylim = limits[2:4]
 
     i = 0
     while True:
 
-        x = np.random.uniform(xmin, xmax)
-        y = np.random.uniform(ymin, ymax)
+        x = np.random.uniform(*xlim)
+        y = np.random.uniform(*ylim)
         if "Table1" in table.name:
             elipsis = table.dimensions / 2
             j = 0
             while (x / elipsis[0])**2 + (y / elipsis[1])**2 >= 0.95:
-                x = np.random.uniform(xmin, xmax)
-                y = np.random.uniform(ymin, ymax)
+                x = np.random.uniform(*limits[0:2])
+                y = np.random.uniform(*limits[2:4])
                 j += 1
                 if j >= 10:
                     return None
@@ -371,7 +354,7 @@ def add_extra(source_obj, collection, xlim, ylim, z, table, scale_obj):
     scale = mathutils.Vector(scale_obj["coords"])
     scale *= scale_obj["global"]
 
-    obj = object_copy(source_obj.name, location, rotation, scale)
+    obj = object_copy(source_name, location, rotation, scale)
     collection.objects.link(obj)
     return obj
 
@@ -449,16 +432,14 @@ def setup_shot(position, output_file):
         ylim = [min(y_vertices), max(y_vertices)]
         z = max(z_vertices)
         misc = ["RedCup", "CoffeCup"]
-        for name in misc:
+        for source_name in misc:
             if np.random.rand() < 0.5:
                 scale = util.create_scale()
-                source_obj = bpy.data.objects[name]
-                add_extra(source_obj, collection, xlim, ylim, z, table, scale)
+                add_extra(source_name, collection, xlim, ylim, z, table, scale)
         if ADD_PIECES and ADD_CAPTURED:
             for piece in captured_pieces:
-                name = PIECES[piece] + str(styles['piece'])
-                source_obj = bpy.data.objects[name]
-                obj = add_extra(source_obj, collection,
+                source_name = PIECES[piece] + str(styles['piece'])
+                obj = add_extra(source_name, collection,
                                 xlim, ylim, z, table, scale_pieces)
                 if is_object_hiding(obj):
                     print("Hiding!")
