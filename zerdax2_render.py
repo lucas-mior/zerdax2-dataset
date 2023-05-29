@@ -304,10 +304,10 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     distance = 10000
     not_piece = "Black" not in source_name and "White" not in source_name
     if not_piece:
-        tolerance = 4*SQUARE_LENGTH
+        tol = tolerance = 4*SQUARE_LENGTH
         absolute = 8*SQUARE_LENGTH
     else:
-        tolerance = 1*SQUARE_LENGTH
+        tol = tolerance = 1*SQUARE_LENGTH
         absolute = 6*SQUARE_LENGTH
 
     limits = [xlim[0]+SQUARE_LENGTH, xlim[1]-SQUARE_LENGTH,
@@ -335,12 +335,16 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
         for other in collection.objects:
             if "Table" in other.name or "Board" in other.name:
                 continue
+            if "Black" not in other.name and "White" not in other.name:
+                tol = tolerance + 3*SQUARE_LENGTH
+            else:
+                tol = tolerance
             d = util.distance_points(other.location, (x, y, z))
             if d < distance:
                 distance = d
-            if distance <= tolerance:
+            if distance <= tol:
                 break
-        if distance > tolerance:
+        if distance > tol:
             break
         i += 1
         if i >= 10:
