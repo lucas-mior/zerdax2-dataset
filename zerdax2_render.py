@@ -191,14 +191,12 @@ def setup_board(board_style, collection):
 
 
 def setup_spotlight(spotlight):
+    x = np.random.uniform(-18*SQUARE_LENGTH, 0)
     if spotlight.name == "Spot0":
-        x = np.random.uniform(-18*SQUARE_LENGTH, 0)
-    else:
-        x = np.random.uniform(0, 18*SQUARE_LENGTH)
-
+        x = -x
     y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
-    z = np.random.uniform(13*SQUARE_LENGTH, 20*SQUARE_LENGTH)
-    spotlight.location = Vector((x, y, z))
+    z = np.random.uniform(14*SQUARE_LENGTH, 18*SQUARE_LENGTH)
+    spotlight.location = (x, y, z)
 
     z = 0.0
     x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
@@ -230,6 +228,7 @@ def setup_lighting():
 
     setup_spotlight(spot0)
     setup_spotlight(spot1)
+    flash.data.energy = np.random.randint(50, 80)  # Watts
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
         obj.hide_set(not visibility)
