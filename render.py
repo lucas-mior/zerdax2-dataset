@@ -227,7 +227,7 @@ def setup_lighting():
 
     setup_spotlight(spot0)
     setup_spotlight(spot1)
-    flash.data.energy = np.random.randint(50, 80)  # Watts
+    flash.data.energy = np.random.randint(20, 80)  # Watts
     for obj, visibility in visibilities.items():
         obj.hide_render = not visibility
         obj.hide_set(not visibility)
