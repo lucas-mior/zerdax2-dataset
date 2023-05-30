@@ -13,7 +13,6 @@ from mathutils import Vector
 pwd = os.path.dirname(bpy.data.filepath)
 if pwd not in sys.path:
     sys.path.append(pwd)
-from zerdax2_misc import CLASSES, PIECES
 import util
 from util import print
 
@@ -259,7 +258,7 @@ def dump_yolo_txt(txtpath, objects):
     with txtpath.open("w") as txt:
         for obj in objects:
             name = obj['piece']
-            number = CLASSES[name]
+            number = YOLO_CLASSES[name]
 
             left = obj['box'][0]
             top = obj['box'][1]
@@ -520,6 +519,22 @@ def parse_position(fen):
 
     return pieces
 
+
+YOLO_CLASSES = {
+    "Board": 0,
+    "K": 1, "Q": 2, "R": 3,
+    "B": 4, "N": 5, "P": 6,
+    "k": 1, "q": 2, "r": 3,
+    "b": 4, "n": 5, "p": 6
+}
+
+PIECES = {
+    "Board": "Board",
+    "K": "WhiteKing", "Q": "WhiteQueen", "R": "WhiteRook",
+    "B": "WhiteBishop", "N": "WhiteKnight", "P": "WhitePawn",
+    "k": "BlackKing", "q": "BlackQueen", "r": "BlackRook",
+    "b": "BlackBishop", "n": "BlackKnight", "p": "BlackPawn",
+}
 
 if __name__ == "__main__":
     argv = sys.argv
