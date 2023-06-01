@@ -194,7 +194,7 @@ def setup_spotlight(spotlight):
     if spotlight.name == "Spot0":
         x = -x
     y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
-    z = np.random.uniform(14*SQUARE_LENGTH, 18*SQUARE_LENGTH)
+    z = np.random.uniform(14*SQUARE_LENGTH, 22*SQUARE_LENGTH)
     spotlight.location = (x, y, z)
 
     z = 0.0
@@ -426,7 +426,7 @@ def setup_shot(position, output_file):
         xlim = [min(x_vertices), max(x_vertices)]
         ylim = [min(y_vertices), max(y_vertices)]
         z = max(z_vertices)
-        misc = ["RedCup", "CoffeCup"]
+        misc = ["RedCup", "CoffeCup", "GlassCup1"]
         for source_name in misc:
             scale = util.create_scale()
             add_extra(source_name, collection, xlim, ylim, z, table, scale)
