@@ -543,7 +543,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i <= 2280:
+            if i <= 2260:
                 continue
             if i % 20 != 0:
                 continue
