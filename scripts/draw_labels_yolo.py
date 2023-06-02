@@ -6,8 +6,9 @@ draws labels and boxes around chess pieces based on yolo txt
 import cv2
 import numpy as np
 import sys
+from pathlib import Path
 
-from zerdax2_misc import COLORS, SYMBOLS
+from misc import COLORS, SYMBOLS
 
 
 def get_piece(line, width, heigth):
@@ -65,6 +66,8 @@ def draw_boxes(img_name, txt_name):
 
 
 if __name__ == "__main__":
-    img_name = sys.argv[1]
-    txt_name = sys.argv[2]
-    draw_boxes(img_name, txt_name)
+    for image in sys.argv[1:]:
+        img_path = Path(image)
+        txt_path = img_path.stem + ".txt"
+        if Path.exists(Path(txt_path)):
+            draw_boxes(str(img_path), txt_path)
