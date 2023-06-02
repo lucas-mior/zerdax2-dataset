@@ -427,11 +427,13 @@ def setup_shot(position, output_file):
                 source_name = PIECES[piece] + str(styles['piece'])
                 obj = add_extra(source_name, collection,
                                 xlim, ylim, z, table, scale_pieces)
+                if obj is None:
+                    continue
                 if not is_object_hiding(obj):
                     box = util.get_bounding_box(scene, obj)
                     if box is not None:
                         objects.append({
-                            "piece": piece["name"],
+                            "piece": piece,
                             "box": box
                         })
     return objects
