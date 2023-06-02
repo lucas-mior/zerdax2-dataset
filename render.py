@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 30  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -32,12 +32,6 @@ ADD_TABLE = True
 ADD_BOARD = True
 ADD_PIECES = True
 ADD_CAPTURED = True
-
-
-def update_view():
-    if not DO_RENDER:
-        bpy.context.view_layer.update()
-    return
 
 
 def set_configs():
@@ -133,7 +127,7 @@ def setup_camera(board):
     camera.rotation_euler[1] += rot_y
     camera.rotation_euler[2] += rot_z
 
-    update_view()
+    bpy.context.view_layer.update()
     return camera
 
 
@@ -170,7 +164,7 @@ def setup_table(table_style, board, collection):
             table.location[2] = min(board_zs)
         else:
             table.location[2] = 0
-        update_view()
+        bpy.context.view_layer.update()
     else:
         table = None
 
@@ -180,7 +174,7 @@ def setup_table(table_style, board, collection):
 def setup_board(board_style, collection):
     if ADD_BOARD:
         board = object_copy(collection, f"Board{board_style}")
-        update_view()
+        bpy.context.view_layer.update()
     else:
         board = None
 
@@ -231,7 +225,7 @@ def setup_lighting():
         obj.hide_set(not visibility)
         obj.hide_viewport = not visibility
 
-    update_view()
+    bpy.context.view_layer.update()
     return
 
 
@@ -433,8 +427,13 @@ def setup_shot(position, output_file):
                 source_name = PIECES[piece] + str(styles['piece'])
                 obj = add_extra(source_name, collection,
                                 xlim, ylim, z, table, scale_pieces)
-                if is_object_hiding(obj):
-                    print(f"{obj.name} is hiding!")
+                if not is_object_hiding(obj):
+                    box = util.get_bounding_box(scene, obj)
+                    if box is not None:
+                        objects.append({
+                            "piece": piece["name"],
+                            "box": box
+                        })
     return objects
 
 
@@ -542,7 +541,7 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i != 6000:
+            if i % 20 != 0:
                 continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
@@ -560,8 +559,8 @@ if __name__ == "__main__":
                     txtpath = filename.parent / (filename.stem + ".txt")
                     dump_yolo_txt(txtpath, objects)
 
-            if i % 50 == 0:
+            if i % 200 == 0:
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
-            break
+    gc.enable()
     print("="*60)
