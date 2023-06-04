@@ -277,7 +277,9 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     name = piece_name + str(piece_style)
 
     offsets = np.random.normal((.5,)*2, (.1,)*2)
-    offsets = np.clip(offsets, .32, .68)
+    offsets = np.clip(offsets, .3, .6)
+    offsets /= scale_pieces["global"]
+
     rank_offset, file_offset = offsets
     rank = piece["square"][1] + rank_offset
     file = piece["square"][0] + file_offset
