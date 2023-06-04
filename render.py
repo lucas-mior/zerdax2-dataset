@@ -17,8 +17,8 @@ import util
 from util import print
 
 
-DO_RENDER = True
-MIN_BOARD_CORNER_PADDING = 30  # pixels
+DO_RENDER = False
+MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
 
@@ -103,7 +103,7 @@ def setup_camera(board):
         z = np.random.uniform(11*SQUARE_LENGTH, 14*SQUARE_LENGTH)
         x = np.random.uniform(2*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y = np.random.uniform(8*SQUARE_LENGTH, 9*SQUARE_LENGTH)
-        y += 0.7*abs(x) + 0.1*abs(z)
+        y += 0.5*abs(x) + 0.1*abs(z)
         if np.random.rand() < 0.5:
             y = -y
         if np.random.rand() < 0.5:
@@ -120,8 +120,9 @@ def setup_camera(board):
         dot = np.dot(v, w)
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
+        print(f"Camera Angle: {angle}º")
 
-    rot_x = np.random.uniform(-0.02, -0.02)
+    rot_x = np.random.uniform(-0.00, -0.04)
     rot_y = np.random.uniform(-0.02, +0.02)
     rot_z = np.random.uniform(-0.02, +0.02)
 
@@ -545,9 +546,11 @@ if __name__ == "__main__":
     fens_path = Path("fens.txt")
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            if i <= 2260:
-                continue
-            if i % 20 != 0:
+            # if i <= 2260:
+            #     continue
+            # if i % 20 != 0:
+            #     continue
+            if i != 5000:
                 continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)

@@ -1,20 +1,24 @@
-#!/usr/bin/python
-
 import sys
-import json
 
-if __name__ == "__main__":
-    jsons = sys.argv[1:]
-    for jsonname in jsons:
-        data_file = open(jsonname)
-        basename = jsonname.rsplit(".", 1)[0]
-        out_file = f'{basename}_2.json'
-        data = json.load(data_file)
+INPUT = sys.argv[1]
+OUTPUT = sys.argv[2]
 
-        npieces = 0
-        for piece in data['pieces']:
-            npieces += 1
+fens_in = open(INPUT, 'r')
+fens_out = open(OUTPUT, 'w')
 
-        data['piece_amount'] = npieces
-        json.dump(data, out_file, indent=4)
-        data_file.close()
+for i in range(3, 33, 1):
+    j = 0
+    while True:
+        line = fens_in.readline()
+        count = 0
+
+        if not line:
+            break
+        for c in line:
+            if c.isalpha():
+                count += 1
+        a = f"{count} {line}"
+        fens_out.write(a)
+
+fens_in.close()
+fens_out.close()
