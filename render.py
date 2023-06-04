@@ -352,7 +352,7 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     return obj
 
 
-def setup_shot(position, output_file):
+def setup_shot(fen, output_file):
     scene = bpy.context.scene
 
     scene.render.engine = "CYCLES"
