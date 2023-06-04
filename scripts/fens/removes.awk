@@ -18,7 +18,7 @@ BEGIN {
         move = last
     # if (last >= 100) {
     #     move = 100
-        gsub(move ".+$", "", $0)
+        gsub(move "\\..+$", "", $0)
     # }
     print $0
 }
