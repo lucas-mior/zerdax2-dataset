@@ -131,7 +131,7 @@ def setup_camera(board):
     camera.rotation_euler[2] += rot_z
 
     bpy.context.view_layer.update()
-    return camera
+    return camera, angle
 
 
 def object_copy(collection, name,
@@ -388,7 +388,7 @@ def setup_shot(fen, output_file):
 
     corners = None
     while not corners:
-        camera = setup_camera(board)
+        camera, angle = setup_camera(board)
         corners = get_corner_coordinates(scene, camera)
 
     objects = []
