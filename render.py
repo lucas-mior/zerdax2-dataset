@@ -122,7 +122,7 @@ def setup_camera(board):
         angle = np.degrees(np.arcsin(dot/modulo))
         print(f"Angle: {angle}º @ ({x=}, {y=}, {z=})")
 
-    rot_x = np.random.uniform(-0.00, -0.04)
+    rot_x = np.random.uniform(-0.05, +0.00)
     rot_y = np.random.uniform(-0.02, +0.02)
     rot_z = np.random.uniform(-0.02, +0.02)
 
@@ -562,8 +562,8 @@ if __name__ == "__main__":
 
             filename = Path("renders") / f"{i:05d}.png"
             objects = setup_shot(fen, filename)
-            if objects is None:
-                break
+            while objects is None:
+                objects = setup_shot(fen, filename)
             if DO_RENDER:
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
