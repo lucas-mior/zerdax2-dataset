@@ -99,7 +99,7 @@ def setup_world():
 def setup_camera(board):
     camera = bpy.context.scene.camera
     angle = 90
-    while angle >= 60 or angle <= 30:
+    while angle >= 50 or angle <= 35:
         z = np.random.uniform(11*SQUARE_LENGTH, 14*SQUARE_LENGTH)
         x = np.random.uniform(2*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y = np.random.uniform(8*SQUARE_LENGTH, 9*SQUARE_LENGTH)
@@ -120,7 +120,7 @@ def setup_camera(board):
         dot = np.dot(v, w)
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
-        print(f"Camera Angle: {angle}º")
+        print(f"Angle: {angle}º @ ({x=}, {y=}, {z=})")
 
     rot_x = np.random.uniform(-0.00, -0.04)
     rot_y = np.random.uniform(-0.02, +0.02)
@@ -544,13 +544,14 @@ if __name__ == "__main__":
 
     gc.disable()
     fens_path = Path("fens.txt")
+    which = np.random.randint(0, 20000)
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
             # if i <= 2260:
             #     continue
             # if i % 20 != 0:
             #     continue
-            if i != 5000:
+            if i != which:
                 continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
