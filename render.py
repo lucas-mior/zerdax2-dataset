@@ -99,13 +99,15 @@ def setup_world():
 def setup_camera(board):
     camera = bpy.context.scene.camera
     angle = 90
-    while angle >= 60 or angle <= 40:
+    while angle >= 60 or angle <= 30:
         z = np.random.uniform(11*SQUARE_LENGTH, 14*SQUARE_LENGTH)
-        x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
-        dy = np.random.uniform(8.5*SQUARE_LENGTH, 9.5*SQUARE_LENGTH)
-        y = 0.7*abs(x) + 0.1*abs(z) + dy
+        x = np.random.uniform(2*SQUARE_LENGTH, 9*SQUARE_LENGTH)
+        y = np.random.uniform(8*SQUARE_LENGTH, 9*SQUARE_LENGTH)
+        y += 0.7*abs(x) + 0.1*abs(z)
         if np.random.rand() < 0.5:
             y = -y
+        if np.random.rand() < 0.5:
+            x = -x
 
         camera.location = (x, y, z)
         if board is not None:

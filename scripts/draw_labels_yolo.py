@@ -49,7 +49,7 @@ def draw_boxes(img_name, txt_name):
     basename = txt_name.rsplit(".", 1)[0]
     output = f'{basename}_yolo.png'
     canvas = np.zeros(img.shape, dtype='uint8')
-    thick = round(2.5 * (img.shape[1] / 1280))
+    thick = round(2.5 * (max(img.shape[1], img.shape[0]) / 1280))
     for piece in pieces:
         p, x0, y0, x1, y1 = piece
         color = COLORS[int(p['number'])]
