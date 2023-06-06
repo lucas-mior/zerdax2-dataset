@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -44,11 +44,6 @@ def set_configs():
         WIDTH = 600
         HEIGHT = 960
 
-    if np.random.rand() < 0.5:
-        ADD_TABLE = True
-    else:
-        ADD_TABLE = False
-
     rand_num = np.random.rand()
     if rand_num < 0.05:
         ADD_BOARD = False
@@ -59,6 +54,11 @@ def set_configs():
     else:
         ADD_BOARD = True
         ADD_PIECES = True
+
+    if np.random.rand() < 0.5 and ADD_BOARD:
+        ADD_TABLE = False
+    else:
+        ADD_TABLE = True
 
     if np.random.rand() < 0.5 and ADD_PIECES and ADD_TABLE:
         ADD_CAPTURED = True
@@ -101,13 +101,11 @@ def setup_camera(board):
     angle = 90
     while angle >= 50 or angle <= 35:
         z = np.random.uniform(11*SQUARE_LENGTH, 14*SQUARE_LENGTH)
-        x = np.random.uniform(2*SQUARE_LENGTH, 9*SQUARE_LENGTH)
+        x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y = np.random.uniform(8*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y += 0.5*abs(x) + 0.1*abs(z)
         if np.random.rand() < 0.5:
             y = -y
-        if np.random.rand() < 0.5:
-            x = -x
 
         camera.location = (x, y, z)
         if board is not None:
@@ -279,6 +277,7 @@ def add_piece(piece, collection, piece_style, scale_pieces):
     offsets = np.random.normal((.5,)*2, (.1,)*2)
     offsets = np.clip(offsets, .3, .6)
     offsets /= scale_pieces["global"]
+    offsets = np.clip(offsets, .01, .6)
 
     rank_offset, file_offset = offsets
     rank = piece["square"][1] + rank_offset
