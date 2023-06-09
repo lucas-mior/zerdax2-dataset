@@ -20,10 +20,6 @@ def console_print(*args, **kwargs):
             s = " ".join([str(arg) for arg in args])
             for line in s.split("\n"):
                 bpy.ops.console.scrollback_append(text=line)
-        # area.tag_redraw()
-        # bpy.ops.wm.save_mainfile()
-        # bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-        # bpy.ops.wm.redraw_timer()
     return
 
 
