@@ -373,11 +373,7 @@ def setup_shot(fen, output_file):
     scene.render.resolution_x = WIDTH
     scene.render.resolution_y = HEIGHT
 
-    if COLLECTION_NAME not in bpy.data.collections:
-        collection = bpy.data.collections.new(COLLECTION_NAME)
-        scene.collection.children.link(collection)
     collection = bpy.data.collections[COLLECTION_NAME]
-
     for obj in bpy.data.objects:
         obj.select_set(False)
     for obj in collection.objects:
@@ -451,7 +447,7 @@ def setup_shot(fen, output_file):
         source_name = PIECES[piece] + str(styles['piece'])
 
         obj = None
-        while is_object_hiding(obj):
+        while util.is_object_hiding(obj):
             obj = add_extra(source_name, collection,
                             xlim, ylim, z, table, scale_pieces)
 
@@ -468,21 +464,6 @@ def setup_shot(fen, output_file):
             bpy.ops.object.delete()
 
     return objects
-
-
-def is_object_hiding(obj):
-    if obj is None:
-        return True
-    scene = bpy.context.scene
-    camera = scene.camera
-
-    ray_origin = camera.location
-    ray_direction = obj.location - camera.location
-    ray_direction.normalize()
-
-    depsgraph = bpy.context.evaluated_depsgraph_get()
-    ray = scene.ray_cast(depsgraph, ray_origin, ray_direction)
-    return ray[0] and ray[4] != obj
 
 
 def get_corner_coordinates(scene, camera):

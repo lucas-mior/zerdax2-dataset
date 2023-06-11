@@ -152,3 +152,18 @@ def create_scale(x=(0.95, 1.05), y=(0.95, 1.05), z=(0.95, 1.05)):
         ),
     }
     return scale
+
+
+def is_object_hiding(obj):
+    if obj is None:
+        return True
+    scene = bpy.context.scene
+    camera = scene.camera
+
+    ray_origin = camera.location
+    ray_direction = obj.location - camera.location
+    ray_direction.normalize()
+
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    ray = scene.ray_cast(depsgraph, ray_origin, ray_direction)
+    return ray[0] and ray[4] != obj
