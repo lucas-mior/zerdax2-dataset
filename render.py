@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -579,5 +579,6 @@ if __name__ == "__main__":
             if i % 50 == 0:
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
+            print("=========================================")
     gc.enable()
     print("="*60)
