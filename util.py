@@ -167,3 +167,12 @@ def is_object_hiding(obj):
     depsgraph = bpy.context.evaluated_depsgraph_get()
     ray = scene.ray_cast(depsgraph, ray_origin, ray_direction)
     return ray[0] and ray[4] != obj
+
+
+def object_delete(obj):
+    for other in bpy.data.objects:
+        other.select_set(False)
+    obj.select_set(True)
+    bpy.ops.object.delete()
+
+    return

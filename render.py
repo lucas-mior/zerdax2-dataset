@@ -197,11 +197,13 @@ def setup_spotlight(spotlight):
     if spotlight.name == "Spot0":
         x = -x
     y = np.random.uniform(-18*SQUARE_LENGTH, 18*SQUARE_LENGTH)
-    z = np.random.uniform(14*SQUARE_LENGTH, 22*SQUARE_LENGTH)
+    z = np.random.uniform(16*SQUARE_LENGTH, 22*SQUARE_LENGTH)
     spotlight.location = (x, y, z)
 
     z = 0.0
-    x = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
+    x = np.random.uniform(-5*SQUARE_LENGTH, 0)
+    if spotlight.name == "Spot0":
+        x = -x
     y = np.random.uniform(-5*SQUARE_LENGTH, 5*SQUARE_LENGTH)
     focus = Vector((x, y, z))
     util.point_to(spotlight, focus)
@@ -458,10 +460,7 @@ def setup_shot(fen, output_file):
                 "box": box
             })
         else:
-            for other in bpy.data.objects:
-                other.select_set(False)
-            obj.select_set(True)
-            bpy.ops.object.delete()
+            util.object_delete(obj)
 
     return objects
 
