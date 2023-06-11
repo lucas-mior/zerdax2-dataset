@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -414,32 +414,40 @@ def setup_shot(fen, output_file):
                 "box": box
             })
 
-    if ADD_TABLE:
-        vertices = table.data.vertices
-        z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
-        x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
-        y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
-        xlim = [min(x_vertices), max(x_vertices)]
-        ylim = [min(y_vertices), max(y_vertices)]
-        z = max(z_vertices)
-        misc = ["RedCup", "CoffeCup", "GlassCup1"]
-        for source_name in misc:
-            scale = util.create_scale()
-            add_extra(source_name, collection, xlim, ylim, z, table, scale)
-        if ADD_PIECES and ADD_CAPTURED:
-            for piece in captured_pieces:
-                source_name = PIECES[piece] + str(styles['piece'])
-                obj = add_extra(source_name, collection,
-                                xlim, ylim, z, table, scale_pieces)
-                if obj is None:
-                    continue
-                if not is_object_hiding(obj):
-                    box = util.get_bounding_box(scene, obj)
-                    if box is not None:
-                        objects.append({
-                            "piece": piece,
-                            "box": box
-                        })
+    if not ADD_TABLE:
+        return objects
+
+    vertices = table.data.vertices
+    z_vertices = [(table.matrix_world @ v.co).z for v in vertices]
+    x_vertices = [(table.matrix_world @ v.co).x for v in vertices]
+    y_vertices = [(table.matrix_world @ v.co).y for v in vertices]
+    xlim = [min(x_vertices), max(x_vertices)]
+    ylim = [min(y_vertices), max(y_vertices)]
+    z = max(z_vertices)
+    misc = ["RedCup", "CoffeCup", "GlassCup1"]
+    for source_name in misc:
+        scale = util.create_scale()
+        add_extra(source_name, collection, xlim, ylim, z, table, scale)
+    if ADD_PIECES and ADD_CAPTURED:
+        for piece in captured_pieces:
+            source_name = PIECES[piece] + str(styles['piece'])
+            obj = add_extra(source_name, collection,
+                            xlim, ylim, z, table, scale_pieces)
+            if obj is None:
+                continue
+            if not is_object_hiding(obj):
+                box = util.get_bounding_box(scene, obj)
+                if box is not None:
+                    objects.append({
+                        "piece": piece,
+                        "box": box
+                    })
+                else:
+                    for other in bpy.data.objects:
+                        other.select_set(False)
+                    obj.select_set(True)
+                    bpy.ops.object.delete()
+
     return objects
 
 
@@ -550,10 +558,10 @@ if __name__ == "__main__":
         for i, fen in enumerate(map(str.strip, f)):
             # if i <= 2260:
             #     continue
-            if i % 10 != 0:
-                continue
-            # if i != which:
+            # if i % 10 != 0:
             #     continue
+            if i != which:
+                continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
