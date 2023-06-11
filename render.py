@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -100,10 +100,10 @@ def setup_camera(board):
     camera = bpy.context.scene.camera
     angle = 90
     while angle >= 50 or angle <= 35:
-        z = np.random.uniform(11*SQUARE_LENGTH, 14*SQUARE_LENGTH)
+        z = np.random.uniform(11*SQUARE_LENGTH, 20*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
-        y = np.random.uniform(8*SQUARE_LENGTH, 9*SQUARE_LENGTH)
-        y += 0.5*abs(x) + 0.1*abs(z)
+        y = np.random.uniform(8*SQUARE_LENGTH, 10*SQUARE_LENGTH)
+        y += 0.5*abs(x)
         if np.random.rand() < 0.5:
             y = -y
 
@@ -561,10 +561,10 @@ if __name__ == "__main__":
         for i, fen in enumerate(map(str.strip, f)):
             # if i <= 2260:
             #     continue
-            if i % 5 != 0:
-                continue
-            # if i != which:
+            # if i % 5 != 0:
             #     continue
+            if i != which:
+                continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
