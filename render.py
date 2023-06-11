@@ -96,10 +96,20 @@ def setup_world():
                               output_node.inputs['Surface'])
 
 
-def setup_camera(board):
+def setup_camera(board, scale_pieces, number_pieces):
     camera = bpy.context.scene.camera
     angle = 90
-    while angle >= 55 or angle <= 35:
+
+    if scale_pieces is None:
+        scale_angle_factor = 1
+    else:
+        scale_angle_factor = scale_pieces['global']
+
+    amount_angle_factor = 1 + number_pieces / 150
+    max_angle = 55
+    min_angle = 40*scale_angle_factor*amount_angle_factor
+
+    while angle <= min_angle or angle >= max_angle:
         z = np.random.uniform(11*SQUARE_LENGTH, 20*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y = np.random.uniform(8*SQUARE_LENGTH, 10*SQUARE_LENGTH)
@@ -118,7 +128,7 @@ def setup_camera(board):
         dot = np.dot(v, w)
         modulo = np.sqrt(x**2 + y**2 + z**2)
         angle = np.degrees(np.arcsin(dot/modulo))
-        print(f"Angle: {angle}º @ ({x=}, {y=}, {z=})")
+        print(f"{min_angle}º < {angle}º < {max_angle}º")
 
     rot_x = np.random.uniform(-0.05, +0.00)
     rot_y = np.random.uniform(-0.02, +0.02)
@@ -385,9 +395,16 @@ def setup_shot(fen, output_file):
     board = setup_board(styles['board'], collection)
     table = setup_table(styles['table'], board, collection)
 
+    position_pieces = []
+    scale_pieces = None
+    if ADD_PIECES:
+        position_pieces = parse_position(fen)
+        captured_pieces = get_missing_pieces(fen)
+        scale_pieces = util.create_scale()
+
     corners = None
     while not corners:
-        camera, angle = setup_camera(board)
+        camera, _ = setup_camera(board, scale_pieces, len(position_pieces))
         corners = get_corner_coordinates(scene, camera)
 
     objects = []
@@ -400,9 +417,6 @@ def setup_shot(fen, output_file):
         })
 
     if ADD_PIECES:
-        position_pieces = parse_position(fen)
-        captured_pieces = get_missing_pieces(fen)
-        scale_pieces = util.create_scale()
         for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
             box = util.get_bounding_box(scene, obj)
@@ -430,26 +444,28 @@ def setup_shot(fen, output_file):
         scale = util.create_scale()
         add_extra(source_name, collection, xlim, ylim, z, table, scale)
 
-    if ADD_PIECES and ADD_CAPTURED:
-        for piece in captured_pieces:
-            source_name = PIECES[piece] + str(styles['piece'])
+    if not ADD_CAPTURED:
+        return objects
 
-            obj = None
-            while is_object_hiding(obj):
-                obj = add_extra(source_name, collection,
-                                xlim, ylim, z, table, scale_pieces)
+    for piece in captured_pieces:
+        source_name = PIECES[piece] + str(styles['piece'])
 
-            box = util.get_bounding_box(scene, obj)
-            if box is not None:
-                objects.append({
-                    "piece": piece,
-                    "box": box
-                })
-            else:
-                for other in bpy.data.objects:
-                    other.select_set(False)
-                obj.select_set(True)
-                bpy.ops.object.delete()
+        obj = None
+        while is_object_hiding(obj):
+            obj = add_extra(source_name, collection,
+                            xlim, ylim, z, table, scale_pieces)
+
+        box = util.get_bounding_box(scene, obj)
+        if box is not None:
+            objects.append({
+                "piece": piece,
+                "box": box
+            })
+        else:
+            for other in bpy.data.objects:
+                other.select_set(False)
+            obj.select_set(True)
+            bpy.ops.object.delete()
 
     return objects
 
