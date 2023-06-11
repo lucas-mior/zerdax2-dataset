@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -559,12 +559,11 @@ if __name__ == "__main__":
     which = np.random.randint(0, 20000)
     with fens_path.open("r") as f:
         for i, fen in enumerate(map(str.strip, f)):
-            # if i <= 2260:
-            #     continue
-            if i % 5 != 0:
+            if DO_RENDER:
+                if i % 5 != 0:
+                    continue
+            elif i != which:
                 continue
-            # if i != which:
-            #     continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
