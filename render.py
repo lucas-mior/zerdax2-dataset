@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -561,10 +561,10 @@ if __name__ == "__main__":
         for i, fen in enumerate(map(str.strip, f)):
             # if i <= 2260:
             #     continue
-            # if i % 5 != 0:
-            #     continue
-            if i != which:
+            if i % 5 != 0:
                 continue
+            # if i != which:
+            #     continue
             print(f"FEN #{i} = {fen}")
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
