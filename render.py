@@ -99,7 +99,7 @@ def setup_world():
 def setup_camera(board):
     camera = bpy.context.scene.camera
     angle = 90
-    while angle >= 50 or angle <= 35:
+    while angle >= 55 or angle <= 35:
         z = np.random.uniform(11*SQUARE_LENGTH, 20*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y = np.random.uniform(8*SQUARE_LENGTH, 10*SQUARE_LENGTH)
