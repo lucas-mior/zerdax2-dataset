@@ -424,36 +424,39 @@ def setup_shot(fen, output_file):
     xlim = [min(x_vertices), max(x_vertices)]
     ylim = [min(y_vertices), max(y_vertices)]
     z = max(z_vertices)
+
     misc = ["RedCup", "CoffeCup", "GlassCup1"]
     for source_name in misc:
         scale = util.create_scale()
         add_extra(source_name, collection, xlim, ylim, z, table, scale)
+
     if ADD_PIECES and ADD_CAPTURED:
         for piece in captured_pieces:
             source_name = PIECES[piece] + str(styles['piece'])
-            obj = add_extra(source_name, collection,
-                            xlim, ylim, z, table, scale_pieces)
-            if obj is None:
-                continue
-            if not is_object_hiding(obj):
-                box = util.get_bounding_box(scene, obj)
-                if box is not None:
-                    objects.append({
-                        "piece": piece,
-                        "box": box
-                    })
-                else:
-                    for other in bpy.data.objects:
-                        other.select_set(False)
-                    obj.select_set(True)
-                    bpy.ops.object.delete()
+
+            obj = None
+            while is_object_hiding(obj):
+                obj = add_extra(source_name, collection,
+                                xlim, ylim, z, table, scale_pieces)
+
+            box = util.get_bounding_box(scene, obj)
+            if box is not None:
+                objects.append({
+                    "piece": piece,
+                    "box": box
+                })
+            else:
+                for other in bpy.data.objects:
+                    other.select_set(False)
+                obj.select_set(True)
+                bpy.ops.object.delete()
 
     return objects
 
 
 def is_object_hiding(obj):
     if obj is None:
-        return False
+        return True
     scene = bpy.context.scene
     camera = scene.camera
 
