@@ -369,12 +369,6 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
 def setup_shot(fen, output_file):
     scene = bpy.context.scene
 
-    scene.render.engine = "CYCLES"
-    scene.render.image_settings.file_format = "PNG"
-    scene.render.filepath = str(output_file)
-    scene.render.resolution_x = WIDTH
-    scene.render.resolution_y = HEIGHT
-
     collection = bpy.data.collections[COLLECTION_NAME]
     for obj in bpy.data.objects:
         obj.select_set(False)
@@ -564,8 +558,15 @@ if __name__ == "__main__":
             print(f"FEN #{i} = {fen}", file=sys.stderr)
 
             set_configs()
-
             filename = Path("renders") / f"{i:05d}.png"
+
+            scene = bpy.context.scene
+            scene.render.engine = "CYCLES"
+            scene.render.image_settings.file_format = "PNG"
+            scene.render.filepath = str(filename)
+            scene.render.resolution_x = WIDTH
+            scene.render.resolution_y = HEIGHT
+
             objects = setup_shot(fen, filename)
             while objects is None:
                 objects = setup_shot(fen, filename)
