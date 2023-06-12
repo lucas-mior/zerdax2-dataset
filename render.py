@@ -366,7 +366,7 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     return obj
 
 
-def setup_shot(fen, output_file):
+def setup_shot(fen):
     scene = bpy.context.scene
 
     collection = bpy.data.collections[COLLECTION_NAME]
@@ -544,6 +544,9 @@ if __name__ == "__main__":
     argv = sys.argv
     print("="*30, f"{argv[0]}.py", "="*30)
 
+    scene = bpy.context.scene
+    scene.render.engine = "CYCLES"
+    scene.render.image_settings.file_format = "PNG"
     gc.disable()
     fens_path = Path("fens.txt")
     which = np.random.randint(0, 20000)
@@ -560,14 +563,11 @@ if __name__ == "__main__":
             set_configs()
             filename = Path("renders") / f"{i:05d}.png"
 
-            scene = bpy.context.scene
-            scene.render.engine = "CYCLES"
-            scene.render.image_settings.file_format = "PNG"
             scene.render.filepath = str(filename)
             scene.render.resolution_x = WIDTH
             scene.render.resolution_y = HEIGHT
 
-            objects = setup_shot(fen, filename)
+            objects = setup_shot(fen)
             while objects is None:
                 objects = setup_shot(fen, filename)
             if DO_RENDER:
