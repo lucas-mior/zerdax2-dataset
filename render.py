@@ -107,10 +107,10 @@ def setup_camera(board, scale_pieces, number_pieces):
 
     amount_angle_factor = 1 + number_pieces / 150
     max_angle = 55
-    min_angle = min(54, 40*scale_angle_factor*amount_angle_factor)
+    min_angle = np.clip(40*scale_angle_factor*amount_angle_factor, 36, 54)
 
     while angle <= min_angle or angle >= max_angle:
-        z = np.random.uniform(11*SQUARE_LENGTH, 20*SQUARE_LENGTH)
+        z = np.random.uniform(10*SQUARE_LENGTH, 20*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y = np.random.uniform(8*SQUARE_LENGTH, 10*SQUARE_LENGTH)
         y += 0.5*abs(x)
@@ -162,7 +162,7 @@ def object_copy(collection, name,
 
 def setup_table(table_style, board, collection):
     if ADD_TABLE:
-        s = (0.9, 1.4)
+        s = (0.9, 1.3)
         scale_table = util.create_scale(x=s, y=s, z=(1, 1))
         scale = Vector(scale_table["coords"])
         scale *= scale_table["global"]
