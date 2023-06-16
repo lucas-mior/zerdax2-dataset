@@ -570,7 +570,7 @@ if __name__ == "__main__":
             collection = bpy.data.collections[COLLECTION_NAME]
             clean_up(collection)
 
-            objects = setup_shot(fen, collection)
+            objects = None
             while objects is None:
                 objects = setup_shot(fen, collection)
             if DO_RENDER:
