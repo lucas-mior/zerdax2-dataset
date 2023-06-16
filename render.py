@@ -4,7 +4,6 @@ import bpy
 import bpy_extras
 import os
 import sys
-from pathlib import Path
 import numpy as np
 import gc
 import mathutils
@@ -551,9 +550,8 @@ if __name__ == "__main__":
     scene.render.engine = "CYCLES"
     scene.render.image_settings.file_format = "PNG"
     gc.disable()
-    fens_path = Path("fens.txt")
     which = np.random.randint(0, 20000)
-    with fens_path.open("r") as f:
+    with open("fens.txt", "r") as f:
         for i, fen in enumerate(map(str.strip, f)):
             if DO_RENDER:
                 if i % 5 != 0:
@@ -563,7 +561,7 @@ if __name__ == "__main__":
             print(f"FEN #{i} = {fen}")
 
             set_configs()
-            filename = Path("renders") / f"{i:05d}.png"
+            filename = f"renders/{i:05d}.png"
 
             scene.render.filepath = str(filename)
             scene.render.resolution_x = WIDTH
