@@ -581,6 +581,6 @@ if __name__ == "__main__":
             if i % 50 == 0:
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
-            print("=========================================")
+            print("="*60)
     gc.enable()
     print("="*60)
