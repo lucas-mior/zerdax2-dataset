@@ -17,7 +17,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -32,6 +32,15 @@ ADD_TABLE = True
 ADD_BOARD = True
 ADD_PIECES = True
 ADD_CAPTURED = True
+
+
+def clean_up(collection):
+    for obj in bpy.data.objects:
+        obj.select_set(False)
+    for obj in collection.objects:
+        obj.select_set(True)
+        bpy.ops.object.delete()
+    return
 
 
 def set_configs():
@@ -366,15 +375,8 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     return obj
 
 
-def setup_shot(fen):
+def setup_shot(fen, collection):
     scene = bpy.context.scene
-
-    collection = bpy.data.collections[COLLECTION_NAME]
-    for obj in bpy.data.objects:
-        obj.select_set(False)
-    for obj in collection.objects:
-        obj.select_set(True)
-        bpy.ops.object.delete()
 
     setup_world()
     setup_lighting()
@@ -543,7 +545,7 @@ PIECES = {
 
 if __name__ == "__main__":
     argv = sys.argv
-    print("="*30, f"{argv[0]}.py", "="*30)
+    print("-"*20, f"{argv[0]}.py", "-"*20)
 
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
@@ -559,7 +561,6 @@ if __name__ == "__main__":
             elif i != which:
                 continue
             print(f"FEN #{i} = {fen}")
-            print(f"FEN #{i} = {fen}", file=sys.stderr)
 
             set_configs()
             filename = Path("renders") / f"{i:05d}.png"
@@ -568,9 +569,12 @@ if __name__ == "__main__":
             scene.render.resolution_x = WIDTH
             scene.render.resolution_y = HEIGHT
 
-            objects = setup_shot(fen)
+            collection = bpy.data.collections[COLLECTION_NAME]
+            clean_up(collection)
+
+            objects = setup_shot(fen, collection)
             while objects is None:
-                objects = setup_shot(fen, filename)
+                objects = setup_shot(fen, collection)
             if DO_RENDER:
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
@@ -583,4 +587,4 @@ if __name__ == "__main__":
                 gc.collect()
             print("="*60)
     gc.enable()
-    print("="*60)
+    print("-"*60)
