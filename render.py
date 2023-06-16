@@ -16,7 +16,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -268,7 +268,7 @@ def board_box(corners):
 
 def dump_yolo_txt(txtpath, objects):
     print(f"dumping txt {txtpath}...")
-    with txtpath.open("w") as txt:
+    with open(txtpath, "w") as txt:
         for obj in objects:
             name = obj['piece']
             number = YOLO_CLASSES[name]
@@ -577,7 +577,8 @@ if __name__ == "__main__":
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
                 if ADD_BOARD:
-                    txtpath = filename.parent / (filename.stem + ".txt")
+                    basename = str.rsplit(filename, ".", 1)[0]
+                    txtpath = f"{basename}.txt"
                     dump_yolo_txt(txtpath, objects)
 
             if i % 50 == 0:
