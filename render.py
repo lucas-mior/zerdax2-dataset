@@ -393,10 +393,11 @@ def setup_shot(fen):
         position_pieces = parse_position(fen)
         captured_pieces = get_missing_pieces(fen)
         scale_pieces = util.create_scale()
+    number_pieces = len(position_pieces)
 
     corners = None
     while not corners:
-        camera, _ = setup_camera(board, scale_pieces, len(position_pieces))
+        camera, _ = setup_camera(board, scale_pieces, number_pieces)
         corners = get_corner_coordinates(scene, camera)
 
     objects = []
@@ -436,7 +437,7 @@ def setup_shot(fen):
         scale = util.create_scale()
         add_extra(source_name, collection, xlim, ylim, z, table, scale)
 
-    if not ADD_CAPTURED:
+    if (not ADD_CAPTURED) and (number_pieces < 28):
         return objects
 
     for piece in captured_pieces:
