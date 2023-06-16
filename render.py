@@ -16,7 +16,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -29,7 +29,6 @@ WIDTH = 960
 HEIGHT = 600
 ADD_TABLE = True
 ADD_BOARD = True
-ADD_PIECES = True
 ADD_CAPTURED = True
 
 
@@ -43,7 +42,7 @@ def clean_up(collection):
 
 
 def set_configs():
-    global WIDTH, HEIGHT, ADD_TABLE, ADD_BOARD, ADD_PIECES, ADD_CAPTURED
+    global WIDTH, HEIGHT, ADD_TABLE, ADD_BOARD, ADD_CAPTURED
 
     if np.random.rand() < 0.5:
         WIDTH = 960
@@ -53,22 +52,15 @@ def set_configs():
         HEIGHT = 960
 
     rand_num = np.random.rand()
-    if rand_num < 0.05:
+    if rand_num < 0.1:
         ADD_BOARD = False
-        ADD_PIECES = False
-    elif rand_num < 0.1:
-        ADD_BOARD = True
-        ADD_PIECES = False
-    else:
-        ADD_BOARD = True
-        ADD_PIECES = True
 
     if np.random.rand() < 0.5 and ADD_BOARD:
         ADD_TABLE = False
     else:
         ADD_TABLE = True
 
-    if np.random.rand() < 0.5 and ADD_PIECES and ADD_TABLE:
+    if np.random.rand() < 0.5 and ADD_TABLE and ADD_BOARD:
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
@@ -390,10 +382,9 @@ def setup_shot(fen, collection):
 
     position_pieces = []
     scale_pieces = None
-    if ADD_PIECES:
-        position_pieces = parse_position(fen)
-        captured_pieces = get_missing_pieces(fen)
-        scale_pieces = util.create_scale()
+    position_pieces = parse_position(fen)
+    captured_pieces = get_missing_pieces(fen)
+    scale_pieces = util.create_scale()
     number_pieces = len(position_pieces)
 
     corners = None
@@ -410,7 +401,7 @@ def setup_shot(fen, collection):
             "box": board_box(corners),
         })
 
-    if ADD_PIECES:
+    if ADD_BOARD:
         for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
             box = util.get_bounding_box(scene, obj)
