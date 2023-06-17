@@ -8,6 +8,8 @@ import numpy as np
 import gc
 import mathutils
 from mathutils import Vector
+import cProfile
+import pstats
 
 pwd = os.path.dirname(bpy.data.filepath)
 if pwd not in sys.path:
@@ -16,7 +18,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -547,9 +549,12 @@ if __name__ == "__main__":
     gc.disable()
     which = np.random.randint(0, 20000)
     with open("fens.txt", "r") as f:
+        profiler = cProfile.Profile()
+        profiler.enable()
+
         for i, fen in enumerate(map(str.strip, f)):
             if DO_RENDER:
-                if i % 5 != 0:
+                if i % 2000 != 0:
                     continue
             elif i != which:
                 continue
@@ -580,5 +585,9 @@ if __name__ == "__main__":
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
             print("="*60)
+        profiler.disable()
+        stats = pstats.Stats(profiler)
+        stats.sort_stats('cumulative')  # Sort by cumtime
+        stats.print_stats()
     gc.enable()
     print("-"*60)
