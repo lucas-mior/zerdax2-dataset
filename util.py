@@ -24,8 +24,8 @@ def console_print(*args, **kwargs):
 
 
 def print(*args, **kwargs):
-    console_print(*args, **kwargs)
     __builtin__.print(*args, **kwargs)
+    console_print(*args, **kwargs)
     return
 
 
