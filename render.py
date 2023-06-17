@@ -60,10 +60,16 @@ def set_configs():
     else:
         ADD_TABLE = True
 
-    if np.random.rand() < 0.5 and ADD_TABLE and ADD_BOARD:
+    if np.random.rand() < 0.75 and ADD_TABLE and ADD_BOARD:
         ADD_CAPTURED = True
     else:
         ADD_CAPTURED = False
+
+    print("configs:")
+    print(f"{WIDTH}x{HEIGHT}")
+    print(f"{ADD_BOARD=}")
+    print(f"{ADD_TABLE=}")
+    print(f"{ADD_CAPTURED=}")
     return
 
 
