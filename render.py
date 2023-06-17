@@ -433,7 +433,7 @@ def setup_shot(fen, collection):
         scale = util.create_scale()
         add_extra(source_name, collection, xlim, ylim, z, table, scale)
 
-    if (not ADD_CAPTURED) and (number_pieces < 28) or number_pieces == 0:
+    if (not ADD_CAPTURED) or (number_pieces == 0):
         return objects
 
     for piece in captured_pieces:
