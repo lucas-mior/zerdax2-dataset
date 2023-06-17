@@ -559,11 +559,11 @@ if __name__ == "__main__":
             scene.render.resolution_y = HEIGHT
 
             collection = bpy.data.collections[COLLECTION_NAME]
-            clean_up(collection)
-
             objects = None
             while objects is None:
+                clean_up(collection)
                 objects = setup_shot(fen, collection)
+
             if DO_RENDER:
                 print(f"rendering {filename}...")
                 bpy.ops.render.render(write_still=1)
