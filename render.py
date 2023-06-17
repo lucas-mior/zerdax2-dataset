@@ -113,7 +113,7 @@ def setup_camera(board, scale_pieces, number_pieces):
 
     amount_angle_factor = 1 + number_pieces / 150
     max_angle = 55
-    min_angle = np.clip(40*scale_angle_factor*amount_angle_factor, 36, 54)
+    min_angle = np.clip(37*scale_angle_factor*amount_angle_factor, 36, 54)
 
     while angle <= min_angle or angle >= max_angle:
         z = np.random.uniform(10*SQUARE_LENGTH, 20*SQUARE_LENGTH)
