@@ -404,6 +404,9 @@ def setup_shot(fen, collection):
 
     objects = []
 
+    camera_view_frame = [-v for v in camera.data.view_frame(scene=scene)[:3]]
+    camera_matrix_world = camera.matrix_world.normalized().inverted()
+
     if ADD_BOARD:
         corners = sorted(corners, key=lambda x: x[0])
         objects.append({
@@ -412,7 +415,8 @@ def setup_shot(fen, collection):
         })
         for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
-            box = util.get_bounding_box(scene, obj)
+            box = util.get_bounding_box(scene, camera_view_frame,
+                                        camera_matrix_world, obj)
             if box is None:
                 print("Bounding box error. Check the camera view.")
                 return None
@@ -448,7 +452,8 @@ def setup_shot(fen, collection):
             obj = add_extra(source_name, collection,
                             xlim, ylim, z, table, scale_pieces)
 
-        box = util.get_bounding_box(scene, obj)
+        box = util.get_bounding_box(scene, camera_view_frame,
+                                    camera_matrix_world, obj)
         if box is not None:
             objects.append({
                 "piece": piece,
