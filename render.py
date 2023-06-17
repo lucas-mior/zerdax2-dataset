@@ -400,8 +400,6 @@ def setup_shot(fen, collection):
             "piece": "Board",
             "box": board_box(corners),
         })
-
-    if ADD_BOARD:
         for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
             box = util.get_bounding_box(scene, obj)
