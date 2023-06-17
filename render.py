@@ -265,15 +265,15 @@ def dump_yolo_txt(txtpath, objects):
             name = obj['piece']
             number = YOLO_CLASSES[name]
 
-            left = obj['box'][0]
-            top = obj['box'][1]
+            x0 = obj['box'][0]
+            y0 = obj['box'][1]
             dx = obj['box'][2]
             dy = obj['box'][3]
 
-            right = left + dx
-            bottom = top + dy
-            xc = (left + right)/2
-            yc = (top + bottom)/2
+            x1 = x0 + dx
+            y1 = y0 + dy
+            xc = (x0 + x1)/2
+            yc = (y0 + y1)/2
 
             yolo = f"{number} {xc} {yc} {dx} {dy}\n"
             print(yolo, end="")
