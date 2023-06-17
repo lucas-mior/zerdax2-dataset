@@ -143,7 +143,7 @@ def setup_camera(board, scale_pieces, number_pieces):
             break
         print(f"{min_angle}° > {angle}° > {max_angle}° @ {p}")
 
-    print(f"{min_angle}° < {angle}° < {max_angle}° @ {p}")
+    print(f"{min_angle}° <= {angle}° <= {max_angle}° @ {p}")
     rot_x = np.random.uniform(-0.05, +0.00)
     rot_y = np.random.uniform(-0.02, +0.02)
     rot_z = np.random.uniform(-0.02, +0.02)
