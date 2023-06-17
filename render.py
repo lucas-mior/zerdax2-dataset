@@ -56,6 +56,8 @@ def set_configs():
     rand_num = np.random.rand()
     if rand_num < 0.1:
         ADD_BOARD = False
+    else:
+        ADD_BOARD = True
 
     if np.random.rand() < 0.5 and ADD_BOARD:
         ADD_TABLE = False
