@@ -18,7 +18,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -108,7 +108,6 @@ def setup_world():
 
 def setup_camera(board, scale_pieces, number_pieces):
     camera = bpy.context.scene.camera
-    angle = 90
 
     if scale_pieces is None:
         scale_angle_factor = 1
@@ -118,8 +117,9 @@ def setup_camera(board, scale_pieces, number_pieces):
     amount_angle_factor = 1 + number_pieces / 150
     max_angle = 55
     min_angle = np.clip(37*scale_angle_factor*amount_angle_factor, 36, 54)
+    min_angle = int(np.round(min_angle))
 
-    while angle <= min_angle or angle >= max_angle:
+    while True:
         z = np.random.uniform(10*SQUARE_LENGTH, 20*SQUARE_LENGTH)
         x = np.random.uniform(-9*SQUARE_LENGTH, 9*SQUARE_LENGTH)
         y = np.random.uniform(8*SQUARE_LENGTH, 10*SQUARE_LENGTH)
@@ -137,9 +137,13 @@ def setup_camera(board, scale_pieces, number_pieces):
         w = np.array([0, 0, 1])
         dot = np.dot(v, w)
         modulo = np.sqrt(x**2 + y**2 + z**2)
-        angle = np.degrees(np.arcsin(dot/modulo))
-        print(f"{min_angle}º < {angle}º < {max_angle}º")
+        angle = round(np.degrees(np.arcsin(dot/modulo)))
+        p = np.array(np.round(v/SQUARE_LENGTH), dtype='int32')
+        if min_angle <= angle <= max_angle:
+            break
+        print(f"{min_angle}° > {angle}° > {max_angle}° @ {p}")
 
+    print(f"{min_angle}° < {angle}° < {max_angle}° @ {p}")
     rot_x = np.random.uniform(-0.05, +0.00)
     rot_y = np.random.uniform(-0.02, +0.02)
     rot_z = np.random.uniform(-0.02, +0.02)
