@@ -10,6 +10,7 @@ import mathutils
 from mathutils import Vector
 import cProfile
 import pstats
+import logging
 
 pwd = os.path.dirname(bpy.data.filepath)
 if pwd not in sys.path:
@@ -580,6 +581,8 @@ if __name__ == "__main__":
 
             if DO_RENDER:
                 print(f"rendering {filename}...")
+                logger = logging.getLogger("bpy")
+                logger.setLevel(logging.ERROR)
                 bpy.ops.render.render(write_still=1)
                 if ADD_BOARD:
                     basename = str.rsplit(filename, ".", 1)[0]
