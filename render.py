@@ -65,7 +65,7 @@ def set_configs():
     else:
         ADD_CAPTURED = False
 
-    print("configs:")
+    print("="*10, "configs:", "="*10)
     print(f"{WIDTH}x{HEIGHT}")
     print(f"{ADD_BOARD=}")
     print(f"{ADD_TABLE=}")
