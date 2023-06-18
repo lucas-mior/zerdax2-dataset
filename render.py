@@ -323,7 +323,7 @@ def add_piece(piece, collection, piece_style, scale_pieces):
 
 def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
     distance = 10000
-    not_piece = "Black" not in source_name and "White" not in source_name
+    not_piece = "B" != source_name[0] and "W" != source_name[0]
     if not_piece:
         tol = tolerance = 4*SQUARE_LENGTH
         absolute = 8*SQUARE_LENGTH
@@ -356,7 +356,7 @@ def add_extra(source_name, collection, xlim, ylim, z, table, scale_obj):
         for other in collection.objects:
             if "Table" in other.name or "Board" in other.name:
                 continue
-            if "Black" not in other.name and "White" not in other.name:
+            if "B" != other.name[0] and "W" != other.name[0]:
                 tol = tolerance + 3*SQUARE_LENGTH
             else:
                 tol = tolerance
@@ -544,10 +544,10 @@ YOLO_CLASSES = {
 
 PIECES = {
     "Board": "Board",
-    "K": "WhiteKing", "Q": "WhiteQueen", "R": "WhiteRook",
-    "B": "WhiteBishop", "N": "WhiteKnight", "P": "WhitePawn",
-    "k": "BlackKing", "q": "BlackQueen", "r": "BlackRook",
-    "b": "BlackBishop", "n": "BlackKnight", "p": "BlackPawn",
+    "K": "WKing", "Q": "WQueen", "R": "WRook",
+    "B": "WBishop", "N": "WKnight", "P": "WPawn",
+    "k": "BKing", "q": "BQueen", "r": "BRook",
+    "b": "BBishop", "n": "BKnight", "p": "BPawn",
 }
 
 if __name__ == "__main__":
