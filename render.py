@@ -554,15 +554,17 @@ if __name__ == "__main__":
     argv = sys.argv
     print("-"*20, f"{argv[0]}.py", "-"*20)
 
+    profiler = cProfile.Profile()
+    profiler.enable()
+    gc.disable()
+
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.compression = 40
-    gc.disable()
+
     which = np.random.randint(0, 20000)
     with open("fens.txt", "r") as f:
-        profiler = cProfile.Profile()
-        profiler.enable()
 
         for i, fen in enumerate(map(str.strip, f)):
             if DO_RENDER:
@@ -596,9 +598,10 @@ if __name__ == "__main__":
                 bpy.ops.outliner.orphans_purge()
                 gc.collect()
             print("="*60)
-        profiler.disable()
-        stats = pstats.Stats(profiler)
-        stats.sort_stats('cumulative')
-        stats.print_stats()
+
     gc.enable()
+    profiler.disable()
+    stats = pstats.Stats(profiler)
+    stats.sort_stats('cumulative')
+    stats.print_stats()
     print("-"*60)
