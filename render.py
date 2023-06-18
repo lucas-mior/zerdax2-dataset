@@ -557,6 +557,7 @@ if __name__ == "__main__":
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.compression = 40
     gc.disable()
     which = np.random.randint(0, 20000)
     with open("fens.txt", "r") as f:
