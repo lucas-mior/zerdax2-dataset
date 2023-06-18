@@ -18,7 +18,7 @@ import util
 from util import print
 
 
-DO_RENDER = False
+DO_RENDER = True
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -565,7 +565,7 @@ if __name__ == "__main__":
 
         for i, fen in enumerate(map(str.strip, f)):
             if DO_RENDER:
-                if i % 2000 != 0:
+                if i % 1000 != 0:
                     continue
             elif i != which:
                 continue
@@ -598,7 +598,7 @@ if __name__ == "__main__":
             print("="*60)
         profiler.disable()
         stats = pstats.Stats(profiler)
-        stats.sort_stats('cumulative')  # Sort by cumtime
+        stats.sort_stats('cumulative')
         stats.print_stats()
     gc.enable()
     print("-"*60)
