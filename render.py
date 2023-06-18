@@ -18,7 +18,7 @@ import util
 from util import print
 
 
-DO_RENDER = True
+DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -166,6 +166,7 @@ def object_copy(collection, name,
     obj.hide_render = False
     obj.hide_viewport = False
     obj.hide_set(False)
+    obj.show_name = False
 
     obj.location = location
     obj.rotation_euler = rotation
