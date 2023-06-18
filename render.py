@@ -18,7 +18,6 @@ import util
 from util import print
 
 
-DO_RENDER = False
 MIN_BOARD_CORNER_PADDING = 10  # pixels
 SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
@@ -568,7 +567,7 @@ if __name__ == "__main__":
     with open("fens.txt", "r") as f:
 
         for i, fen in enumerate(map(str.strip, f)):
-            if DO_RENDER:
+            if bpy.app.background:
                 if i % 1000 != 0:
                     continue
             elif i != which:
@@ -587,7 +586,7 @@ if __name__ == "__main__":
                 clean_up(collection)
                 objects = setup_shot(fen, collection)
 
-            if DO_RENDER:
+            if bpy.app.background:
                 print(f"rendering {scene.render.filepath}...")
                 bpy.ops.render.render(write_still=1)
                 if ADD_BOARD:
