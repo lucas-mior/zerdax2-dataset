@@ -572,9 +572,8 @@ if __name__ == "__main__":
             print(f"FEN #{i} = {fen}")
 
             set_configs()
-            filename = f"renders/{i:05d}.png"
 
-            scene.render.filepath = str(filename)
+            scene.render.filepath = f"renders/{i:05d}.png"
             scene.render.resolution_x = WIDTH
             scene.render.resolution_y = HEIGHT
 
@@ -585,10 +584,10 @@ if __name__ == "__main__":
                 objects = setup_shot(fen, collection)
 
             if DO_RENDER:
-                print(f"rendering {filename}...")
+                print(f"rendering {scene.render.filepath}...")
                 bpy.ops.render.render(write_still=1)
                 if ADD_BOARD:
-                    basename = str.rsplit(filename, ".", 1)[0]
+                    basename = str.rsplit(scene.render.filepath, ".", 1)[0]
                     txtpath = f"{basename}.txt"
                     dump_yolo_txt(txtpath, objects)
 
