@@ -401,10 +401,10 @@ def setup_shot(fen, collection):
     scale_pieces = util.create_scale()
     number_pieces = len(position_pieces)
 
-    corners = None
-    while not corners:
+    corners8 = None
+    while not corners8:
         camera, _ = setup_camera(board, scale_pieces, number_pieces)
-        corners = get_corner_coordinates(scene, camera)
+        corners8, corners6 = get_corner_coordinates(scene, camera)
 
     objects = []
 
@@ -412,10 +412,15 @@ def setup_shot(fen, collection):
     camera_matrix_world = camera.matrix_world.normalized().inverted()
 
     if ADD_BOARD:
-        corners = sorted(corners, key=lambda x: x[0])
+        corners8 = sorted(corners8, key=lambda x: x[0])
+        corners6 = sorted(corners6, key=lambda x: x[0])
         objects.append({
-            "piece": "Board",
-            "box": board_box(corners),
+            "piece": "Board8",
+            "box": board_box(corners8),
+        })
+        objects.append({
+            "piece": "Board6",
+            "box": board_box(corners6),
         })
         for piece in position_pieces:
             obj = add_piece(piece, collection, styles['piece'], scale_pieces)
@@ -470,16 +475,16 @@ def setup_shot(fen, collection):
 
 
 def get_corner_coordinates(scene, camera):
-    corner_points = np.array([[-1., -1], [-1, 1], [1, 1], [1, -1]])
-    corner_points *= 4*SQUARE_LENGTH
-    corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
     render = scene.render
 
     def _surpass_padding(resolution, p):
         dp = resolution - MIN_BOARD_CORNER_PADDING
         return not (MIN_BOARD_CORNER_PADDING <= p <= dp)
 
-    def _get_coords_corners():
+    def _get_coords_corners(num):
+        corner_points = np.array([[-1., -1], [-1, 1], [1, 1], [1, -1]])
+        corner_points *= (num*SQUARE_LENGTH)
+        corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
         for corner in corner_points:
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
                 scene, camera, Vector(corner)).to_tuple()
@@ -494,9 +499,9 @@ def get_corner_coordinates(scene, camera):
 
             yield x, y
     try:
-        return list(_get_coords_corners())
+        return list(_get_coords_corners(4)), list(_get_coords_corners(3))
     except ValueError:
-        return None
+        return None, None
 
 
 def get_missing_pieces(fen):
@@ -535,15 +540,15 @@ def parse_position(fen):
 
 
 YOLO_CLASSES = {
-    "Board": 0,
-    "K": 1, "Q": 2, "R": 3,
-    "B": 4, "N": 5, "P": 6,
-    "k": 1, "q": 2, "r": 3,
-    "b": 4, "n": 5, "p": 6
+    "Board8": 0, "Board6": 1,
+    "K": 2, "Q": 3, "R": 4,
+    "B": 5, "N": 6, "P": 7,
+    "k": 2, "q": 3, "r": 4,
+    "b": 5, "n": 6, "p": 7
 }
 
 PIECES = {
-    "Board": "Board",
+    "Board8": "Board8", "Board6": "Board6",
     "K": "WKing", "Q": "WQueen", "R": "WRook",
     "B": "WBishop", "N": "WKnight", "P": "WPawn",
     "k": "BKing", "q": "BQueen", "r": "BRook",
@@ -568,7 +573,7 @@ if __name__ == "__main__":
 
         for i, fen in enumerate(map(str.strip, f)):
             if bpy.app.background:
-                if i % 1000 != 0:
+                if i % 5000 != 0:
                     continue
             elif i != which:
                 continue
