@@ -1,2 +1,14 @@
 baixados/
 *.ipynb
+*.jpg
+*.png
+*.mp4
+*.pdf
+*.blend
+*.blend1
+*.pyc
+*__pycache__
+*.zip
+*.7z
+backgrounds/
+renders/
