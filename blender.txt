@@ -1,0 +1,39 @@
+F12 - render
+
+move:
+g - grab -> left click to confirm, esc to cancel
+x/y/z - direction
+wheel mouse - direction
+
+rotate:
+r - rotate -> left click to confirm, esc to cancel
+x/y/z - direction
+wheel mouse - direction
+
+scale:
+s - scale: -> left click to confirm, esc to cancel
+x/y/z - direction
+wheel mouse - direction
+
+zoom:
+scroll in and out
+
+orbit view:
+middle mouse button
+
+shift view:
+shift + middle mouse button
+
+1 - -y view
+3 - +x view
+7 - +z view
+5 - toggle perspective mode
+
+alt + drag: snap view
+
+right hand side:
+- properties
+  - depend on what is selected
+- outliner
+
+shift + d : duplicate obj
