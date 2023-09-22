@@ -482,10 +482,10 @@ def get_corner_coordinates(scene, camera):
         return not (MIN_BOARD_CORNER_PADDING <= p <= dp)
 
     def _get_coords_corners(num):
-        corner_points = np.array([[-1., -1], [-1, 1], [1, 1], [1, -1]])
-        corner_points *= (num*SQUARE_LENGTH)
-        corner_points = np.concatenate((corner_points, np.zeros((4, 1))), axis=-1)
-        for corner in corner_points:
+        corners = np.array([[-1., -1], [-1, 1], [1, 1], [1, -1]])
+        corners *= (num*SQUARE_LENGTH)
+        corners = np.concatenate((corners, np.zeros((4, 1))), axis=-1)
+        for corner in corners:
             x, y, z = bpy_extras.object_utils.world_to_camera_view(
                 scene, camera, Vector(corner)).to_tuple()
             y = 1. - y
