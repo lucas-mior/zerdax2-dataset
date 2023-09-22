@@ -1,15 +1,14 @@
 #!/usr/bin/python
-
 import sys
 
 INPUT = sys.argv[1]
 OUTPUT = sys.argv[2]
-BASE_AMOUNT = 334
+BASE_AMOUNT = int(sys.argv[3])
 
 fens_in = open(INPUT, 'r')
+fens_out = open(OUTPUT, 'w')
 
 for i in range(3, 33, 1):
-    fens_out = open(f"{i}_{OUTPUT}.{i}.txt", 'w')
     j = 0
     c = 0
     while True:
@@ -26,6 +25,8 @@ for i in range(3, 33, 1):
             break
         if c > i:
             break
-    fens_out.close()
+
+    print(f"got {j} samples of {i} pieces")
 
 fens_in.close()
+fens_out.close()
