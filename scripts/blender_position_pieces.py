@@ -3,24 +3,27 @@
 import bpy
 import re
 
-PIECES = ['King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn']
+PIECES = list(reversed(['King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn']))
 
 
 def get_piece_group(piece_name):
-    match = re.search(r'[0-6]$', piece_name)
+    print(f"get_piece_group(\"{piece_name}\"")
+    match = re.search(r'[0-9]+', piece_name)
     if match:
         return int(match.group())
     return None
 
 
 def get_piece_color(piece_name):
-    match = re.search(r'(Black|White)', piece_name)
+    print(f"get_piece_color(\"{piece_name}\"")
+    match = re.search(r'^(B|W)', piece_name)
     if match:
         return match.group()
     return None
 
 
 def get_piece_type(piece_name):
+    print(f"get_piece_type(\"{piece_name}\"")
     match = re.search(r'(King|Queen|Rook|Bishop|Knight|Pawn)', piece_name)
     if match:
         return match.group()
@@ -31,19 +34,24 @@ objects_dict = {}
 
 
 for obj in bpy.context.scene.objects:
-    if "White" not in obj.name and "Black" not in obj.name:
+    obj_collection_name = obj.users_collection[0].name
+    if "Pieces" not in obj_collection_name:
         continue
+    print(f"{obj_collection_name=}")
 
     # Extract the relevant information from the object name
     color = get_piece_color(obj.name)
     group = get_piece_group(obj.name)
 
-    # If the color or group couldn't be determined, skip the object
-    if color is None or group is None:
-        print("Could not find nor color nor group.")
+    if color is None:
+        color = 'B'
+    if group is None:
+        print("Could not find group.")
         print("Check your objects")
         continue
-
+    
+    print(f"{color=}")
+    print(f"{group=}")
     # If the color is not already in the dictionary, create a new entry
     if color not in objects_dict:
         objects_dict[color] = {}
@@ -75,9 +83,9 @@ for color, color_groups in objects_dict.items():
 
         for i, obj in enumerate(sorted_objects):
             x = x_offset + i * (piece_width + x_spacing)
-            if color == "White":
+            if color == "W":
                 y = y_offset + color_offset
             else:
                 y = y_offset - color_offset
 
-            obj.location = (x, y, 0)
+            obj.location = (-y, -x, 0)
