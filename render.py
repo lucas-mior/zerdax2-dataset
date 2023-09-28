@@ -454,7 +454,8 @@ def setup_shot(fen, collection):
         return objects
 
     for piece in captured_pieces:
-        source_name = PIECES[piece] + str(styles['piece'])
+        piece_style = styles['piece']
+        source_name = f"{PIECES[piece]}{piece_style:02}"
 
         obj = None
         while util.is_object_hiding(obj):
