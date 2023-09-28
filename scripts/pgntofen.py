@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     print("start processing...")
     nthreads = multiprocessing.cpu_count()
-    chunk_size = max(1, len(pgns) / nthreads)
+    chunk_size = int(len(pgns) / nthreads)
 
     if chunk_size > nthreads:
         threads = []

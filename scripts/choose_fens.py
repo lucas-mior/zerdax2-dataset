@@ -2,11 +2,10 @@
 import sys
 
 INPUT = sys.argv[1]
-OUTPUT = sys.argv[2]
-BASE_AMOUNT = int(sys.argv[3])
+BASE_AMOUNT = int(sys.argv[2])
 
 fens_in = open(INPUT, 'r')
-fens_out = open(OUTPUT, 'w')
+fens_out = open(f"{INPUT}.2", 'w')
 
 for i in range(3, 33, 1):
     j = 0

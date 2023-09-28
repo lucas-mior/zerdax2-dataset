@@ -23,8 +23,8 @@ SQUARE_LENGTH = 0.039934  # meters
 COLLECTION_NAME = "ChessPosition"
 
 TABLE_STYLES = 2
-BOARD_STYLES = 20
-PIECE_STYLES = 40
+BOARD_STYLES = 14
+PIECE_STYLES = 14
 
 WIDTH = 960
 HEIGHT = 600
@@ -198,7 +198,7 @@ def setup_table(table_style, board, collection):
 
 def setup_board(board_style, collection):
     if ADD_BOARD:
-        board = object_copy(collection, f"Board{board_style}")
+        board = object_copy(collection, f"Board{board_style:02}")
         bpy.context.view_layer.update()
     else:
         board = None
@@ -298,7 +298,7 @@ def dump_yolo_txt(txtpath, objects):
 
 def add_piece(piece, collection, piece_style, scale_pieces):
     piece_name = PIECES[piece["name"]]
-    name = piece_name + str(piece_style)
+    name = f"{piece_name}{piece_style:02}"
 
     offsets = np.random.normal((.5,)*2, (.1,)*2)
     offsets = np.clip(offsets, .3, .6)
@@ -569,7 +569,7 @@ if __name__ == "__main__":
     scene.render.image_settings.compression = 40
 
     which = np.random.randint(0, 20000)
-    with open("fens.txt", "r") as f:
+    with open("fens_with_random.txt", "r") as f:
 
         for i, fen in enumerate(map(str.strip, f)):
             if bpy.app.background:

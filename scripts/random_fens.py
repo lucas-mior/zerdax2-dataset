@@ -5,12 +5,12 @@ import chess
 import copy
 import misc
 import sys
+from sys import stderr
 
 
-def generate_random_fen(num_pieces):
+def generate_random_board(num_pieces):
     piece_types = ['P', 'N', 'B', 'R', 'Q',
                    'p', 'n', 'b', 'r', 'q']
-    board = chess.Board("8/8/8/8/8/8/8/8")
     rules = copy.deepcopy(misc.AMOUNT)
     pieces = ['K', 'k']
 
@@ -25,6 +25,7 @@ def generate_random_fen(num_pieces):
             else:
                 piece_types.remove(piece)
 
+    board = chess.Board("8/8/8/8/8/8/8/8")
     for piece in pieces:
         while True:
             rank = np.random.randint(0, 8)
@@ -34,14 +35,16 @@ def generate_random_fen(num_pieces):
                 board.set_piece_at(square, chess.Piece.from_symbol(piece))
                 break
 
-    if not board.is_valid():
-        return generate_random_fen(num_pieces)
+    return board
 
-    return str.split(board.fen())[0]
-
-
-sys.setrecursionlimit(10000)
 
 for n in range(1, 31):
-    for i in range(400):
-        print(generate_random_fen(n))
+    stderr.write(f"npieces = {n}\n")
+    for i in range(1000):
+        if i % 100 == 0:
+            stderr.write(f"got {i}\n")
+        while True:
+            board = generate_random_board(n)
+            if board.is_valid():
+                break
+        print(str.split(board.fen())[0])
